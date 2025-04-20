@@ -32,6 +32,11 @@ const ReportFoundItemForm = () => {
     if (!result.canceled) {
       setImage(result.uri);
     }
+    // if (!result.canceled) {
+    //   if (result.assets && result.assets.length > 0) {
+    //     setImage(result.assets[0].uri);
+    //   }
+    // }
   };
 
   const handleSubmit = () => {

@@ -15,6 +15,9 @@ import profile from "@/assets/icons/profile.png";
 import goBack from "@/assets/icons/left-arrow.png";
 import sad_face from "@/assets/icons/sad-face.png";
 import happy_face from "@/assets/icons/happy-face.png";
+import upVote from "@/assets/icons/raise-hand.png";
+import upArrow from "@/assets/icons/up-arrow.png"
+import send from "@/assets/icons/send.png"
 export const icons = {
   home,
   search,
@@ -33,4 +36,7 @@ export const icons = {
   goBack,
   sad_face,
   happy_face,
+  upVote,
+  upArrow,
+  send,
 };

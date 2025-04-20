@@ -1,8 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { View,Text,ImageBackground,Image } from 'react-native';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useColorScheme } from '@/hooks/useColorScheme';
+// import { useColorScheme } from '@/hooks/useColorScheme';
 
 import { icons } from '@/constants/icons';
 
@@ -28,7 +27,7 @@ const TabIcon=({focused,icon, title}:any )=>{
 
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  // const colorScheme = useColorScheme();
 
   return (
     <Tabs

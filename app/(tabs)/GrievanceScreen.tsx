@@ -1,10 +1,26 @@
 "use client"
 
-import { useState } from "react"
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Modal, ScrollView } from "react-native"
+import { useState,useEffect } from "react"
+import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity, TextInput, Modal, ScrollView, Pressable, Keyboard } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
-
+import { router, useRouter } from "expo-router"
+import UpVoteBtn from "@/components/UpVoteBtn"
+import {icons} from "@/constants/icons"
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 // Mock data for grievances
+const initialComments = [
+  { id: "1", name: "Aarav Sharma", comment: "The cafeteria food quality has dropped recently." },
+  { id: "17", name: "Nikhil Thakur", comment: "Labs lack proper ventilation." },
+  { id: "18", name: "Simran Kaur", comment: "The auditorium AC stops working mid-events." },
+  { id: "19", name: "Deepak Kulkarni", comment: "Hostel gate security is too lenient after 10 PM." },
+  { id: "20", name: "Neha Raut", comment: "There's not enough space for parking near the hostel." }
+];
+
+
 const initialGrievances = [
   {
     id: "1",
@@ -77,7 +93,7 @@ const initialGrievances = [
       "The air conditioning in Room 302 is not working properly, making it difficult to concentrate during lectures.",
   },
   {
-    id: "12",
+    id: "",
     title: "Wi-Fi Connectivity",
     status: "Resolved",
     description: "The Wi-Fi in the dormitory is very slow and frequently disconnects.",
@@ -85,11 +101,66 @@ const initialGrievances = [
 ]
 
 export default function GrievanceScreen() {
+  const keyboardHeight = useSharedValue(0);
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardWillShow', (e) => {
+      keyboardHeight.value = withTiming(e.endCoordinates.height, { duration: 250 });
+    });
+
+    const hideSub = Keyboard.addListener('keyboardWillHide', () => {
+      keyboardHeight.value = withTiming(0, { duration: 250 });
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      paddingBottom: keyboardHeight.value,
+    };
+  });
+
   const [grievances, setGrievances] = useState(initialGrievances)
+  const [comments,setComments]=useState(initialComments)
+  const [total,setTotal]= useState(grievances.length)
+  const [resolved,setResolved]= useState(0)
+  const [pending,setPending]= useState(0)
+  const [inProgress,setInProgress]= useState(0)
   const [modalVisible, setModalVisible] = useState(false)
   const [newGrievance, setNewGrievance] = useState({ title: "", description: "" })
   const [viewGrievance, setViewGrievance] = useState(null)
   const [detailModalVisible, setDetailModalVisible] = useState(false)
+  const [myComment,setMyComment]=useState("");
+  const router = useRouter()
+  
+  useEffect(() => {
+    let totalCount = grievances.length;
+    let pendingCount = 0;
+    let resolvedCount = 0;
+    let inProgressCount = 0;
+  
+    grievances.forEach((item) => {
+      switch (item.status) {
+        case "Pending":
+          pendingCount++;
+          break;
+        case "Resolved":
+          resolvedCount++;
+          break;
+        case "In Progress":
+          inProgressCount++;
+          break;
+      }
+    });
+  
+    setTotal(totalCount);
+    setPending(pendingCount);
+    setResolved(resolvedCount);
+    setInProgress(inProgressCount);
+  }, [grievances]);
+
 
   const addGrievance = () => {
     if (newGrievance.title && newGrievance.description) {
@@ -104,44 +175,81 @@ export default function GrievanceScreen() {
       setModalVisible(false)
     }
   }
+  const addComment=()=>{
+    const name :string| null="Shashank Umar";
+    if(name && myComment){
+      const newComment={
+        id:Date.now().toString(),
+        name:name,
+        comment:myComment,
+      }
+      setComments([newComment,...comments])
+      setMyComment("");
 
+    }
+  }
   const viewGrievanceDetails = (item) => {
     setViewGrievance(item)
     setDetailModalVisible(true)
   }
 
   const renderGrievanceItem = ({ item }) => {
+
+    
+
+    if (item.status === "Resolved") return null;
     return (
-      <TouchableOpacity style={styles.grievanceItem} onPress={() => viewGrievanceDetails(item)}>
-        <View style={styles.grievanceHeader}>
-          <Text style={styles.grievanceTitle}>{item.title}</Text>
-          <View
-            style={[
-              styles.statusBadge,
-              item.status === "Pending"
-                ? styles.pendingBadge
-                : item.status === "In Progress"
-                  ? styles.progressBadge
-                  : styles.resolvedBadge,
-            ]}
-          >
-            <Text style={styles.statusText}>{item.status}</Text>
+      <View>
+        
+        <TouchableOpacity style={styles.grievanceItem} onPress={() => viewGrievanceDetails(item)}>
+          <View style={styles.grievanceHeader}>
+            <Text style={styles.grievanceTitle}>{item.title}</Text>
+            <View
+              style={[
+                styles.statusBadge,
+                item.status === "Pending"
+                  ? styles.pendingBadge
+                  : item.status === "In Progress"
+                    ? styles.progressBadge
+                    : styles.resolvedBadge,
+              ]}
+            >
+              <Text style={styles.statusText}>{item.status}</Text>
+            </View>
           </View>
-        </View>
-        <Text style={styles.grievanceDescription} numberOfLines={2}>
-          {item.description}
-        </Text>
-      </TouchableOpacity>
+          <View className="flex-row justify-between  items-center " >
+            <Text className="overflow-hidden w-[70%] text-gray-600 " numberOfLines={2}>
+              {item.description}
+            </Text>
+            <UpVoteBtn  />
+          </View>
+          
+        </TouchableOpacity>
+      </View>
     )
   }
 
   return (
+    
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Student Grievance Portal</Text>
-        <Text style={styles.headerSubtitle}>Submit and track your grievances</Text>
+      <View className="flex-row flex-wrap justify-around items-center mt-5 mx-2 p-2 ">
+        <View className="flex-col w-[30%] " >
+          <Text className="text-4xl text-red-500" >{total}</Text>
+          <Text className="font-thin " >Total </Text>
+          <Text className="font-bold text-xl" >Complaints</Text>
+        </View>
+        <View className="flex-col w-[30%] " >
+          <Text className="text-4xl text-green-500" >{resolved}</Text>
+          <Text className="font-thin " >Total </Text>
+          <Text className="font-bold text-xl" >Resolved</Text>
+        </View>
+        <View className="flex-col w-[30%] " >
+          <Text className="text-4xl text-yellow-500" >{pending + inProgress}</Text>
+          <Text className="font-thin " >Total </Text>
+          <Text className="font-bold text-xl " >Pending</Text>
+        </View>
       </View>
-
+      <Text className="mt-20 mb-3 text-4xl ml-5 " >Recent Issues</Text>
       <FlatList
         data={grievances}
         renderItem={renderGrievanceItem}
@@ -201,9 +309,17 @@ export default function GrievanceScreen() {
         visible={detailModalVisible}
         onRequestClose={() => setDetailModalVisible(false)}
       >
+        
         {viewGrievance && (
-          <View style={styles.modalContainer}>
+          <View style={styles.modalContainer} className="" >
+            
             <View style={styles.modalContent}>
+            <Pressable onPress={()=>setDetailModalVisible(false)}  className="mb-2"  style={{width:30}} >
+              <Image
+                source={icons.goBack}
+                className="w-8 h-8 "
+              />
+            </Pressable>
               <View style={styles.detailHeader}>
                 <Text style={styles.detailTitle}>{viewGrievance.title}</Text>
                 <View
@@ -219,39 +335,44 @@ export default function GrievanceScreen() {
                   <Text style={styles.statusText}>{viewGrievance.status}</Text>
                 </View>
               </View>
-
               <ScrollView style={styles.detailScroll}>
                 <Text style={styles.detailLabel}>Description:</Text>
                 <Text style={styles.detailDescription}>{viewGrievance.description}</Text>
 
-                <Text style={styles.detailLabel}>Grievance ID:</Text>
-                <Text style={styles.detailText}>#{viewGrievance.id}</Text>
-
                 <Text style={styles.detailLabel}>Submitted on:</Text>
                 <Text style={styles.detailText}>April 16, 2025</Text>
 
-                {viewGrievance.status === "Resolved" && (
-                  <>
-                    <Text style={styles.detailLabel}>Resolution:</Text>
-                    <Text style={styles.detailText}>
-                      This issue has been addressed by the facilities management team. The Wi-Fi routers have been
-                      upgraded and connection stability should be improved.
-                    </Text>
-                  </>
-                )}
+                <Text className="mt-3 mb-2 text-gray-600 font-bold" >Comments:</Text>
+                {comments.map((item) => (
+                  <View key={item.id} style={{ marginBottom: 16 }}>
+                    <Text className="text-gray-800">{item.name}</Text>
+                    <Text style={{ fontSize: 12 }}>{item.comment}</Text>
+                  </View>
+                ))}
               </ScrollView>
-
-              <TouchableOpacity
-                style={[styles.button, styles.closeButton]}
-                onPress={() => setDetailModalVisible(false)}
-              >
-                <Text style={styles.buttonText}>Close</Text>
-              </TouchableOpacity>
+              
+              <View className="mt-4 flex-row justify-between items-center border rounded-xl px-4 ">
+                <TextInput
+                  placeholder="Your Comment here . . ."
+                  value={myComment}
+                  multiline
+                  numberOfLines={3}
+                  onChangeText={(text)=>setMyComment(text)}
+                />
+                <Pressable onPress={()=>addComment()} >
+                <Image
+                  source={icons.send}
+                  className="size-5"
+                  tintColor="blue"
+                />
+                </Pressable>
+              </View>
             </View>
           </View>
         )}
       </Modal>
     </View>
+    
   )
 }
 
