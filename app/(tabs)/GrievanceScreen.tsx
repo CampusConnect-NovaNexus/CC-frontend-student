@@ -25,6 +25,63 @@ const initialGrievances = [
     status: "Resolved",
     description: "The Wi-Fi in the dormitory is very slow and frequently disconnects.",
   },
+  {
+    id: "4",
+    title: "Cafeteria Food Quality",
+    status: "Pending",
+    description: "The quality of food in the cafeteria has deteriorated significantly in the last month.",
+  },
+  {
+    id: "5",
+    title: "Classroom AC Issues",
+    status: "In Progress",
+    description:
+      "The air conditioning in Room 302 is not working properly, making it difficult to concentrate during lectures.",
+  },
+  {
+    id: "6",
+    title: "Wi-Fi Connectivity",
+    status: "Resolved",
+    description: "The Wi-Fi in the dormitory is very slow and frequently disconnects.",
+  },
+  {
+    id: "7",
+    title: "Cafeteria Food Quality",
+    status: "Pending",
+    description: "The quality of food in the cafeteria has deteriorated significantly in the last month.",
+  },
+  {
+    id: "8",
+    title: "Classroom AC Issues",
+    status: "In Progress",
+    description:
+      "The air conditioning in Room 302 is not working properly, making it difficult to concentrate during lectures.",
+  },
+  {
+    id: "9",
+    title: "Wi-Fi Connectivity",
+    status: "Resolved",
+    description: "The Wi-Fi in the dormitory is very slow and frequently disconnects.",
+  },
+  {
+    id: "10",
+    title: "Cafeteria Food Quality",
+    status: "Pending",
+    description: "The quality of food in the cafeteria has deteriorated significantly in the last month.",
+  },
+  {
+    id: "11",
+    title: "Classroom AC Issues",
+    status: "In Progress",
+    description:
+      "The air conditioning in Room 302 is not working properly, making it difficult to concentrate during lectures.",
+  },
+  {
+    id: "12",
+    title: "Wi-Fi Connectivity",
+    status: "Resolved",
+    description: "The Wi-Fi in the dormitory is very slow and frequently disconnects.",
+  },
 ]
 
 export default function GrievanceScreen() {
@@ -270,7 +327,7 @@ const styles = StyleSheet.create({
   addButton: {
     position: "absolute",
     right: 20,
-    bottom: 20,
+    bottom: 100,
     width: 56,
     height: 56,
     borderRadius: 28,
