@@ -1,59 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { View, Text, StyleSheet, FlatList,TouchableOpacity, Image, Modal, TextInput, ScrollView , Button, Pressable} from "react-native"
-import { Ionicons } from "@expo/vector-icons"
-import * as ImagePicker from "expo-image-picker"
 import { useRouter } from "expo-router"
 import {icons} from '@/constants/icons'; 
 import {images} from '@/constants/images';
-const initialItems = [
-  {
-    id: "1",
-    name: "Blue Water Bottle",
-    category: "Personal Item",
-    location: "Main Library, 2nd Floor",
-    date: "2025-04-15",
-    description: "Blue metal water bottle with university logo",
-    image: "https://via.placeholder.com/150",
-    status: "lost",
-    contact: "John Doe (john.doe@university.edu)",
-  },
-  {
-    id: "2",
-    name: "Calculator (TI-84)",
-    category: "Electronics",
-    location: "Science Building, Room 103",
-    date: "2025-04-14",
-    description: 'Texas Instruments graphing calculator, has initials "MJ" on the back',
-    image: "https://via.placeholder.com/150",
-    status: "found",
-    contact: "Lost & Found Office",
-  },
-  {
-    id: "3",
-    name: "Student ID Card",
-    category: "ID/Cards",
-    location: "Student Center",
-    date: "2025-04-13",
-    description: "Student ID card for Sarah Johnson",
-    image: "https://via.placeholder.com/150",
-    status: "found",
-    contact: "Admin Office",
-  },
-]
-const data = [
-  { id: '1', title: 'Item 1', image: 'https://via.placeholder.com/100' },
-  { id: '2', title: 'Item 2', image: 'https://via.placeholder.com/100' },
-  { id: '3', title: 'Item 3', image: 'https://via.placeholder.com/100' },
-  { id: '4', title: 'Item 4', image: 'https://via.placeholder.com/100' },
-];
+import {LFData} from '@/service/lost-found/LFAPI'
+import {lostItemData} from '@/service/lost-found/lostItemClick'
+import {foundItemData} from '@/service/lost-found/foundItemClick'
+
 
 export default function LostFoundScreen() {
 
+  const onLostItemClick=async(id:string)=>{
+      const item_info=await lostItemData(id);
+      setLostItemInView(item_info);
+  }
+  const onFoundItemClick=async(id:string)=>{
+      const item_info=await foundItemData(id);
+      setFoundItemInView(item_info);
+  }
+  const [showLostItem,setShowLostItem]=useState(false);
+  const [showFoundItem,setShowFoundItem]=useState(false);
+  const [lostItemInView,setLostItemInView]=useState(null);
+  const [foundItemInView,setFoundItemInView]=useState(null);
   const router = useRouter()
-
-
+  const [data,setData]=useState(null)
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await LFData();
+      console.log('Result in LostFoundScreen: ', result);
+      setData(result);
+    };
+  
+    fetchData();
+  }, []);
     return (
       <ScrollView className="" >
           <View className="flex mx-4 mt-10 flex-row justify-around " >
@@ -77,6 +58,36 @@ export default function LostFoundScreen() {
                 tintColor="white"
                 className="h-8 w-8 m-2"
               />
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={showLostItem}
+                onRequestClose={() => setShowLostItem(false)}
+              >
+                  {showLostItem && lostItemInView && (
+                    <View className="flex-1 justify-center p-20 bg-black/50" >
+                    <View className="bg-white rounded-md flex-col items-center justify-center" >
+                        <Text>{lostItemInView.item_title}</Text>
+                        <Text>{lostItemInView.item_description}</Text>
+                    </View>
+                  </View>
+                  )}
+              </Modal>
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={showFoundItem}
+                onRequestClose={() => setShowFoundItem(false)}
+              >
+                  {showFoundItem && foundItemInView && (
+                    <View className="flex-1 justify-center p-20 bg-black/50" >
+                    <View className="bg-white rounded-md flex-col items-center justify-center" >
+                        <Text>{foundItemInView.item_title}</Text>
+                        <Text>{foundItemInView.item_description}</Text>
+                    </View>
+                  </View>
+                  )}
+              </Modal>
               <Text className="text-2xl text-white ">Found</Text>
             </Pressable>
             
@@ -89,13 +100,20 @@ export default function LostFoundScreen() {
               horizontal
               className="mt-5 "
               renderItem={({ item }) => (
-                <View style={styles.itemContainer}
-                  className="bg-slate-600 p-10 flex  rounded-lg items-center "
+                <Pressable 
+                  onPress={async()=>{
+                   await onLostItemClick({id:item.id})
+                   setShowLostItem(true);
+                  }}
                 >
-                  <Image source={images.movie_logo}
-                  className="" style={styles.image} />
-                  <Text className="text-white">{item.title}</Text>
-                </View>
+                  <View style={styles.itemContainer}
+                    className="bg-slate-600 p-10 flex  rounded-lg items-center "
+                  >
+                    <Image source={item.item_image?item.item_image:images.movie_logo}
+                    className="" style={styles.image} />
+                    <Text className="text-white text-xl ">{item.item_title}</Text>
+                  </View>
+                </Pressable>
               )}
             />
           </View>
@@ -107,13 +125,18 @@ export default function LostFoundScreen() {
               horizontal
               className="mt-5 "
               renderItem={({ item }) => (
-                <View style={styles.itemContainer}
-                  className="bg-slate-600 p-10 flex  rounded-lg items-center "
-                >
-                  <Image source={images.movie_logo}
-                  className="" style={styles.image} />
-                  <Text className="text-white">{item.title}</Text>
-                </View>
+                <Pressable onPress={async()=>{
+                  await onFoundItemClick({id:item.id})
+                  setShowFoundItem(true);
+                 }}>
+                  <View style={styles.itemContainer}
+                    className="bg-slate-600 p-10 flex  rounded-lg items-center "
+                  >
+                    <Image source={item.item_image?item.item_image:images.movie_logo}
+                    className="" style={styles.image} />
+                    <Text className="text-white">{item.item_title}</Text>
+                  </View>
+                </Pressable>
               )}
             />
           </View>
