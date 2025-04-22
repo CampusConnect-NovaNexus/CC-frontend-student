@@ -3,6 +3,9 @@ export interface LostFoundItemInput {
     item_title: string;
     item_description: string;
     item_image?: string; // or File/base64 depending on backend
+    item_category:string;
+    item_date:string,
+    item_reporter_name:string;
   }
   
   export const postLostItem = async (item: LostFoundItemInput) => {
@@ -18,10 +21,10 @@ export interface LostFoundItemInput {
       });
   
       const data = await response.json();
-      console.log('Response from POST:', data);
+      console.log('Response from postLostItem: ', data);
       return data;
     } catch (error) {
-      console.error('Error posting item:', error);
+      console.error('Error posting lost item: ', error);
       return null;
     }
   };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,21 +7,25 @@ import {
   Pressable,
   FlatList,
   Image,
+  Alert,
+  StyleSheet
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-
+import { LFData } from "@/service/lost-found/LFAPI";
 interface LostItem {
   id: string;
-  personName: string;
-  objectName: string;
-  description: string;
-  date: string;
-  image?: string;
+  item_title: string;
+  item_description: string;
+  item_image?: string;
+  item_category: string;
+  item_date:string,
+  item_reporter_name:string;
 }
+import {images} from '@/constants/images'
 
-const Lost: React.FC = () => {
+const Lost= () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [displayObject,setDisplayObject] = useState(false)
+  const [displayObject, setDisplayObject] = useState(false);
   const [selectedItem, setSelectedItem] = useState<LostItem | null>(null);
   const [personName, setPersonName] = useState("");
   const [objectName, setObjectName] = useState("");
@@ -29,6 +33,64 @@ const Lost: React.FC = () => {
   const [date, setDate] = useState("");
   const [imageUri, setImageUri] = useState<string>("");
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
+  const lostListItem=({item})=>{
+      if(item.item_category==="FOUND")return null
+        return(
+          <Pressable
+                onPress={async () => {
+                  setSelectedItem(item);
+                  setDisplayObject(true);
+                }}
+              >
+                <View className=" flex-col " >
+                  <View
+                    
+                    className="bg-slate-600 p-5 mb-4 flex-row justify-between  rounded-lg items-center  "
+                  >
+                    <View className=" h-full  " >
+                    <Text className="text-white text-xl   mt-2">
+                      {item.item_title}
+                    </Text>
+                    <Text className="text-white text-lg  mt-2">
+                      {item.item_description}
+                    </Text>
+                    </View>
+                    <Image
+                      source={
+                        item.item_image
+                          ? { uri: item.item_image }
+                          : images.movie_logo
+                      }
+                      style={styles.image}
+                    />
+                    
+                  </View>
+                </View>
+              </Pressable>
+        )
+      
+      return null;
+  }
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await LFData();
+      setLostItems(result);
+    };
+    fetchData();
+  }, []);
+
+  const fetchLostItems = async () => {
+    try {
+      const response = await fetch("https://your-api.com/LostFoundData");
+      const data = await response.json();
+      const filtered = data.filter(
+        (item: LostItem) => item.item_category === "LOST"
+      );
+      setLostItems(filtered);
+    } catch (error) {
+      console.error("Failed to fetch lost items", error);
+    }
+  };
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -41,25 +103,47 @@ const Lost: React.FC = () => {
     }
   };
 
-  const handleAddLostItem = () => {
-    if (!personName || !objectName || !date || !imageUri) return;
+  const handleAddLostItem = async () => {
+    if (!personName || !objectName || !date || !imageUri) {
+      Alert.alert("Error", "Please fill all fields and pick an image.");
+      return;
+    }
 
-    const newItem: LostItem = {
-      id: Date.now().toString(),
-      personName,
-      objectName,
-      description,
-      date,
-      image: imageUri,
-    };
+    const formData = new FormData();
+    formData.append("item_category", "LOST");
+    formData.append("item_title", objectName);
+    formData.append("item_description", description);
+    formData.append("reporter_name", personName);
+    formData.append("item_date", date);
+    formData.append("item_image", {
+      uri: imageUri,
+      name: "photo.jpg",
+      type: "image/jpeg",
+    } as any);
 
-    setLostItems((prev) => [...prev, newItem]);
-    setPersonName("");
-    setObjectName("");
-    setDate("");
-    setDescription("");
-    setImageUri("");
-    setModalVisible(false);
+    try {
+      const response = await fetch("https://your-api.com/api/lostfound", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.ok) {
+        fetchLostItems(); // Refresh data
+        setModalVisible(false);
+        setPersonName("");
+        setObjectName("");
+        setDate("");
+        setDescription("");
+        setImageUri("");
+      } else {
+        Alert.alert("Upload failed", "Please try again later.");
+      }
+    } catch (error) {
+      console.error("Upload error", error);
+    }
   };
 
   return (
@@ -79,77 +163,56 @@ const Lost: React.FC = () => {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
-        renderItem={({ item }) => (
-          <Pressable onPress={()=>{
-            setSelectedItem(item);
-            setDisplayObject(true);
-          }} >
-            <View className="bg-gray-100 p-3 rounded mb-3">
-            <Image
-              source={{ uri: item.image }}
-              className="w-full h-40 rounded mb-2"
-              resizeMode="cover"
-            />
-            <Text className="font-semibold text-black">Object: {item.objectName}</Text>
-            <Text className="text-gray-700">By: {item.personName}</Text>
-            <Text className="text-gray-500">Date: {item.date}</Text>
-          </View>
-          </Pressable>
-          
-        )}
+        renderItem={lostListItem}
       />
+
       {displayObject && selectedItem && (
-              <Modal visible={displayObject} animationType="slide" transparent={true}>
-              <View className="flex-1 justify-center items-center bg-black/80 z-10 px-4">
-                {selectedItem ? (
-                  <View className="bg-white w-full rounded-lg p-5">
-      
-                    {selectedItem.image ? (
-                      <Image
-                        source={{ uri: selectedItem.image }}
-                        className="w-full h-40 rounded mb-4"
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <Text className="text-gray-500 text-center mb-4">
-                        Image is unavailable
-                      </Text>
-                    )}
-      
-                    <Text className="text-black font-bold text-xl mb-2">
-                      Object Name: {selectedItem.objectName}
-                    </Text>
-                    <Text className="text-black mb-2">
-                      Description & Place: {selectedItem.description}
-                    </Text>
-                    <View className="flex-row justify-between mb-4">
-                      <Text className="text-gray-700">By: {selectedItem.personName}</Text>
-                      <Text className="text-gray-700">{selectedItem.date}</Text>
-                    </View>
-      
-                    <View className="flex-row justify-around">
-                      <Pressable
-                        onPress={() => setDisplayObject(false)}
-                        className="bg-gray-500 px-4 py-2 rounded"
-                      >
-                        <Text className="text-white">Close</Text>
-                      </Pressable>
-                      <Pressable
-                        onPress={() => {
-                          setDisplayObject(false);
-                        }}
-                        className="bg-blue-500 px-4 py-2 rounded"
-                      >
-                        <Text className="text-white">Claim</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                ) : (
-                  <Text className="text-white">Loading item...</Text>
-                )}
+        <Modal visible={displayObject} animationType="slide" transparent={true}>
+          <View className="flex-1 justify-center items-center bg-black/80 px-4">
+            <View className="bg-white w-full rounded-lg p-5">
+              {selectedItem.item_image ? (
+                <Image
+                  source={{ uri: selectedItem.item_image }}
+                  className="w-full h-40 rounded mb-4"
+                  resizeMode="cover"
+                />
+              ) : (
+                <Text className="text-gray-500 text-center mb-4">
+                  Image is unavailable
+                </Text>
+              )}
+
+              <Text className="text-black font-bold text-xl mb-2">
+                Object Name: {selectedItem.item_title}
+              </Text>
+              <Text className="text-black mb-2">
+                Description & Place: {selectedItem.item_description}
+              </Text>
+              <View className="flex-row justify-between mb-4">
+                <Text className="text-gray-700">
+                  By: {selectedItem.reporter_name}
+                </Text>
+                <Text className="text-gray-700">{selectedItem.item_date}</Text>
               </View>
-            </Modal>
-            )}
+
+              <View className="flex-row justify-around">
+                <Pressable
+                  onPress={() => setDisplayObject(false)}
+                  className="bg-gray-500 px-4 py-2 rounded"
+                >
+                  <Text className="text-white">Close</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setDisplayObject(false)}
+                  className="bg-blue-500 px-4 py-2 rounded"
+                >
+                  <Text className="text-white">Claim</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
 
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View className="flex-1 justify-center items-center bg-black/50 px-4">
@@ -225,3 +288,16 @@ const Lost: React.FC = () => {
 };
 
 export default Lost;
+
+const styles = StyleSheet.create({
+  itemContainer: {
+    marginHorizontal: 10,
+    width: 150,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    backgroundColor: "#ccc",
+  },
+});

@@ -1,5 +1,236 @@
-import React, { useState } from "react";
-import {images} from "@/constants/images";
+// import React, { useState } from "react";
+// import {images} from "@/constants/images";
+// import {
+//   View,
+//   Text,
+//   TextInput,
+//   Modal,
+//   Pressable,
+//   FlatList,
+//   Image,
+// } from "react-native";
+// import * as ImagePicker from "expo-image-picker";
+
+// interface FoundItem {
+//   id: string;
+//   personName: string;
+//   objectName: string;
+//   description: string;
+//   date: string;
+//   image ?: string;
+// }
+
+// const Found = () => {
+//   const [modalVisible, setModalVisible] = useState(false);
+//   const [displayObject,setDisplayObject] = useState(false)
+//   const [selectedItem, setSelectedItem] = useState<FoundItem | null>(null);
+//   const [personName, setPersonName] = useState("");
+//   const [objectName, setObjectName] = useState("");
+//   const [date, setDate] = useState("");
+//   const [description, setDescription] = useState("");
+//   const [imageUri, setImageUri] = useState<string>("")
+//   const [FoundItems, setFoundItems] = useState<FoundItem[]>([]);
+
+//   const pickImage = async () => {
+//     const result = await ImagePicker.launchImageLibraryAsync({
+//       mediaTypes: ImagePicker.MediaTypeOptions.Images,
+//       quality: 1,
+//     });
+
+//     if (!result.canceled) {
+//       setImageUri(result.assets[0].uri);
+//     }
+//   };
+
+//   const handleAddFoundItem = () => {
+//     if (!personName || !objectName || !date || !imageUri) return;
+
+//     const newItem: FoundItem = {
+//       id: Date.now().toString(),
+//       personName,
+//       objectName,
+//       description,
+//       date,
+//       image: imageUri,
+//     };
+
+//     setFoundItems((prev) => [...prev, newItem]);
+//     setPersonName("");
+//     setObjectName("");
+//     setDescription("");
+//     setDate("");
+//     setImageUri("");
+//     setModalVisible(false);
+//   };
+
+//   return (
+//     <View className="flex-1 bg-white p-4">
+//       <View className="flex-row justify-between items-center mb-4">
+//         <Text className="text-xl font-bold text-black">Found Items</Text>
+//         <Pressable
+//           onPress={() => setModalVisible(true)}
+//           className="bg-blue-500 px-4 py-2 rounded"
+//         >
+//           <Text className="text-white font-semibold">Add</Text>
+//         </Pressable>
+//       </View>
+
+//       <FlatList
+//         data={FoundItems}
+//         keyExtractor={(item) => item.id}
+//         showsVerticalScrollIndicator={false}
+//         contentContainerStyle={{ paddingBottom: 20 }}
+//         renderItem={({ item }) => (
+//           <Pressable
+//             onPress={()=>{
+//               setSelectedItem(item);
+//               setDisplayObject(true);
+//             }}
+//           >
+//             <View className="bg-gray-100 p-3 rounded mb-3">
+//               <Image
+//                 source={{ uri: item.image }}
+//                 className="w-full h-40 rounded mb-2"
+//                 resizeMode="cover"
+//               />
+//               <Text className="font-semibold text-black">Object: {item.objectName}</Text>
+//               <Text className="text-gray-700">By: {item.personName}</Text>
+//               <Text className="text-gray-500">Date: {item.date}</Text>
+//             </View>
+//           </Pressable>
+//         )}
+//       />
+//       {displayObject && selectedItem && (
+//         <Modal visible={displayObject} animationType="slide" transparent={true}>
+//         <View className="flex-1 justify-center items-center bg-black/80 z-10 px-4">
+//           {selectedItem ? (
+//             <View className="bg-white w-full rounded-lg p-5">
+
+//               {selectedItem.image ? (
+//                 <Image
+//                   source={{ uri: selectedItem.image }}
+//                   className="w-full h-40 rounded mb-4"
+//                   resizeMode="cover"
+//                 />
+//               ) : (
+//                 <Text className="text-gray-500 text-center mb-4">
+//                   Image is unavailable
+//                 </Text>
+//               )}
+
+//               <Text className="text-black font-bold text-xl mb-2">
+//                 Object Name: {selectedItem.objectName}
+//               </Text>
+//               <Text className="text-black mb-2">
+//                 Description & Place: {selectedItem.description}
+//               </Text>
+//               <View className="flex-row justify-between mb-4">
+//                 <Text className="text-gray-700">By: {selectedItem.personName}</Text>
+//                 <Text className="text-gray-700">{selectedItem.date}</Text>
+//               </View>
+
+//               <View className="flex-row justify-around">
+//                 <Pressable
+//                   onPress={() => setDisplayObject(false)}
+//                   className="bg-gray-500 px-4 py-2 rounded"
+//                 >
+//                   <Text className="text-white">Close</Text>
+//                 </Pressable>
+//                 <Pressable
+//                   onPress={() => {
+//                     // You can handle claim logic here
+//                     setDisplayObject(false);
+//                   }}
+//                   className="bg-blue-500 px-4 py-2 rounded"
+//                 >
+//                   <Text className="text-white">Claim</Text>
+//                 </Pressable>
+//               </View>
+//             </View>
+//           ) : (
+//             <Text className="text-white">Loading item...</Text>
+//           )}
+//         </View>
+//       </Modal>
+//       )}
+      
+//       <Modal visible={modalVisible} animationType="slide" transparent={true}>
+//         <View className="flex-1 justify-center items-center bg-black/50 px-4">
+//           <View className="bg-white w-full rounded-lg p-5">
+//             <Text className="text-lg font-bold mb-2 text-black">Report Found Item</Text>
+
+//             <Pressable
+//               onPress={pickImage}
+//               className="bg-gray-200 p-3 rounded mb-3"
+//             >
+//               <Text className="text-black text-center">
+//                 {imageUri ? "Change Image" : "Pick Image"}
+//               </Text>
+//             </Pressable>
+
+//             {imageUri ? (
+//               <Image
+//                 source={{ uri: imageUri }}
+//                 className="w-full h-40 mb-2 rounded"
+//                 resizeMode="cover"
+//               />
+//             ) : null}
+
+//             <TextInput
+//               placeholder="Your Name"
+//               value={personName}
+//               onChangeText={setPersonName}
+//               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
+//               placeholderTextColor="#6B7280"
+//             />
+//             <TextInput
+//               placeholder="Found Object Name"
+//               value={objectName}
+//               onChangeText={setObjectName}
+//               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
+//               placeholderTextColor="#6B7280"
+//             />
+//             <TextInput
+//               placeholder="Object Descriptiona and the place found "
+//               value={description}
+//               multiline
+//               onChangeText={setDescription}
+//               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
+//               placeholderTextColor="#6B7280"
+//             />
+            
+//             <TextInput
+//               placeholder="Date"
+//               value={date}
+//               onChangeText={setDate}
+//               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
+//               placeholderTextColor="#6B7280"
+//             />
+
+//             <View className="flex-row justify-between">
+//               <Pressable
+//                 onPress={() => setModalVisible(false)}
+//                 className="px-4 py-2 bg-gray-400 rounded"
+//               >
+//                 <Text className="text-white">Cancel</Text>
+//               </Pressable>
+//               <Pressable
+//                 onPress={handleAddFoundItem}
+//                 className="px-4 py-2 bg-blue-600 rounded"
+//               >
+//                 <Text className="text-white">Submit</Text>
+//               </Pressable>
+//             </View>
+//           </View>
+//         </View>
+//       </Modal>
+//     </View>
+//   );
+// };
+
+// export default Found;
+
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,28 +239,89 @@ import {
   Pressable,
   FlatList,
   Image,
+  Alert,
+  StyleSheet
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-
+import { LFData } from "@/service/lost-found/LFAPI";
 interface FoundItem {
   id: string;
-  personName: string;
-  objectName: string;
-  description: string;
-  date: string;
-  image ?: string;
+  item_title: string;
+  item_description: string;
+  item_image?: string;
+  item_category: string;
+  reporter_name:string;
+  item_date:string;
 }
+import {images} from '@/constants/images'
 
-const Found : React.FC = () => {
+const Found= () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [displayObject,setDisplayObject] = useState(false)
+  const [displayObject, setDisplayObject] = useState(false);
   const [selectedItem, setSelectedItem] = useState<FoundItem | null>(null);
   const [personName, setPersonName] = useState("");
   const [objectName, setObjectName] = useState("");
-  const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
-  const [imageUri, setImageUri] = useState<string>("")
-  const [FoundItems, setFoundItems] = useState<FoundItem[]>([]);
+  const [date, setDate] = useState("");
+  const [imageUri, setImageUri] = useState<string>("");
+  const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
+  const lostListItem=({item})=>{
+      if(item.item_category==="LOST")return null
+        return(
+          <Pressable
+                onPress={async () => {
+                  setSelectedItem(item);
+                  setDisplayObject(true);
+                }}
+              >
+                <View className=" flex-col " >
+                  <View
+                    
+                    className="bg-slate-600 p-5 mb-4 flex-row justify-between  rounded-lg items-center  "
+                  >
+                    <View className="bg-green-400 h-full  " >
+                    <Text className="text-white text-lg font-semibold mt-2">
+                      {item.item_title}
+                    </Text>
+                    <Text className="text-white text-lg font-semibold mt-2">
+                      {item.item_description}
+                    </Text>
+                    </View>
+                    <Image
+                      source={
+                        item.item_image
+                          ? { uri: item.item_image }
+                          : images.movie_logo
+                      }
+                      style={styles.image}
+                    />
+                    
+                  </View>
+                </View>
+              </Pressable>
+        )
+      
+  }
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await LFData();
+      setFoundItems(result);
+    };
+    fetchData();
+  }, []);
+
+  const fetchFoundItems = async () => {
+    try {
+      const response = await fetch("https://your-api.com/LostFoundData");
+      const data = await response.json();
+      const filtered = data.filter(
+        (item: FoundItem) => item.item_category === "Found"
+      );
+      setFoundItems(filtered);
+    } catch (error) {
+      console.error("Failed to fetch found items", error);
+    }
+  };
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -42,25 +334,47 @@ const Found : React.FC = () => {
     }
   };
 
-  const handleAddFoundItem = () => {
-    if (!personName || !objectName || !date || !imageUri) return;
+  const handleAddLostItem = async () => {
+    if (!personName || !objectName || !date || !imageUri) {
+      Alert.alert("Error", "Please fill all fields and pick an image.");
+      return;
+    }
 
-    const newItem: FoundItem = {
-      id: Date.now().toString(),
-      personName,
-      objectName,
-      description,
-      date,
-      image: imageUri,
-    };
+    const formData = new FormData();
+    formData.append("item_category", "FOUND");
+    formData.append("item_title", objectName);
+    formData.append("item_description", description);
+    formData.append("reporter_name", personName);
+    formData.append("item_date", date);
+    formData.append("item_image", {
+      uri: imageUri,
+      name: "photo.jpg",
+      type: "image/jpeg",
+    } as any);
 
-    setFoundItems((prev) => [...prev, newItem]);
-    setPersonName("");
-    setObjectName("");
-    setDescription("");
-    setDate("");
-    setImageUri("");
-    setModalVisible(false);
+    try {
+      const response = await fetch("https://your-api.com/api/lostfound", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.ok) {
+        fetchFoundItems(); // Refresh data
+        setModalVisible(false);
+        setPersonName("");
+        setObjectName("");
+        setDate("");
+        setDescription("");
+        setImageUri("");
+      } else {
+        Alert.alert("Upload of Found Item failed", "Please try again later.");
+      }
+    } catch (error) {
+      console.error("Upload error in Found Item ", error);
+    }
   };
 
   return (
@@ -76,39 +390,20 @@ const Found : React.FC = () => {
       </View>
 
       <FlatList
-        data={FoundItems}
+        data={foundItems}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={()=>{
-              setSelectedItem(item);
-              setDisplayObject(true);
-            }}
-          >
-            <View className="bg-gray-100 p-3 rounded mb-3">
-              <Image
-                source={{ uri: item.image }}
-                className="w-full h-40 rounded mb-2"
-                resizeMode="cover"
-              />
-              <Text className="font-semibold text-black">Object: {item.objectName}</Text>
-              <Text className="text-gray-700">By: {item.personName}</Text>
-              <Text className="text-gray-500">Date: {item.date}</Text>
-            </View>
-          </Pressable>
-        )}
+        renderItem={lostListItem}
       />
+
       {displayObject && selectedItem && (
         <Modal visible={displayObject} animationType="slide" transparent={true}>
-        <View className="flex-1 justify-center items-center bg-black/80 z-10 px-4">
-          {selectedItem ? (
+          <View className="flex-1 justify-center items-center bg-black/80 px-4">
             <View className="bg-white w-full rounded-lg p-5">
-
-              {selectedItem.image ? (
+              {selectedItem.item_image ? (
                 <Image
-                  source={{ uri: selectedItem.image }}
+                  source={{ uri: selectedItem.item_image }}
                   className="w-full h-40 rounded mb-4"
                   resizeMode="cover"
                 />
@@ -119,14 +414,16 @@ const Found : React.FC = () => {
               )}
 
               <Text className="text-black font-bold text-xl mb-2">
-                Object Name: {selectedItem.objectName}
+                Object Name: {selectedItem.item_title}
               </Text>
               <Text className="text-black mb-2">
-                Description & Place: {selectedItem.description}
+                Description & Place: {selectedItem.item_description}
               </Text>
               <View className="flex-row justify-between mb-4">
-                <Text className="text-gray-700">By: {selectedItem.personName}</Text>
-                <Text className="text-gray-700">{selectedItem.date}</Text>
+                <Text className="text-gray-700">
+                  By: {selectedItem.reporter_name}
+                </Text>
+                <Text className="text-gray-700">{selectedItem.item_date}</Text>
               </View>
 
               <View className="flex-row justify-around">
@@ -137,23 +434,17 @@ const Found : React.FC = () => {
                   <Text className="text-white">Close</Text>
                 </Pressable>
                 <Pressable
-                  onPress={() => {
-                    // You can handle claim logic here
-                    setDisplayObject(false);
-                  }}
+                  onPress={() => setDisplayObject(false)}
                   className="bg-blue-500 px-4 py-2 rounded"
                 >
                   <Text className="text-white">Claim</Text>
                 </Pressable>
               </View>
             </View>
-          ) : (
-            <Text className="text-white">Loading item...</Text>
-          )}
-        </View>
-      </Modal>
+          </View>
+        </Modal>
       )}
-      
+
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View className="flex-1 justify-center items-center bg-black/50 px-4">
           <View className="bg-white w-full rounded-lg p-5">
@@ -184,21 +475,20 @@ const Found : React.FC = () => {
               placeholderTextColor="#6B7280"
             />
             <TextInput
-              placeholder="Found Object Name"
+              placeholder="Lost Object Name"
               value={objectName}
               onChangeText={setObjectName}
               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
               placeholderTextColor="#6B7280"
             />
             <TextInput
-              placeholder="Object Descriptiona and the place found "
+              placeholder="Object Description and Place"
               value={description}
-              multiline
               onChangeText={setDescription}
+              multiline
               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
               placeholderTextColor="#6B7280"
             />
-            
             <TextInput
               placeholder="Date"
               value={date}
@@ -215,7 +505,7 @@ const Found : React.FC = () => {
                 <Text className="text-white">Cancel</Text>
               </Pressable>
               <Pressable
-                onPress={handleAddFoundItem}
+                onPress={handleAddLostItem}
                 className="px-4 py-2 bg-blue-600 rounded"
               >
                 <Text className="text-white">Submit</Text>
@@ -229,3 +519,16 @@ const Found : React.FC = () => {
 };
 
 export default Found;
+
+const styles = StyleSheet.create({
+  itemContainer: {
+    marginHorizontal: 10,
+    width: 150,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    backgroundColor: "#ccc",
+  },
+});
