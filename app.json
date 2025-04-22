@@ -2,16 +2,18 @@
   "expo": {
     "name": "frontend-student",
     "slug": "frontend-student",
+    "scheme" : "frontend-student",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#6366f1"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -23,6 +25,21 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": [
+            {
+              "Samarkan": "./assets/fonts/Samarkan.ttf"
+            },
+            {
+              "Awesome": "./assets/fonts/awesome.regular.ttf"
+            }
+          ]
+        }
+      ]
+    ]
   }
 }

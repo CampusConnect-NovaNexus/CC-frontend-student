@@ -7,10 +7,25 @@ import { useRouter } from 'expo-router';
 import {icons} from '@/constants/icons';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider } from '@/context/ThemeContext';
-
+import { useFonts } from 'expo-font';
+import { useEffect } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
 
 export default function TabLayout() {
   const router = useRouter();
+  const [loaded, error] = useFonts({
+    'Awesome': require('../assets/fonts/awesome.regular.ttf'),
+  });
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   return (
     <SafeAreaProvider>
@@ -24,18 +39,20 @@ export default function TabLayout() {
           name="(tabs)" 
           options={{
             animation:'slide_from_bottom',
+
+            headerShadowVisible: false,
             headerTitle: () => (
-              <View className='flex-1 flex-row justify-between items-center ' >
-                <Text className='flex flex-1 text-xl '>Campus Connect</Text>
+              <View className='flex-1 flex-row justify-between items-center pt-3 mb-0' >
+                <Text style={{fontFamily : 'Awesome', fontSize: 30}} className='flex flex-1'>Campus Connect</Text>
                 <View className=' flex-row gap-2 justify-around items-center ' >
-                  <Pressable className=' p-2 ' onPress={() => router.push("/Notification")} >
+                  <Pressable className=' p-2 pb-6' onPress={() => router.push("/Notification")} >
                     <Image
                       source={icons.notify}
                       className='size-7'
                     />
                   </Pressable>
                   
-                  <Pressable className=' p-2 ' onPress={() => router.push("/Profile")}  >
+                  <Pressable className=' p-2 pb-6 ' onPress={() => router.push("/Profile")}  >
                     <Image
                       source={icons.profile}
                       className='size-7'
