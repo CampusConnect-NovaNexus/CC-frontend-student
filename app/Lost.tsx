@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -11,7 +12,9 @@ import {
   StyleSheet
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import {fetchUser } from '@/service/lost-found/fetchUser'
 import { LFData } from "@/service/lost-found/LFAPI";
+import { postLostItem } from "@/service/lost-found/postLostItem";
 interface LostItem {
   id: string;
   item_title: string;
@@ -48,7 +51,7 @@ const Lost= () => {
                     className="bg-slate-600 p-5 mb-4 flex-row justify-between  rounded-lg items-center  "
                   >
                     <View className=" h-full  " >
-                    <Text className="text-white text-xl   mt-2">
+                    <Text className="text-white text-xl   mt-2  ">
                       {item.item_title}
                     </Text>
                     <Text className="text-white text-lg  mt-2">
@@ -71,27 +74,26 @@ const Lost= () => {
       
       return null;
   }
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await LFData();
-      setLostItems(result);
-    };
-    fetchData();
-  }, []);
 
-  const fetchLostItems = async () => {
-    try {
-      const response = await fetch("https://your-api.com/LostFoundData");
-      const data = await response.json();
-      const filtered = data.filter(
-        (item: LostItem) => item.item_category === "LOST"
-      );
-      setLostItems(filtered);
-    } catch (error) {
-      console.error("Failed to fetch lost items", error);
-    }
+
+  useFocusEffect(
+    useCallback(()=>{
+      const fetchData =async()=>{
+        const result=await LFData();
+        setLostItems(result.reverse())
+      }
+
+      fetchData();
+    },[])
+  )
+
+
+
+  const fetchData = async () => {
+    const result = await LFData();
+    
+    setLostItems(result.reverse());
   };
-
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -104,34 +106,24 @@ const Lost= () => {
   };
 
   const handleAddLostItem = async () => {
-    if (!personName || !objectName || !date || !imageUri) {
+    if (!personName || !objectName ||!description || !date ) {
       Alert.alert("Error", "Please fill all fields and pick an image.");
       return;
     }
-
-    const formData = new FormData();
-    formData.append("item_category", "LOST");
-    formData.append("item_title", objectName);
-    formData.append("item_description", description);
-    formData.append("reporter_name", personName);
-    formData.append("item_date", date);
-    formData.append("item_image", {
-      uri: imageUri,
-      name: "photo.jpg",
-      type: "image/jpeg",
-    } as any);
-
     try {
-      const response = await fetch("https://your-api.com/api/lostfound", {
-        method: "POST",
-        body: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      
+      const response = await postLostItem({
+        user_id:"f1254d1f-6a62-495f-99fa-88740d4bb662" ,
+        title: objectName,
+        description: description,
+        image: imageUri,
+        item_category: "LOST",
       });
-
-      if (response.ok) {
-        fetchLostItems(); // Refresh data
+      
+      if (response && response.status==="Item created successfully") {
+        // fetchLostItems();
+        Alert.alert("Upload Successful", "Thanks for your kindness ❤️");
+        fetchData();
         setModalVisible(false);
         setPersonName("");
         setObjectName("");
@@ -142,7 +134,7 @@ const Lost= () => {
         Alert.alert("Upload failed", "Please try again later.");
       }
     } catch (error) {
-      console.error("Upload error", error);
+      console.error("Upload error : ", error);
     }
   };
 
@@ -190,7 +182,7 @@ const Lost= () => {
               </Text>
               <View className="flex-row justify-between mb-4">
                 <Text className="text-gray-700">
-                  By: {selectedItem.reporter_name}
+                  By: {selectedItem.item_reporter_name}
                 </Text>
                 <Text className="text-gray-700">{selectedItem.item_date}</Text>
               </View>

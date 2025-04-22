@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect,useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native"
 import {
   View,
   Text,
@@ -47,7 +48,7 @@ export default function LostFoundScreen() {
             >
               <View
                 style={styles.itemContainer}
-                className="bg-slate-600 p-5 rounded-lg items-center"
+                className=" overflow-hidden bg-slate-600 p-5 rounded-lg items-center"
               >
                 <Image
                   source={
@@ -57,7 +58,7 @@ export default function LostFoundScreen() {
                   }
                   style={styles.image}
                 />
-                <Text className="text-white text-lg font-semibold mt-2">
+                <Text className="text-white overflow-hidden text-lg font-semibold mt-2">
                   {item.item_title}
                 </Text>
               </View>
@@ -115,14 +116,21 @@ export default function LostFoundScreen() {
     setShowFoundItem(true);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await LFData();
-      setData(result);
-    };
-    fetchData();
-  }, []);
-
+  
+  
+      useFocusEffect(
+        useCallback(()=>{
+          const fetchData =async()=>{
+            const result=await LFData();
+           
+            
+            
+            setData(result.reverse());
+          }
+    
+          fetchData();
+        },[])
+      )
   return (
     <ScrollView className="">
       <View className="flex mx-4 mt-10 flex-row justify-around">

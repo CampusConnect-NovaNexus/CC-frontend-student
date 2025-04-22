@@ -4,9 +4,6 @@ export const LFData =async()=>{
     try{
         
         const result= await fetch(`${BASEURL}/api/v1/item`,{method:'GET'});
-        // const result= await fetch(`http://localhost:5000/api/v1/item`);
-        // const result= await fetch(`http://192.168.3.101:5000/api/v1/item`);
-        
         
         const data=await result.json();
         
