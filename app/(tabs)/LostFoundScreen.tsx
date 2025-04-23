@@ -160,7 +160,7 @@ export default function LostFoundScreen() {
       </View>
 
       <View className="mt-7 border border-black mx-1 rounded-md p-2">
-        <Text className="text-2xl ml-3 font-semibold text-gray-800">
+        <Text className="text-2xl ml-3 font-semibold text-blue-700">
           Recently Lost
         </Text>
         <FlatList

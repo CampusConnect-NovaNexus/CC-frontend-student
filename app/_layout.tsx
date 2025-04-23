@@ -15,6 +15,7 @@ export default function TabLayout() {
   const router = useRouter();
   const [loaded, error] = useFonts({
     'Awesome': require('../assets/fonts/awesome.regular.ttf'),
+    'samarkan': require('../assets/fonts/Samarkan.ttf')
   });
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function TabLayout() {
 
             headerShadowVisible: false,
             headerTitle: () => (
-              <View className='flex-1 flex-row justify-between items-center pt-3 mb-0' >
+              <View className='flex-1 flex-row justify-between items-center pt-3 mb-0 bg-[#fdfcf9]' >
                 <Text style={{fontFamily : 'Awesome', fontSize: 30}} className='flex flex-1'>Campus Connect</Text>
                 <View className=' flex-row gap-2 justify-around items-center ' >
                   <Pressable className=' p-2 pb-6' onPress={() => router.push("/Notification")} >
