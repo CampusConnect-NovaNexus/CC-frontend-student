@@ -10,6 +10,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 
 export default function TabLayout() {
   const router = useRouter();
@@ -30,6 +31,8 @@ export default function TabLayout() {
 
   return (
     <SafeAreaProvider>
+          <StatusBar style="dark" backgroundColor="#fdfcf9" />
+      
       <ThemeProvider>
       <Stack
         screenOptions={{

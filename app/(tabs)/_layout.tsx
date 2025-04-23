@@ -42,13 +42,10 @@ export default function TabLayout() {
       },
       tabBarStyle:{
           backgroundColor: '#000000',
-          // borderEndEndRadius:10,
-          padding:20,
-          height:70,
+          padding: 15,
+          height: 60,
           position:'absolute',
           overflow:'hidden',
-          borderWidth: 1,  
-          borderColor: '#0f0d23',
       }
   }}
     >
