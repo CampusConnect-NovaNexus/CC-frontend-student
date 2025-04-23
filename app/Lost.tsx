@@ -34,7 +34,14 @@ const Lost= () => {
   const [objectName, setObjectName] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
-  const [imageUri, setImageUri] = useState<string>("");
+  const [imageFile, setImageFile] = useState<null | {
+    uri: string;
+    name: string;
+    type: string;
+  }>(null);
+  
+
+  
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
   const lostListItem=({item})=>{
       if(item.item_category==="FOUND")return null
@@ -99,11 +106,18 @@ const Lost= () => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
-
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+  
+    if (!result.canceled && result.assets.length > 0) {
+      const asset = result.assets[0];
+      setImageFile({
+        uri: asset.uri,
+        name: asset.fileName ?? asset.uri.split("/").pop() ?? "photo.jpg",
+        type: asset.type ?? "image/jpeg",
+      });
     }
   };
+  
+  
 
   const handleAddLostItem = async () => {
     if (!personName || !objectName ||!description || !date ) {
@@ -111,12 +125,13 @@ const Lost= () => {
       return;
     }
     try {
+      if (!imageFile) return
       
       const response = await postLostItem({
         user_id:"f1254d1f-6a62-495f-99fa-88740d4bb662" ,
         title: objectName,
         description: description,
-        image: imageUri,
+        image: imageFile,
         item_category: "LOST",
       });
       
@@ -129,7 +144,6 @@ const Lost= () => {
         setObjectName("");
         setDate("");
         setDescription("");
-        setImageUri("");
       } else {
         Alert.alert("Upload failed", "Please try again later.");
       }
@@ -216,17 +230,18 @@ const Lost= () => {
               className="bg-gray-200 p-3 rounded mb-3"
             >
               <Text className="text-black text-center">
-                {imageUri ? "Change Image" : "Pick Image"}
+                {imageFile ? "Change Image" : "Pick Image"}
               </Text>
             </Pressable>
 
-            {imageUri ? (
+            {imageFile && (
               <Image
-                source={{ uri: imageUri }}
+                source={{ uri: imageFile.uri }}
                 className="w-full h-40 mb-2 rounded"
                 resizeMode="cover"
               />
-            ) : null}
+            )}
+
 
             <TextInput
               placeholder="Your Name"

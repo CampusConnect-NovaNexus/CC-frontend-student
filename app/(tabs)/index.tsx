@@ -4,10 +4,12 @@ import ImagePickerComponent from '@/app/ImagePickerComponent';
 
 import { useRouter } from "expo-router";
 
-const router = useRouter();
 
 
 export default function HomeScreen() {
+
+  const router = useRouter();
+
   return (
     <View className='flex-1 p-0 bg-white '>
       <Text style={{fontFamily: "Awesome"}} className='text-7xl p-10 text-black '>Hi 👋</Text>

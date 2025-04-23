@@ -35,6 +35,7 @@ const Found= () => {
   const [date, setDate] = useState("");
   const [imageUri, setImageUri] = useState<string>("");
   const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
+  console.log("ImageURI"+ imageUri);
   const foundListItem=({item})=>{
       if(item.item_category==="LOST")return null
         return(

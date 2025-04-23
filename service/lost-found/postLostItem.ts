@@ -12,15 +12,19 @@ export interface LostFoundItemInput {
 export const postLostItem = async (item: LostFoundItemInput) => {
   const BASEURL = EXPO_BASE_URL;
 
+  const form = new FormData; 
+  form.append('title', item.title); 
+  form.append('description', item.description); 
+  form.append('item_category', item.item_category);
+  if (item.image)
+    form.append('image', item.image as any);
+  
+
   try {
-    console.log("in postLostItem");
 
     const response = await fetch(`${BASEURL}/api/v1/item/create`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(item),
+      body: form,
     });
     console.log('respose : ',response);
     const contentType = response.headers.get("content-type");
