@@ -40,7 +40,7 @@ export default function HomeScreen() {
     ];
     return `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}`;
   };
-  
+
   const ScheduleCard = ({ title, date, course_code }: ScheduleCardProps) => (
     <View className="bg-white flex flex-row justify-between items-center p-6 rounded-xl mb-4 shadow-lg shadow-gray-200">
       <View className="flex-1 pr-3">
@@ -110,23 +110,39 @@ export default function HomeScreen() {
         {/* Handle */}
         <View className='w-full flex items-center bg-[#fdfcf9] pt-8 rounded-t-full z-20'>
           <View className='w-1/3 h-2 bg-gray-400 rounded-full' />
-        </View> 
+        </View>
 
         {/* Content */}
         <View className="p-6 bg-[#fdfcf9]">
           <Text className="text-xl text-gray-700 mb-1 font-bold">Latest Updates</Text>
           <Text className="text-sm text-gray-400 pl-1 mb-4 font-bold">Be the one who knows everything !!!</Text>
+          <ScrollView
+            nestedScrollEnabled={true}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            className="mb-4 h-60"
+          >
+            <UpdatesCard
+              title="Notification on Spring 25 Mid Term Feedback"
+              link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf"
+            />
+            <UpdatesCard
+              title="Notification on Spring 25 Mid Term Feedback"
+              link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf"
+            />
+            <UpdatesCard
+              title="Notification on Spring 25 Mid Term Feedback"
+              link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf"
+            />
+          </ScrollView>
 
-          <UpdatesCard title="Notification on Spring 25 Mid Term Feedback" link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf" />
-          <UpdatesCard title="Notification on Spring 25 Mid Term Feedback" link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf" />
-          <UpdatesCard title="Notification on Spring 25 Mid Term Feedback" link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf" />
 
           <Text className="text-xl font-bold text-gray-700 mt-2 mb-1">Your Schedule</Text>
           <Text className="text-sm text-gray-400 mb-4 font-bold pl-1">You need to face this !!!</Text>
 
-          <ScheduleCard title="MID TERM" date="2025-03-21" course_code="CS220"/>
-          <ScheduleCard title="CLASS TEST II" date="2025-05-07" course_code="CS220"/>
-          <ScheduleCard title="END TERM" date="2025-05-22" course_code="CS220"/>
+          <ScheduleCard title="MID TERM" date="2025-03-21" course_code="CS220" />
+          <ScheduleCard title="CLASS TEST II" date="2025-05-07" course_code="CS220" />
+          <ScheduleCard title="END TERM" date="2025-05-22" course_code="CS220" />
 
         </View>
       </Animated.ScrollView>

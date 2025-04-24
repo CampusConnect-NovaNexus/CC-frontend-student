@@ -158,7 +158,7 @@ const Lost= () => {
         <Text className="text-xl font-bold text-black">Lost Items</Text>
         <Pressable
           onPress={() => setModalVisible(true)}
-          className="bg-blue-500 px-4 py-2 rounded"
+          className="bg-red-500 px-4 py-2 rounded"
         >
           <Text className="text-white font-semibold">Add</Text>
         </Pressable>
