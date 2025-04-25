@@ -8,7 +8,8 @@ import {
   FlatList,
   Image,
   Alert,
-  StyleSheet
+  StyleSheet,
+  ActivityIndicator
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect } from '@react-navigation/native';
@@ -35,6 +36,7 @@ const Found= () => {
   const [date, setDate] = useState("");
   const [imageUri, setImageUri] = useState<string>("");
   const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
+  const [loading, setLoading] = useState(false);
   console.log("ImageURI"+ imageUri);
   const foundListItem=({item})=>{
       if(item.item_category==="LOST")return null
@@ -111,7 +113,7 @@ const Found= () => {
       return;
     }
     try {
-      // setLoading(true);
+      setLoading(true);
       const formData = await prepareItemFormData({
         title: objectName,
         user_id: "f1254d1f-6a62-495f-99fa-88740d4bb662",
@@ -140,6 +142,8 @@ const Found= () => {
       }
     } catch (error) {
       console.error("Upload error : ", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -273,8 +277,13 @@ const Found= () => {
               <Pressable
                 onPress={handleAddFoundItem}
                 className="px-4 py-2 bg-blue-600 rounded"
+                disabled={loading}
               >
-                <Text className="text-white">Submit</Text>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <Text className="text-white">Submit</Text>
+                )}
               </Pressable>
             </View>
           </View>

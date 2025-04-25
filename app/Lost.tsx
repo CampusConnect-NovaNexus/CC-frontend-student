@@ -9,7 +9,8 @@ import {
   FlatList,
   Image,
   Alert,
-  StyleSheet
+  StyleSheet,
+  ActivityIndicator
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import {fetchUser } from '@/service/lost-found/fetchUser'
@@ -120,27 +121,27 @@ const Lost= () => {
       });
     }
   };
-  
-  
 
   const handleAddLostItem = async () => {
     if (!personName || !objectName ||!description || !date ) {
       Alert.alert("Error", "Please fill all fields and pick an image.");
       return;
     }
+    if (!imageFile) {
+      Alert.alert("Error", "Please select an image.");
+      return;
+    }
     try {
-      if (!imageFile) return
-      
       setLoading(true);
       const formData = await prepareItemFormData({
         title: objectName,
         user_id: "f1254d1f-6a62-495f-99fa-88740d4bb662",
         description: description,
         item_category: "LOST",
-        image: imageFile ? {
+        image: {
           uri: imageFile.uri,
           name: `image-${Date.now()}.jpg`,
-        } : undefined,
+        },
       }, 0.7);
       
       const response = await submitItemToAPI(formData, 'lost');
@@ -154,11 +155,15 @@ const Lost= () => {
         setObjectName("");
         setDate("");
         setDescription("");
+        setImageFile(null);
       } else {
-        Alert.alert("Upload failed", "Please try again later.");
+        Alert.alert("Upload failed", response?.error || "Please try again later.");
       }
     } catch (error) {
       console.error("Upload error : ", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -293,8 +298,13 @@ const Lost= () => {
               <Pressable
                 onPress={handleAddLostItem}
                 className="px-4 py-2 bg-blue-600 rounded"
+                disabled={loading}
               >
-                <Text className="text-white">Submit</Text>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <Text className="text-white">Submit</Text>
+                )}
               </Pressable>
             </View>
           </View>
