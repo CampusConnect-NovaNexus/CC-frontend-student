@@ -128,11 +128,11 @@ export default function ExamHubScreen() {
       <TouchableOpacity style={styles.subjectCard} onPress={() => viewSubjectDetails(item)}>
         <View style={styles.subjectHeader}>
           <View>
-            <Text style={styles.subjectName}>{item.name}</Text>
-            <Text style={styles.subjectCode}>{item.code}</Text>
+            <Text className={styles.subjectName}>{item.name}</Text>
+            <Text className={styles.subjectCode}>{item.code}</Text>
           </View>
           <View style={styles.examCountdown}>
-            <Text style={[styles.countdownText, daysUntilExam <= 3 ? styles.urgentText : null]}>
+            <Text className={[styles.countdownText, daysUntilExam <= 3 ? styles.urgentText : null]}>
               {daysUntilExam} days until exam
             </Text>
           </View>
@@ -142,11 +142,11 @@ export default function ExamHubScreen() {
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: `${item.progress}%` }]} />
           </View>
-          <Text style={styles.progressText}>{item.progress}% Complete</Text>
+          <Text className={styles.progressText}>{item.progress}% Complete</Text>
         </View>
 
         <View style={styles.materialsPreview}>
-          <Text style={styles.materialsTitle}>Study Materials:</Text>
+          <Text className={styles.materialsTitle}>Study Materials:</Text>
           {item.materials.slice(0, 2).map((material) => (
             <View key={material.id} style={styles.materialItem}>
               <Ionicons
@@ -156,10 +156,10 @@ export default function ExamHubScreen() {
                 size={16}
                 color="#6366f1"
               />
-              <Text style={styles.materialText}>{material.title}</Text>
+              <Text className={styles.materialText}>{material.title}</Text>
             </View>
           ))}
-          {item.materials.length > 2 && <Text style={styles.moreText}>+{item.materials.length - 2} more</Text>}
+          {item.materials.length > 2 && <Text className={styles.moreText}>+{item.materials.length - 2} more</Text>}
         </View>
       </TouchableOpacity>
     )
@@ -173,26 +173,26 @@ export default function ExamHubScreen() {
     return (
       <TouchableOpacity style={styles.examCard} onPress={() => viewExamDetails(item)}>
         <View style={styles.examHeader}>
-          <Text style={styles.examSubject}>{item.subject}</Text>
+          <Text className={styles.examSubject}>{item.subject}</Text>
           <View style={[styles.examBadge, daysUntil <= 3 ? styles.urgentBadge : styles.upcomingBadge]}>
-            <Text style={styles.examBadgeText}>{daysUntil <= 3 ? "Soon" : "Upcoming"}</Text>
+            <Text className={styles.examBadgeText}>{daysUntil <= 3 ? "Soon" : "Upcoming"}</Text>
           </View>
         </View>
 
         <View style={styles.examDetails}>
           <View style={styles.examDetail}>
             <Ionicons name="calendar" size={16} color="#6366f1" />
-            <Text style={styles.examDetailText}>
+            <Text className={styles.examDetailText}>
               {new Date(item.date).toLocaleDateString()} ({daysUntil} days)
             </Text>
           </View>
           <View style={styles.examDetail}>
             <Ionicons name="time" size={16} color="#6366f1" />
-            <Text style={styles.examDetailText}>{item.time}</Text>
+            <Text className={styles.examDetailText}>{item.time}</Text>
           </View>
           <View style={styles.examDetail}>
             <Ionicons name="location" size={16} color="#6366f1" />
-            <Text style={styles.examDetailText}>{item.location}</Text>
+            <Text className={styles.examDetailText}>{item.location}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -202,25 +202,25 @@ export default function ExamHubScreen() {
   const renderStudyGroupItem = ({ item }) => {
     return (
       <View style={styles.groupCard}>
-        <Text style={styles.groupName}>{item.name}</Text>
+        <Text className={styles.groupName}>{item.name}</Text>
         <View style={styles.groupDetails}>
           <View style={styles.groupDetail}>
             <Ionicons name="people" size={16} color="#6366f1" />
-            <Text style={styles.groupDetailText}>{item.members} members</Text>
+            <Text className={styles.groupDetailText}>{item.members} members</Text>
           </View>
           <View style={styles.groupDetail}>
             <Ionicons name="calendar" size={16} color="#6366f1" />
-            <Text style={styles.groupDetailText}>
+            <Text className={styles.groupDetailText}>
               {new Date(item.nextMeeting).toLocaleDateString()} at {item.time}
             </Text>
           </View>
           <View style={styles.groupDetail}>
             <Ionicons name="location" size={16} color="#6366f1" />
-            <Text style={styles.groupDetailText}>{item.location}</Text>
+            <Text className={styles.groupDetailText}>{item.location}</Text>
           </View>
         </View>
         <TouchableOpacity style={styles.joinButton}>
-          <Text style={styles.joinButtonText}>Join Group</Text>
+          <Text className={styles.joinButtonText}>Join Group</Text>
         </TouchableOpacity>
       </View>
     )
@@ -234,21 +234,21 @@ export default function ExamHubScreen() {
           onPress={() => setActiveTab("subjects")}
         >
           <Ionicons name="book" size={20} color={activeTab === "subjects" ? "white" : "#6366f1"} />
-          <Text style={[styles.tabText, activeTab === "subjects" && styles.activeTabText]}>Subjects</Text>
+          <Text className={[styles.tabText, activeTab === "subjects" && styles.activeTabText]}>Subjects</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === "exams" && styles.activeTab]}
           onPress={() => setActiveTab("exams")}
         >
           <Ionicons name="calendar" size={20} color={activeTab === "exams" ? "white" : "#6366f1"} />
-          <Text style={[styles.tabText, activeTab === "exams" && styles.activeTabText]}>Exams</Text>
+          <Text className={[styles.tabText, activeTab === "exams" && styles.activeTabText]}>Exams</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === "groups" && styles.activeTab]}
           onPress={() => setActiveTab("groups")}
         >
           <Ionicons name="people" size={20} color={activeTab === "groups" ? "white" : "#6366f1"} />
-          <Text style={[styles.tabText, activeTab === "groups" && styles.activeTabText]}>Groups</Text>
+          <Text className={[styles.tabText, activeTab === "groups" && styles.activeTabText]}>Groups</Text>
         </TouchableOpacity>
       </View>
 
@@ -279,7 +279,7 @@ export default function ExamHubScreen() {
           ListFooterComponent={
             <TouchableOpacity style={styles.createGroupButton}>
               <Ionicons name="add-circle" size={20} color="white" />
-              <Text style={styles.createGroupText}>Create Study Group</Text>
+              <Text className={styles.createGroupText}>Create Study Group</Text>
             </TouchableOpacity>
           }
         />
@@ -300,36 +300,36 @@ export default function ExamHubScreen() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <ScrollView>
-                <Text style={styles.modalTitle}>{selectedSubject.name}</Text>
-                <Text style={styles.modalSubtitle}>{selectedSubject.code}</Text>
+                <Text className={styles.modalTitle}>{selectedSubject.name}</Text>
+                <Text className={styles.modalSubtitle}>{selectedSubject.code}</Text>
 
                 <View style={styles.sectionTitle}>
                   <Ionicons name="stats-chart" size={20} color="#6366f1" />
-                  <Text style={styles.sectionTitleText}>Progress</Text>
+                  <Text className={styles.sectionTitleText}>Progress</Text>
                 </View>
 
                 <View style={styles.progressContainer}>
                   <View style={styles.progressBar}>
                     <View style={[styles.progressFill, { width: `${selectedSubject.progress}%` }]} />
                   </View>
-                  <Text style={styles.progressText}>{selectedSubject.progress}% Complete</Text>
+                  <Text className={styles.progressText}>{selectedSubject.progress}% Complete</Text>
                 </View>
 
                 <View style={styles.sectionTitle}>
                   <Ionicons name="calendar" size={20} color="#6366f1" />
-                  <Text style={styles.sectionTitleText}>Next Exam</Text>
+                  <Text className={styles.sectionTitleText}>Next Exam</Text>
                 </View>
 
                 <View style={styles.examInfo}>
-                  <Text style={styles.examDate}>{new Date(selectedSubject.nextExam).toLocaleDateString()}</Text>
+                  <Text className={styles.examDate}>{new Date(selectedSubject.nextExam).toLocaleDateString()}</Text>
                   <TouchableOpacity style={styles.prepareButton}>
-                    <Text style={styles.prepareButtonText}>Prepare for Exam</Text>
+                    <Text className={styles.prepareButtonText}>Prepare for Exam</Text>
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.sectionTitle}>
                   <Ionicons name="book" size={20} color="#6366f1" />
-                  <Text style={styles.sectionTitleText}>Study Materials</Text>
+                  <Text className={styles.sectionTitleText}>Study Materials</Text>
                 </View>
 
                 {selectedSubject.materials.map((material) => (
@@ -348,8 +348,8 @@ export default function ExamHubScreen() {
                       />
                     </View>
                     <View style={styles.materialInfo}>
-                      <Text style={styles.materialTitle}>{material.title}</Text>
-                      <Text style={styles.materialType}>
+                      <Text className={styles.materialTitle}>{material.title}</Text>
+                      <Text className={styles.materialType}>
                         {material.type === "notes"
                           ? "Study Notes"
                           : material.type === "quiz"
@@ -363,7 +363,7 @@ export default function ExamHubScreen() {
 
                 <TouchableOpacity style={styles.addMaterialButton}>
                   <Ionicons name="add" size={20} color="#6366f1" />
-                  <Text style={styles.addMaterialText}>Add Study Material</Text>
+                  <Text className={styles.addMaterialText}>Add Study Material</Text>
                 </TouchableOpacity>
               </ScrollView>
 
@@ -386,44 +386,44 @@ export default function ExamHubScreen() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <ScrollView>
-                <Text style={styles.modalTitle}>{selectedExam.subject} Exam</Text>
+                <Text className={styles.modalTitle}>{selectedExam.subject} Exam</Text>
 
                 <View style={styles.examDetailCard}>
                   <View style={styles.examDetailItem}>
                     <Ionicons name="calendar" size={20} color="#6366f1" />
                     <View>
-                      <Text style={styles.detailLabel}>Date</Text>
-                      <Text style={styles.detailValue}>{new Date(selectedExam.date).toLocaleDateString()}</Text>
+                      <Text className={styles.detailLabel}>Date</Text>
+                      <Text className={styles.detailValue}>{new Date(selectedExam.date).toLocaleDateString()}</Text>
                     </View>
                   </View>
 
                   <View style={styles.examDetailItem}>
                     <Ionicons name="time" size={20} color="#6366f1" />
                     <View>
-                      <Text style={styles.detailLabel}>Time</Text>
-                      <Text style={styles.detailValue}>{selectedExam.time}</Text>
+                      <Text className={styles.detailLabel}>Time</Text>
+                      <Text className={styles.detailValue}>{selectedExam.time}</Text>
                     </View>
                   </View>
 
                   <View style={styles.examDetailItem}>
                     <Ionicons name="location" size={20} color="#6366f1" />
                     <View>
-                      <Text style={styles.detailLabel}>Location</Text>
-                      <Text style={styles.detailValue}>{selectedExam.location}</Text>
+                      <Text className={styles.detailLabel}>Location</Text>
+                      <Text className={styles.detailValue}>{selectedExam.location}</Text>
                     </View>
                   </View>
                 </View>
 
                 <View style={styles.sectionTitle}>
                   <Ionicons name="list" size={20} color="#6366f1" />
-                  <Text style={styles.sectionTitleText}>Topics Covered</Text>
+                  <Text className={styles.sectionTitleText}>Topics Covered</Text>
                 </View>
 
                 <View style={styles.topicsList}>
                   {selectedExam.topics.map((topic, index) => (
                     <View key={index} style={styles.topicItem}>
                       <Ionicons name="checkmark-circle" size={20} color="#10B981" />
-                      <Text style={styles.topicText}>{topic}</Text>
+                      <Text className={styles.topicText}>{topic}</Text>
                     </View>
                   ))}
                 </View>
@@ -431,12 +431,12 @@ export default function ExamHubScreen() {
                 <View style={styles.actionButtons}>
                   <TouchableOpacity style={[styles.actionButton, styles.studyButton]}>
                     <Ionicons name="book" size={20} color="white" />
-                    <Text style={styles.actionButtonText}>Study Now</Text>
+                    <Text className={styles.actionButtonText}>Study Now</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity style={[styles.actionButton, styles.reminderButton]}>
                     <Ionicons name="notifications" size={20} color="white" />
-                    <Text style={styles.actionButtonText}>Set Reminder</Text>
+                    <Text className={styles.actionButtonText}>Set Reminder</Text>
                   </TouchableOpacity>
                 </View>
               </ScrollView>
@@ -458,7 +458,7 @@ export default function ExamHubScreen() {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Quick Study Note</Text>
+            <Text className={styles.modalTitle}>Quick Study Note</Text>
 
             <TextInput
               style={styles.noteInput}
@@ -474,11 +474,11 @@ export default function ExamHubScreen() {
                 style={[styles.noteButton, styles.cancelButton]}
                 onPress={() => setNoteModalVisible(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text className={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={[styles.noteButton, styles.saveButton]} onPress={saveNote}>
-                <Text style={styles.saveButtonText}>Save Note</Text>
+                <Text className={styles.saveButtonText}>Save Note</Text>
               </TouchableOpacity>
             </View>
           </View>

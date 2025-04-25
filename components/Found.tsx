@@ -53,7 +53,7 @@ const ReportFoundItemForm = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Report Found Item</Text>
+      <Text className={styles.header}>Report Found Item</Text>
 
       <TextInput
         style={styles.input}

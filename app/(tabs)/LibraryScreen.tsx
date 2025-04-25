@@ -120,21 +120,21 @@ export default function LibraryScreen() {
     return (
       <TouchableOpacity style={styles.bookCard} onPress={() => viewBookDetails(item)}>
         <View style={styles.bookInfo}>
-          <Text style={styles.bookTitle}>{item.title}</Text>
-          <Text style={styles.bookAuthor}>by {item.author}</Text>
-          <Text style={styles.bookCategory}>{item.category}</Text>
+          <Text className={styles.bookTitle}>{item.title}</Text>
+          <Text className={styles.bookAuthor}>by {item.author}</Text>
+          <Text className={styles.bookCategory}>{item.category}</Text>
           <View style={styles.bookStatusContainer}>
-            <Text style={[styles.bookStatus, item.available > 0 ? styles.availableText : styles.unavailableText]}>
+            <Text className={[styles.bookStatus, item.available > 0 ? styles.availableText : styles.unavailableText]}>
               {item.available > 0 ? `${item.available} Available` : "Checked Out"}
             </Text>
             {item.available === 0 && item.dueDate && (
-              <Text style={styles.dueDateText}>Due: {new Date(item.dueDate).toLocaleDateString()}</Text>
+              <Text className={styles.dueDateText}>Due: {new Date(item.dueDate).toLocaleDateString()}</Text>
             )}
           </View>
         </View>
         <View style={styles.bookLocation}>
           <Ionicons name="location" size={16} color="#6366f1" />
-          <Text style={styles.locationText}>{item.location}</Text>
+          <Text className={styles.locationText}>{item.location}</Text>
         </View>
       </TouchableOpacity>
     )
@@ -149,16 +149,16 @@ export default function LibraryScreen() {
     return (
       <View style={styles.borrowedBookCard}>
         <View style={styles.borrowedBookInfo}>
-          <Text style={styles.bookTitle}>{item.title}</Text>
-          <Text style={styles.bookAuthor}>by {item.author}</Text>
+          <Text className={styles.bookTitle}>{item.title}</Text>
+          <Text className={styles.bookAuthor}>by {item.author}</Text>
           <View style={styles.borrowedDetails}>
-            <Text style={styles.borrowedLabel}>Borrowed:</Text>
-            <Text style={styles.borrowedValue}>{new Date(item.borrowDate).toLocaleDateString()}</Text>
+            <Text className={styles.borrowedLabel}>Borrowed:</Text>
+            <Text className={styles.borrowedValue}>{new Date(item.borrowDate).toLocaleDateString()}</Text>
           </View>
           <View style={styles.borrowedDetails}>
-            <Text style={styles.borrowedLabel}>Due:</Text>
+            <Text className={styles.borrowedLabel}>Due:</Text>
             <Text
-              style={[styles.borrowedValue, isOverdue ? styles.overdueText : daysLeft <= 3 ? styles.dueSoonText : null]}
+              className={[styles.borrowedValue, isOverdue ? styles.overdueText : daysLeft <= 3 ? styles.dueSoonText : null]}
             >
               {new Date(item.dueDate).toLocaleDateString()}
               {isOverdue ? " (Overdue)" : daysLeft <= 3 ? ` (${daysLeft} days left)` : ""}
@@ -171,9 +171,9 @@ export default function LibraryScreen() {
             onPress={() => renewBook(item.id)}
             disabled={item.renewals >= item.maxRenewals}
           >
-            <Text style={styles.renewButtonText}>Renew</Text>
+            <Text className={styles.renewButtonText}>Renew</Text>
           </TouchableOpacity>
-          <Text style={styles.renewalsText}>
+          <Text className={styles.renewalsText}>
             {item.renewals}/{item.maxRenewals} renewals used
           </Text>
         </View>
@@ -189,14 +189,14 @@ export default function LibraryScreen() {
           onPress={() => setActiveTab("search")}
         >
           <Ionicons name="search" size={20} color={activeTab === "search" ? "white" : "#6366f1"} />
-          <Text style={[styles.tabText, activeTab === "search" && styles.activeTabText]}>Search</Text>
+          <Text className={[styles.tabText, activeTab === "search" && styles.activeTabText]}>Search</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === "borrowed" && styles.activeTab]}
           onPress={() => setActiveTab("borrowed")}
         >
           <Ionicons name="book" size={20} color={activeTab === "borrowed" ? "white" : "#6366f1"} />
-          <Text style={[styles.tabText, activeTab === "borrowed" && styles.activeTabText]}>My Books</Text>
+          <Text className={[styles.tabText, activeTab === "borrowed" && styles.activeTabText]}>My Books</Text>
         </TouchableOpacity>
       </View>
 
@@ -217,7 +217,7 @@ export default function LibraryScreen() {
 
           {isLoading ? (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Searching library catalog...</Text>
+              <Text className={styles.loadingText}>Searching library catalog...</Text>
             </View>
           ) : (
             <FlatList
@@ -228,7 +228,7 @@ export default function LibraryScreen() {
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
                   <Ionicons name="book-outline" size={48} color="#ccc" />
-                  <Text style={styles.emptyText}>No books found</Text>
+                  <Text className={styles.emptyText}>No books found</Text>
                 </View>
               }
             />
@@ -243,7 +243,7 @@ export default function LibraryScreen() {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="book-outline" size={48} color="#ccc" />
-              <Text style={styles.emptyText}>You have no borrowed books</Text>
+              <Text className={styles.emptyText}>You have no borrowed books</Text>
             </View>
           }
         />
@@ -260,28 +260,28 @@ export default function LibraryScreen() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <ScrollView>
-                <Text style={styles.detailTitle}>{selectedBook.title}</Text>
-                <Text style={styles.detailAuthor}>by {selectedBook.author}</Text>
+                <Text className={styles.detailTitle}>{selectedBook.title}</Text>
+                <Text className={styles.detailAuthor}>by {selectedBook.author}</Text>
 
                 <View style={styles.detailSection}>
-                  <Text style={styles.detailLabel}>ISBN:</Text>
-                  <Text style={styles.detailText}>{selectedBook.isbn}</Text>
+                  <Text className={styles.detailLabel}>ISBN:</Text>
+                  <Text className={styles.detailText}>{selectedBook.isbn}</Text>
                 </View>
 
                 <View style={styles.detailSection}>
-                  <Text style={styles.detailLabel}>Category:</Text>
-                  <Text style={styles.detailText}>{selectedBook.category}</Text>
+                  <Text className={styles.detailLabel}>Category:</Text>
+                  <Text className={styles.detailText}>{selectedBook.category}</Text>
                 </View>
 
                 <View style={styles.detailSection}>
-                  <Text style={styles.detailLabel}>Location:</Text>
-                  <Text style={styles.detailText}>{selectedBook.location}</Text>
+                  <Text className={styles.detailLabel}>Location:</Text>
+                  <Text className={styles.detailText}>{selectedBook.location}</Text>
                 </View>
 
                 <View style={styles.detailSection}>
-                  <Text style={styles.detailLabel}>Status:</Text>
+                  <Text className={styles.detailLabel}>Status:</Text>
                   <Text
-                    style={[
+                    className={[
                       styles.detailText,
                       selectedBook.available > 0 ? styles.availableText : styles.unavailableText,
                     ]}
@@ -291,17 +291,17 @@ export default function LibraryScreen() {
                       : "Currently unavailable"}
                   </Text>
                   {selectedBook.available === 0 && selectedBook.dueDate && (
-                    <Text style={styles.detailText}>
+                    <Text className={styles.detailText}>
                       Expected return: {new Date(selectedBook.dueDate).toLocaleDateString()}
                     </Text>
                   )}
                 </View>
 
                 <View style={styles.mapContainer}>
-                  <Text style={styles.mapTitle}>Library Map</Text>
+                  <Text className={styles.mapTitle}>Library Map</Text>
                   <View style={styles.map}>
                     <View style={styles.mapFloor}>
-                      <Text style={styles.mapFloorText}>Floor 2</Text>
+                      <Text className={styles.mapFloorText}>Floor 2</Text>
                       <View style={styles.mapSections}>
                         <View
                           style={[
@@ -309,7 +309,7 @@ export default function LibraryScreen() {
                             selectedBook.location.includes("Section A") && styles.highlightedSection,
                           ]}
                         >
-                          <Text style={styles.mapSectionText}>A</Text>
+                          <Text className={styles.mapSectionText}>A</Text>
                         </View>
                         <View
                           style={[
@@ -317,7 +317,7 @@ export default function LibraryScreen() {
                             selectedBook.location.includes("Section B") && styles.highlightedSection,
                           ]}
                         >
-                          <Text style={styles.mapSectionText}>B</Text>
+                          <Text className={styles.mapSectionText}>B</Text>
                         </View>
                         <View
                           style={[
@@ -325,7 +325,7 @@ export default function LibraryScreen() {
                             selectedBook.location.includes("Section C") && styles.highlightedSection,
                           ]}
                         >
-                          <Text style={styles.mapSectionText}>C</Text>
+                          <Text className={styles.mapSectionText}>C</Text>
                         </View>
                       </View>
                     </View>
@@ -334,7 +334,7 @@ export default function LibraryScreen() {
 
                 {selectedBook.available > 0 && (
                   <TouchableOpacity style={[styles.button, styles.reserveButton]}>
-                    <Text style={styles.buttonText}>Reserve Book</Text>
+                    <Text className={styles.buttonText}>Reserve Book</Text>
                   </TouchableOpacity>
                 )}
               </ScrollView>

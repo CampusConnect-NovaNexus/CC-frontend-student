@@ -19,7 +19,12 @@ interface LostItem {
   id: string;
   item_title: string;
   item_description: string;
-  item_image?: string;
+  item_image?: {
+    uri: string;
+    name: string;
+    type: string;
+  };
+
   item_category: string;
   item_date:string,
   item_reporter_name:string;

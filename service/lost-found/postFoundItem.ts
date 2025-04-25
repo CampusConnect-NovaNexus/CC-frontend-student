@@ -1,26 +1,43 @@
 
 import { EXPO_BASE_URL } from '@env';
 
-export interface FoundItemInput {
-  user_id: string;
-  title: string;
-  description: string;
-  image?: string;
-  item_category: string; // should be "FOUND"
-}
+const getMimeType = (filename: string) => {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  switch (ext) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    default:
+      return 'application/octet-stream';
+  }
+};
 
-export const postFoundItem = async (item: FoundItemInput) => {
+export const postFoundItem = async (item: LostFoundItemInput) => {
   const BASEURL = EXPO_BASE_URL;
+  const form = new FormData();
+
+  form.append('title', item.title);
+  form.append('user_id', item.user_id); 
+  form.append('description', item.description);
+  form.append('item_category', item.item_category);
+
+  if (item.image) {
+    const mimeType = getMimeType(item.image.name);
+    form.append('image_file', {
+      uri: item.image.uri,
+      name: item.image.name,
+      type: mimeType, 
+    } as any);
+  }
 
   try {
-    console.log("in postFoundItem");
-
     const response = await fetch(`${BASEURL}/api/v1/item/create`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(item),
+      body: form,
     });
 
     const contentType = response.headers.get("content-type");
@@ -32,7 +49,7 @@ export const postFoundItem = async (item: FoundItemInput) => {
 
     if (contentType && contentType.includes("application/json")) {
       const data = await response.json();
-      console.log("Response from postFoundItem:", data);
+      console.log("Response from postfoundItem:", data);
       return data;
     } else {
       const text = await response.text();
