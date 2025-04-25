@@ -14,7 +14,7 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import {fetchUser } from '@/service/lost-found/fetchUser'
 import { LFData } from "@/service/lost-found/LFAPI";
-import { postLostItem } from "@/service/lost-found/postLostItem";
+import { prepareItemFormData, submitItemToAPI } from "@/utils/lostFoundHelper";
 interface LostItem {
   id: string;
   item_title: string;
@@ -48,6 +48,7 @@ const Lost= () => {
 
   
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
+  const [loading, setLoading] = useState(false);
   const lostListItem=({item})=>{
       if(item.item_category==="FOUND")return null
         return(
@@ -130,13 +131,19 @@ const Lost= () => {
     try {
       if (!imageFile) return
       
-      const response = await postLostItem({
-        user_id:"f1254d1f-6a62-495f-99fa-88740d4bb662" ,
+      setLoading(true);
+      const formData = await prepareItemFormData({
         title: objectName,
+        user_id: "f1254d1f-6a62-495f-99fa-88740d4bb662",
         description: description,
-        image: imageFile,
         item_category: "LOST",
-      });
+        image: imageFile ? {
+          uri: imageFile.uri,
+          name: `image-${Date.now()}.jpg`,
+        } : undefined,
+      }, 0.7);
+      
+      const response = await submitItemToAPI(formData, 'lost');
       
       if (response && response.status==="Item created successfully") {
         // fetchLostItems();

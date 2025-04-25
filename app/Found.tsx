@@ -13,7 +13,7 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect } from '@react-navigation/native';
 import { LFData } from "@/service/lost-found/LFAPI";
-import { postFoundItem } from "@/service/lost-found/postFoundItem";
+import { prepareItemFormData, submitItemToAPI } from "@/utils/lostFoundHelper";
 interface FoundItem {
   id: string;
   item_title: string;
@@ -111,13 +111,19 @@ const Found= () => {
       return;
     }
     try {
-      const response = await postFoundItem({
-        user_id:"f1254d1f-6a62-495f-99fa-88740d4bb662" ,
+      // setLoading(true);
+      const formData = await prepareItemFormData({
         title: objectName,
+        user_id: "f1254d1f-6a62-495f-99fa-88740d4bb662",
         description: description,
-        image: imageUri,
         item_category: "FOUND",
-      });
+        image: imageUri ? {
+          uri: imageUri,
+          name: `image-${Date.now()}.jpg`,
+        } : undefined,
+      }, 0.1);
+      
+      const response = await submitItemToAPI(formData, 'found');
       
       if (response && response.status==="Item created successfully") {
         Alert.alert("Upload Successful", "Thanks for your kindness ❤️");
