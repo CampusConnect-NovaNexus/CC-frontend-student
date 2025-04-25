@@ -16,7 +16,9 @@ export default function TabLayout() {
   const router = useRouter();
   const [loaded, error] = useFonts({
     'Awesome': require('../assets/fonts/awesome.regular.ttf'),
-    'samarkan': require('../assets/fonts/Samarkan.ttf')
+    'samarkan': require('../assets/fonts/Samarkan.ttf'),
+    'transcity': require('../assets/fonts/transcity.regular.otf'),
+    'wastedVindey': require('../assets/fonts/wasted-vindey.regular.ttf'),
   });
 
   useEffect(() => {

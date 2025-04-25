@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect,useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native"
 import {
   View,
@@ -12,6 +12,7 @@ import {
   Modal,
   ScrollView,
   Pressable,
+  ActivityIndicator
 } from "react-native";
 import { useRouter } from "expo-router";
 import { icons } from "@/constants/icons";
@@ -20,6 +21,7 @@ import { LFData } from "@/service/lost-found/LFAPI";
 import { lostItemData } from "@/service/lost-found/lostItemClick";
 import { foundItemData } from "@/service/lost-found/foundItemClick";
 import { fetchUser } from "@/service/lost-found/fetchUser";
+import My_modal from "@/components/My_modal";
 
 interface user {
   id: string;
@@ -34,66 +36,65 @@ export default function LostFoundScreen() {
   const [lostItemInView, setLostItemInView] = useState(null);
   const [foundItemInView, setFoundItemInView] = useState(null);
   const [reportedUser, setReportedUser] = useState<user | null>(null);
-
   const router = useRouter();
 
-  const lostListItem=({item})=>{
-    if(item.item_category==="FOUND")return null
-      return(
-        <Pressable
-              onPress={async () => {
-                await onLostItemClick(item.id, item.user_id);
-                setLostItemInView(item)
-              }}
-            >
-              <View
-                style={styles.itemContainer}
-                className=" overflow-hidden bg-slate-600 p-5 rounded-lg items-center"
-              >
-                <Image
-                  source={
-                    item.item_image
-                      ? { uri: item.item_image }
-                      : images.movie_logo
-                  }
-                  style={styles.image}
-                />
-                <Text className="text-white overflow-hidden text-lg font-semibold mt-2">
-                  {item.item_title}
-                </Text>
-              </View>
-            </Pressable>
-      )
-    
+  const lostListItem = ({ item }) => {
+    if (item.item_category === "FOUND") return null
+    return (
+      <Pressable
+        onPress={async () => {
+          await onLostItemClick(item.id, item.user_id);
+          setLostItemInView(item)
+        }}
+      >
+        <View
+          style={styles.itemContainer}
+          className=" overflow-hidden bg-slate-600 p-5 rounded-lg items-center"
+        >
+          <Image
+            source={
+              item.item_image
+                ? { uri: item.item_image }
+                : images.movie_logo
+            }
+            style={styles.image}
+          />
+          <Text className="text-white overflow-hidden text-lg font-semibold mt-2">
+            {item.item_title}
+          </Text>
+        </View>
+      </Pressable>
+    )
+
     return null;
   }
-  const foundListItem=({item})=>{
-    if(item.item_category==="LOST")return null
-      return(
-        <Pressable
-              onPress={async () => {
-                await onFoundItemClick(item.id,item.user_id);
-                setFoundItemInView(item);
-              }}
-            >
-              <View
-                style={styles.itemContainer}
-                className="bg-slate-600 p-5 rounded-lg items-center"
-              >
-                <Image
-                  source={
-                    item.item_image
-                      ? { uri: item.item_image }
-                      : images.movie_logo
-                  }
-                  style={styles.image}
-                />
-                <Text className="text-white text-lg font-semibold mt-2">
-                  {item.item_title}
-                </Text>
-              </View>
-            </Pressable>
-      )
+  const foundListItem = ({ item }) => {
+    if (item.item_category === "LOST") return null
+    return (
+      <Pressable
+        onPress={async () => {
+          await onFoundItemClick(item.id, item.user_id);
+          setFoundItemInView(item);
+        }}
+      >
+        <View
+          style={styles.itemContainer}
+          className="bg-slate-600 p-5 rounded-lg items-center"
+        >
+          <Image
+            source={
+              item.item_image
+                ? { uri: item.item_image }
+                : images.movie_logo
+            }
+            style={styles.image}
+          />
+          <Text className="text-white text-lg font-semibold mt-2">
+            {item.item_title}
+          </Text>
+        </View>
+      </Pressable>
+    )
   }
 
   const getUser = async (id: string) => {
@@ -103,97 +104,117 @@ export default function LostFoundScreen() {
   };
 
   const onLostItemClick = async (id: string, userId: string) => {
-   // const item_info = await lostItemData({ id });
-    //setLostItemInView(item_info);
+    const item_info = await lostItemData({ id });
+    setLostItemInView(item_info);
     await getUser(userId);
     setShowLostItem(true);
   };
 
   const onFoundItemClick = async (id: string, userId: string) => {
-    //const item_info = await foundItemData({ id });
-    //setFoundItemInView(item_info);
+    const item_info = await foundItemData({ id });
+    setFoundItemInView(item_info);
     await getUser(userId);
     setShowFoundItem(true);
   };
 
-  
-  
-      useFocusEffect(
-        useCallback(()=>{
-          const fetchData =async()=>{
-            const result=await LFData();
-           
-            
-            
-            setData(result.reverse());
-          }
-    
-          fetchData();
-        },[])
-      )
+
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        const result = await LFData();
+
+
+
+        setData(result.reverse());
+      }
+
+      fetchData();
+    }, [])
+  )
   return (
-    <ScrollView className="">
+    <ScrollView className="bg-[#fdfcf9]">
       <View className="flex mx-4 mt-10 flex-row justify-around">
         <Pressable
           onPress={() => router.push("../Lost")}
-          className="flex p-5 bg-red-500 flex-row w-[40%] items-center justify-center gap-3 rounded-lg"
+          className="flex p-5 bg-red-500 flex-row w-[45%] items-center justify-center gap-3 rounded-xl shadow-gray-800 shadow-xl"
         >
           <Image
             source={icons.sad_face}
             tintColor="white"
-            className="h-8 w-8 m-2"
+            className="h-8 w-8 m-1"
           />
-          <Text className="text-2xl text-white">Lost</Text>
+          <Text style={{ fontFamily: "transcity" }} className="text-4xl pt-1 text-white">Lost</Text>
         </Pressable>
 
         <Pressable
           onPress={() => router.push("../Found")}
-          className="flex p-5 bg-green-500 w-[40%]  flex-row items-center justify-center gap-3 rounded-lg"
+          className="flex p-3 bg-green-500 w-[45%]  flex-row items-center justify-center gap-3 rounded-xl"
         >
           <Image
             source={icons.happy_face}
             tintColor="white"
-            className="h-8 w-8 m-2"
+            className="h-8 w-8 m-1"
           />
-          <Text className="text-2xl text-white">Found</Text>
+          <Text style={{ fontFamily: "transcity" }} className="text-4xl pt-1 text-white">Found</Text>
         </Pressable>
       </View>
 
-      <View className="mt-7 border border-black mx-1 rounded-md p-2">
-        <Text className="text-2xl ml-3 font-semibold text-blue-700">
+      <View className="mt-7 mx-3 rounded-xl p-2 pt-4 bg-red-50">
+        <Text style={{ fontFamily: "transcity" }} className="text-4xl ml-3 font-semibold text-black">
           Recently Lost
         </Text>
-        <FlatList
-          data={data}
-          keyExtractor={(item) => item.id}
-          horizontal
-          className="mt-5"
-          renderItem={lostListItem}
-        />
+
+        {/* Show ActivityIndicator if data is null or empty */}
+        {!data ? (
+          <View className="h-40 justify-center items-center">
+            <ActivityIndicator size="large" color="#f59e0b" />
+          </View>
+        ) : (
+          <FlatList
+            data={data}
+            keyExtractor={(item) => item.id}
+            horizontal
+            className="mt-5"
+            renderItem={lostListItem}
+          />
+        )}
       </View>
 
-      <View className="mt-7 border border-black mx-1 rounded-md p-2">
-        <Text className="text-2xl ml-3 font-semibold text-gray-800">
+      <View className="mt-7 mx-3 rounded-xl p-2 pt-4 bg-green-50">
+        <Text style={{ fontFamily: "transcity" }} className="text-4xl ml-3 font-semibold text-black">
           Recently Found
         </Text>
-        <FlatList
-          data={data}
-          keyExtractor={(item) => item.id}
-          horizontal
-          className="mt-5"
-          renderItem={foundListItem}
-        />
+
+        {/* Show loader while data is loading/empty */}
+        {!data ? (
+          <View className="h-40 justify-center items-center">
+            <ActivityIndicator size="large" color="#f59e0b" /> {/* amber-500 */}
+          </View>
+        ) : (
+          <FlatList
+            data={data}
+            keyExtractor={(item) => item.id}
+            horizontal
+            className="mt-5"
+            renderItem={foundListItem}
+            ListEmptyComponent={  // Fallback if data becomes empty after load
+              <View className="h-40 justify-center items-center">
+                <Text className="text-gray-500">No found items yet</Text>
+              </View>
+            }
+          />
+        )}
       </View>
 
       {/* Lost Item Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showLostItem}
-        onRequestClose={() => setShowLostItem(false)}
+
+      <My_modal
+        visible={showLostItem && lostItemInView !== null}
+        onClose={() => setShowLostItem(false)}
       >
-        {showLostItem && lostItemInView && (
-          <View className="flex-1 justify-center items-center bg-black/60 px-5">
+        {lostItemInView && (
+          <View className="flex-1 justify-center items-center bg-transparent px-5">
             <View className="bg-white p-5 rounded-xl w-full max-w-md">
               {lostItemInView.item_image ? (
                 <Image
@@ -213,16 +234,16 @@ export default function LostFoundScreen() {
               <Text className="text-sm text-gray-600 mt-3">
                 Reported by {reportedUser?.username ?? "Loading..."}
               </Text>
-              <Pressable
+              {/* <Pressable
                 onPress={() => setShowLostItem(false)}
                 className="bg-red-500 mt-4 py-2 px-4 rounded-lg"
               >
                 <Text className="text-white text-center">Close</Text>
-              </Pressable>
+              </Pressable> */}
             </View>
           </View>
         )}
-      </Modal>
+      </My_modal>
 
       {/* Found Item Modal */}
       <Modal
@@ -231,7 +252,7 @@ export default function LostFoundScreen() {
         visible={showFoundItem}
         onRequestClose={() => setShowFoundItem(false)}
       >
-        {showFoundItem && foundItemInView  && (
+        {showFoundItem && foundItemInView && (
           <View className="flex-1 justify-center items-center bg-black/60 px-5">
             <View className="bg-white p-5 rounded-xl w-full max-w-md">
               <Text className="text-xl font-bold mb-2">
