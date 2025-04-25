@@ -39,7 +39,10 @@ export default function LostFoundScreen() {
   const router = useRouter();
 
   const lostListItem = ({ item }) => {
-    if (item.item_category === "FOUND") return null
+    if (item.item_category === "FOUND") {
+      return null;
+    }
+    
     return (
       <Pressable
         onPress={async () => {
@@ -49,7 +52,7 @@ export default function LostFoundScreen() {
       >
         <View
           style={styles.itemContainer}
-          className=" overflow-hidden bg-slate-600 p-5 rounded-lg items-center"
+          className="overflow-hidden bg-slate-600 p-5 rounded-lg items-center"
         >
           <Image
             source={
@@ -64,12 +67,13 @@ export default function LostFoundScreen() {
           </Text>
         </View>
       </Pressable>
-    )
-
-    return null;
+    );
   }
   const foundListItem = ({ item }) => {
-    if (item.item_category === "LOST") return null
+    if (item.item_category === "LOST") {
+      return null;
+    }
+    
     return (
       <Pressable
         onPress={async () => {
@@ -94,7 +98,7 @@ export default function LostFoundScreen() {
           </Text>
         </View>
       </Pressable>
-    )
+    );
   }
 
   const getUser = async (id: string) => {

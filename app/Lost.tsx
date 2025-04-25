@@ -44,42 +44,39 @@ const Lost= () => {
   
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
   const lostListItem=({item})=>{
-      if(item.item_category==="FOUND")return null
-        return(
-          <Pressable
-                onPress={async () => {
-                  setSelectedItem(item);
-                  setDisplayObject(true);
-                }}
-              >
-                <View className=" flex-col " >
-                  <View
-                    
-                    className="bg-slate-600 p-5 mb-4 flex-row justify-between  rounded-lg items-center  "
-                  >
-                    <View className=" h-full  " >
-                    <Text className="text-white text-xl   mt-2  ">
-                      {item.item_title}
-                    </Text>
-                    <Text className="text-white text-lg  mt-2">
-                      {item.item_description}
-                    </Text>
-                    </View>
-                    <Image
-                      source={
-                        item.item_image
-                          ? { uri: item.item_image }
-                          : images.movie_logo
-                      }
-                      style={styles.image}
-                    />
-                    
-                  </View>
-                </View>
-              </Pressable>
-        )
+      if(item.item_category==="FOUND") {
+        return null;
+      }
       
-      return null;
+      return(
+        <Pressable
+          onPress={async () => {
+            setSelectedItem(item);
+            setDisplayObject(true);
+          }}
+        >
+          <View className="flex-col">
+            <View className="bg-slate-600 p-5 mb-4 flex-row justify-between rounded-lg items-center">
+              <View className="h-full">
+                <Text className="text-white text-xl mt-2">
+                  {item.item_title}
+                </Text>
+                <Text className="text-white text-lg mt-2">
+                  {item.item_description}
+                </Text>
+              </View>
+              <Image
+                source={
+                  item.item_image
+                    ? { uri: item.item_image }
+                    : images.movie_logo
+                }
+                style={styles.image}
+              />
+            </View>
+          </View>
+        </Pressable>
+      );
   }
 
 
