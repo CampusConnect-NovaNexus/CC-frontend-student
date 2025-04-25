@@ -1,16 +1,6 @@
 import { EXPO_BASE_URL } from '@env';
 import * as ImageManipulator from 'expo-image-manipulator';
-
-export interface LostFoundItemInput {
-  title: string;
-  user_id: string;
-  description: string;
-  item_category: string;
-  image?: {
-    uri: string;
-    name: string;
-  };
-}
+import { LostFoundItemInput } from '@/types';
 
 export const getMimeType = (filename: string) => {
   const ext = filename.split('.').pop()?.toLowerCase();
@@ -66,7 +56,7 @@ export const submitItemToAPI = async (formData: FormData, itemType: 'lost' | 'fo
 
     if (!response.ok) {
       console.error(`HTTP Error for ${itemType} item:`, response.status, response.statusText);
-      return null;
+      return { error: `Failed to submit ${itemType} item. Status: ${response.status}` };
     }
 
     if (contentType && contentType.includes("application/json")) {
@@ -76,10 +66,10 @@ export const submitItemToAPI = async (formData: FormData, itemType: 'lost' | 'fo
     } else {
       const text = await response.text();
       console.error("Non-JSON response:", text);
-      return null;
+      return { error: "Invalid response format" };
     }
   } catch (error) {
     console.error(`Error posting ${itemType} item:`, error);
-    return null;
+    return { error: `Failed to submit ${itemType} item: ${error}` };
   }
 };
