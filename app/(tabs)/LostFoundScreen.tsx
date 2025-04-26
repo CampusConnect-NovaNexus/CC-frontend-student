@@ -52,7 +52,7 @@ export default function LostFoundScreen() {
       >
         <View
           style={styles.itemContainer}
-          className="overflow-hidden bg-slate-600 p-5 rounded-lg items-center"
+          className="overflow-hidden bg-[#fafdff] rounded-2xl border-[1px] border-slate-500"
         >
           <Image
             source={
@@ -61,9 +61,13 @@ export default function LostFoundScreen() {
                 : images.movie_logo
             }
             style={styles.image}
+            className="object-cover"
           />
-          <Text className="text-white overflow-hidden text-lg font-semibold mt-2">
+          <Text className="text-black overflow-hidden px-3 text-md font-semibold my-2 text-center">
             {item.item_title}
+          </Text>
+          <Text numberOfLines={2} className="text-gray-700 overflow-hidden text-sm px-5 pb-2 ">
+            {item.item_description}
           </Text>
         </View>
       </Pressable>
@@ -83,7 +87,7 @@ export default function LostFoundScreen() {
       >
         <View
           style={styles.itemContainer}
-          className="bg-slate-600 p-5 rounded-lg items-center"
+          className="overflow-hidden bg-[#fafdff] rounded-2xl border-[1px] border-slate-500"
         >
           <Image
             source={
@@ -92,9 +96,13 @@ export default function LostFoundScreen() {
                 : images.movie_logo
             }
             style={styles.image}
+            className="object-cover"
           />
-          <Text className="text-white text-lg font-semibold mt-2">
+          <Text className="text-black overflow-hidden px-3 text-lg font-semibold mt-2 text-center">
             {item.item_title}
+          </Text>
+          <Text className="text-gray-700 overflow-hidden text-sm px-5 pb-2">
+            {item.item_description}
           </Text>
         </View>
       </Pressable>
@@ -137,7 +145,7 @@ export default function LostFoundScreen() {
     }, [])
   )
   return (
-    <ScrollView className="bg-[#fdfcf9]">
+    <ScrollView className="bg-[#fdfcf9] mb-[60px]">
       <View className="flex mx-4 mt-10 flex-row justify-around">
         <Pressable
           onPress={() => router.push("../Lost")}
@@ -164,7 +172,7 @@ export default function LostFoundScreen() {
         </Pressable>
       </View>
 
-      <View className="mt-7 mx-3 rounded-xl p-2 pt-4 bg-red-50">
+      <View className="mt-7 mx-3 rounded-xl p-2 pt-4 ">
         <Text style={{ fontFamily: "transcity" }} className="text-4xl ml-3 font-semibold text-black">
           Recently Lost
         </Text>
@@ -176,6 +184,7 @@ export default function LostFoundScreen() {
           </View>
         ) : (
           <FlatList
+            showsHorizontalScrollIndicator={false}
             data={data}
             keyExtractor={(item) => item.id}
             horizontal
@@ -185,7 +194,7 @@ export default function LostFoundScreen() {
         )}
       </View>
 
-      <View className="mt-7 mx-3 rounded-xl p-2 pt-4 bg-green-50">
+      <View className="mt-7 mx-3 rounded-xl p-2 pt-4">
         <Text style={{ fontFamily: "transcity" }} className="text-4xl ml-3 font-semibold text-black">
           Recently Found
         </Text>
@@ -197,10 +206,11 @@ export default function LostFoundScreen() {
           </View>
         ) : (
           <FlatList
+            showsHorizontalScrollIndicator={false}
             data={data}
             keyExtractor={(item) => item.id}
             horizontal
-            className="mt-5"
+            className="mt-5 mb-10"
             renderItem={foundListItem}
             ListEmptyComponent={  // Fallback if data becomes empty after load
               <View className="h-40 justify-center items-center">
@@ -286,9 +296,8 @@ const styles = StyleSheet.create({
     width: 150,
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
+    width: 150,
+    height: 150,
     backgroundColor: "#ccc",
   },
 });

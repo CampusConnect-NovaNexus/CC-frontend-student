@@ -35,10 +35,10 @@ const Lost= () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [displayObject, setDisplayObject] = useState(false);
   const [selectedItem, setSelectedItem] = useState<LostItem | null>(null);
-  const [personName, setPersonName] = useState("");
+  // const [personName, setPersonName] = useState("");
   const [objectName, setObjectName] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
+  // const [date, setDate] = useState("");
   const [imageFile, setImageFile] = useState<null | {
     uri: string;
     name: string;
@@ -61,12 +61,12 @@ const Lost= () => {
           }}
         >
           <View className="flex-col">
-            <View className="bg-slate-600 p-5 mb-4 flex-row justify-between rounded-lg items-center">
-              <View className="h-full">
-                <Text className="text-white text-xl mt-2">
+            <View className="bg-[#F8F8FF] mb-4 flex-row justify-between rounded-2xl items-center shadow-md shadow-slate-400">
+              <View className="h-full w-1/2">
+                <Text className="text-black font-semibold text-xl mt-2 px-3">
                   {item.item_title}
                 </Text>
-                <Text className="text-white text-lg mt-2">
+                <Text className="text-gray-700 text-md px-3 mt-2">
                   {item.item_description}
                 </Text>
               </View>
@@ -77,6 +77,7 @@ const Lost= () => {
                     : images.movie_logo
                 }
                 style={styles.image}
+                className="object-cover rounded-r-2xl"
               />
             </View>
           </View>
@@ -157,12 +158,12 @@ const Lost= () => {
   return (
     <View className="flex-1 bg-white p-4">
       <View className="flex-row justify-between items-center mb-4">
-        <Text className="text-xl font-bold text-black">Lost Items</Text>
+        <Text style={{fontFamily: 'wastedVindey'}} className="text-4xl text-black p-4">Lost Items</Text>
         <Pressable
           onPress={() => setModalVisible(true)}
-          className="bg-red-500 px-4 py-2 rounded"
+          className="bg-red-500 px-6 py-3 rounded-full"
         >
-          <Text className="text-white font-semibold">Add</Text>
+          <Text className="text-white text-3xl font-bold">+</Text>
         </Pressable>
       </View>
 
@@ -225,11 +226,11 @@ const Lost= () => {
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View className="flex-1 justify-center items-center bg-black/50 px-4">
           <View className="bg-white w-full rounded-lg p-5">
-            <Text className="text-lg font-bold mb-2 text-black">Report Lost Item</Text>
+            <Text className="text-lg font-bold mb-8 text-black text-center">Report Lost Item</Text>
 
             <Pressable
               onPress={pickImage}
-              className="bg-gray-200 p-3 rounded mb-3"
+              className="bg-gray-200 p-3 rounded mb-3 border-2 border-yellow-500"
             >
               <Text className="text-black text-center">
                 {imageFile ? "Change Image" : "Pick Image"}
@@ -245,13 +246,13 @@ const Lost= () => {
             )}
 
 
-            <TextInput
+            {/* <TextInput
               placeholder="Your Name"
               value={personName}
               onChangeText={setPersonName}
               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
               placeholderTextColor="#6B7280"
-            />
+            /> */}
             <TextInput
               placeholder="Lost Object Name"
               value={objectName}
@@ -267,13 +268,13 @@ const Lost= () => {
               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
               placeholderTextColor="#6B7280"
             />
-            <TextInput
+            {/* <TextInput
               placeholder="Date"
               value={date}
               onChangeText={setDate}
               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
               placeholderTextColor="#6B7280"
-            />
+            /> */}
 
             <View className="flex-row justify-between">
               <Pressable
@@ -304,9 +305,8 @@ const styles = StyleSheet.create({
     width: 150,
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
+    width: 150,
+    height: 150,
     backgroundColor: "#ccc",
   },
 });
