@@ -2,8 +2,10 @@ import {EXPO_BASE_URL_GR} from '@env';
 
 export const upVote = async (c_id: string, user_id: string) => {
     const BASEURL=EXPO_BASE_URL_GR
+    console.log('in upvote',user_id, c_id);
+    
     try {
-    const response = await fetch(`${BASEURL}/upvote/${c_id}`, { method:"POST",
+    const response = await fetch(`${BASEURL}/upvote/${c_id}`, { method:"PUT",
       headers:{
         'Content-Type': 'application/json',
       },
@@ -12,7 +14,7 @@ export const upVote = async (c_id: string, user_id: string) => {
         }),
      });
     const data=await response.json()
-    console.log('Upvoted Complaint:', data);
+    
     return data;
   } catch (error) {
     console.error('Upvote Complaint Error:', error);
