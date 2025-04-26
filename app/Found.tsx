@@ -1,4 +1,5 @@
-import React, { useEffect, useState ,useCallback} from "react";
+import React, { useEffect, useState,useCallback } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -11,14 +12,19 @@ import {
   StyleSheet
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useFocusEffect } from '@react-navigation/native';
+import {fetchUser } from '@/service/lost-found/fetchUser'
 import { LFData } from "@/service/lost-found/LFAPI";
 import { postFoundItem } from "@/service/lost-found/postFoundItem";
 interface FoundItem {
   id: string;
   item_title: string;
   item_description: string;
-  item_image?: string;
+  item_image?: {
+    uri: string;
+    name: string;
+    type: string;
+  };
+
   item_category: string;
   item_date:string,
   item_reporter_name:string;
@@ -33,9 +39,15 @@ const Found= () => {
   const [objectName, setObjectName] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
-  const [imageUri, setImageUri] = useState<string>("");
+  const [imageFile, setImageFile] = useState<null | {
+    uri: string;
+    name: string;
+    type: string;
+  }>(null);
+  
+
+  
   const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
-  console.log("ImageURI"+ imageUri);
   const foundListItem=({item})=>{
       if(item.item_category==="LOST") {
         return null;
@@ -73,17 +85,18 @@ const Found= () => {
       );
   }
 
-    useFocusEffect(
-      useCallback(()=>{
-        const fetchData =async()=>{
-          const result=await LFData();
-          
-          setFoundItems(result.reverse());
-        }
-  
-        fetchData();
-      },[])
-    )
+
+  useFocusEffect(
+    useCallback(()=>{
+      const fetchData =async()=>{
+        const result=await LFData();
+        setFoundItems(result.reverse())
+      }
+
+      fetchData();
+    },[])
+  )
+
 
 
   const fetchData = async () => {
@@ -96,38 +109,46 @@ const Found= () => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
-
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+  
+    if (!result.canceled && result.assets.length > 0) {
+      const asset = result.assets[0];
+      setImageFile({
+        uri: asset.uri,
+        name: asset.fileName ?? asset.uri.split("/").pop() ?? "photo.jpg",
+        type: asset.type ?? "image/jpeg",
+      });
     }
   };
-  const embeddFoundItem=async()=>{
-    //call an api requires item_id so will be caled if Add item found is successed 
+  
+  const embedFoundItem=async()=>{
+    
   }
+
   const handleAddFoundItem = async () => {
     if (!personName || !objectName ||!description || !date ) {
       Alert.alert("Error", "Please fill all fields and pick an image.");
       return;
     }
     try {
+      if (!imageFile) return
+      
       const response = await postFoundItem({
         user_id:"f1254d1f-6a62-495f-99fa-88740d4bb662" ,
         title: objectName,
         description: description,
-        image: imageUri,
+        image: imageFile,
         item_category: "FOUND",
       });
       
       if (response && response.status==="Item created successfully") {
-        Alert.alert("Upload Successful", "Thanks for your kindness ❤️");
         // fetchLostItems();
+        Alert.alert("Upload Successful", "Thanks for your kindness ❤️");
         fetchData();
         setModalVisible(false);
         setPersonName("");
         setObjectName("");
         setDate("");
         setDescription("");
-        setImageUri("");
       } else {
         Alert.alert("Upload failed", "Please try again later.");
       }
@@ -207,24 +228,25 @@ const Found= () => {
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View className="flex-1 justify-center items-center bg-black/50 px-4">
           <View className="bg-white w-full rounded-lg p-5">
-            <Text className="text-lg font-bold mb-2 text-black">Report Lost Item</Text>
+            <Text className="text-lg font-bold mb-2 text-black">Report Found Item</Text>
 
             <Pressable
               onPress={pickImage}
               className="bg-gray-200 p-3 rounded mb-3"
             >
               <Text className="text-black text-center">
-                {imageUri ? "Change Image" : "Pick Image"}
+                {imageFile ? "Change Image" : "Pick Image"}
               </Text>
             </Pressable>
 
-            {imageUri ? (
+            {imageFile && (
               <Image
-                source={{ uri: imageUri }}
+                source={{ uri: imageFile.uri }}
                 className="w-full h-40 mb-2 rounded"
                 resizeMode="cover"
               />
-            ) : null}
+            )}
+
 
             <TextInput
               placeholder="Your Name"

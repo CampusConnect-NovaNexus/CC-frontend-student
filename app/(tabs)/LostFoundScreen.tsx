@@ -47,6 +47,43 @@ export default function LostFoundScreen() {
       <Pressable
         onPress={async () => {
           await onLostItemClick(item.id, item.user_id);
+          await setLostItemInView(item)
+          console.log(lostItemInView)
+          
+        }}
+      >
+        <View
+          style={styles.itemContainer}
+          className="overflow-hidden bg-[#fafdff] rounded-2xl border-[1px] border-slate-500"
+        >
+          <Image
+            source={
+              item.item_image
+                ? { uri: item.item_image }
+                : images.movie_logo
+            }
+            style={styles.image}
+            className="object-cover"
+          />
+          <Text className="text-white overflow-hidden text-lg font-semibold mt-2" numberOfLines={1} >
+          <Text className="text-black overflow-hidden px-3 text-md font-semibold my-2 text-center">
+            {item.item_title}
+          </Text>
+          <Text numberOfLines={2} className="text-gray-700 overflow-hidden text-sm px-5 pb-2 ">
+            {item.item_description}
+          </Text>
+        </View>
+      </Pressable>
+    )
+
+    );
+  }
+  const foundListItem = ({ item }) => {
+    if (item.item_category === "LOST") return null
+    return (
+      <Pressable
+        onPress={async () => {
+          await onLostItemClick(item.id, item.user_id);
           setLostItemInView(item)
         }}
       >
@@ -129,15 +166,10 @@ export default function LostFoundScreen() {
     setShowFoundItem(true);
   };
 
-
-
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
         const result = await LFData();
-
-
-
         setData(result.reverse());
       }
 

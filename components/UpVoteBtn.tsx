@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, Image } from 'react-native';
 import {icons }from '@/constants/icons'; 
-const UpvoteButton = () => {
+const UpvoteButton = ({user_id,c_id}:{user_id}) => {
   const [isPressed, setIsPressed] = useState(false);
   return (
     <Pressable
