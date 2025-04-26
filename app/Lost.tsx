@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useEffect, useState, useCallback, useLayoutEffect } from "react";
+import { useFocusEffect,useNavigation } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -17,7 +17,6 @@ import { postLostItem } from "@/service/lost-found/postLostItem";
 import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
 import Modal from 'react-native-modal';
-
 interface LostItem {
   id: string;
   item_title: string;
@@ -110,6 +109,15 @@ const Lost = () => {
 
   const renderItem = ({ item }: { item: LostItem }) => {
     if (item.item_category === "FOUND") return null;
+  
+    const navigation = useNavigation();
+
+    useLayoutEffect(() => {
+      navigation.setOptions({
+        headerShown: false, 
+      });
+    }, [navigation]);
+  
 
     return (
       <Pressable onPress={() => {
@@ -138,9 +146,9 @@ const Lost = () => {
   };
 
   return (
-    <View className="flex-1 bg-white p-4">
+    <View className="flex-1 bg-[#fdfcf9] p-4 mt-10">
       <View className="flex-row justify-between items-center mb-4">
-        <Text style={{ fontFamily: 'wastedVindey' }} className="text-4xl p-4 text-black">
+        <Text style={{ fontFamily: 'wastedVindey' }} className="text-5xl p-4 text-black">
           Lost Items
         </Text>
         <Pressable
@@ -150,14 +158,21 @@ const Lost = () => {
           <Text className="text-white text-3xl font-bold">+</Text>
         </Pressable>
       </View>
-
-      <FlatList
-        data={lostItems}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
-        renderItem={renderItem}
-      />
+      {
+        !lostItems || lostItems.length == 0 ?  (
+          <View className="h-40 w-full justify-center">
+            <ActivityIndicator size="large" color="#ef4444" />
+          </View>
+        ) : (
+          <FlatList
+            data={lostItems}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            renderItem={renderItem}
+          />
+        )
+      }
 
       {/* Item Detail Modal */}
       <Modal
@@ -187,11 +202,11 @@ const Lost = () => {
                 </Text>
               </View>
             )}
-            
+
             <Pressable
               onPress={() => setDetailModalVisible(false)}
               className="absolute -right-8 -top-8 bg-white p-3 rounded-full"
-              style={{ elevation : 7}}
+              style={{ elevation: 7 }}
             >
               <Image
                 source={icons.cross}
@@ -207,7 +222,7 @@ const Lost = () => {
           <Text className="text-gray-600 mb-4">
             {selectedItem?.item_description}
           </Text>
-          
+
           <View className="space-y-2 mb-4">
             <Text className="text-gray-500">
               Posted by: {selectedItem?.item_reporter_name}
@@ -244,11 +259,11 @@ const Lost = () => {
       >
         <View className="bg-white rounded-2xl p-5 m-4">
           <Text className="text-xl font-bold mb-6 text-center">Report Lost Item</Text>
-          
+
           <Pressable
             onPress={() => setModalVisible(false)}
             className="absolute -right-2 -top-2 bg-white p-3 rounded-full"
-            style={{ elevation : 5}}
+            style={{ elevation: 5 }}
           >
             <Image
               source={icons.cross}
@@ -281,7 +296,7 @@ const Lost = () => {
             className="bg-gray-100 rounded-lg p-3 mb-3"
             placeholderTextColor="#6B7280"
           />
-          
+
           <TextInput
             placeholder="Description"
             value={description}
@@ -290,7 +305,7 @@ const Lost = () => {
             className="bg-gray-100 rounded-lg p-3 mb-3 h-24"
             placeholderTextColor="#6B7280"
           />
-          
+
           <TextInput
             placeholder="Contact Number"
             value={contact}
