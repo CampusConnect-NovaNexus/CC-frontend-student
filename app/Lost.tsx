@@ -228,15 +228,6 @@
                   resizeMode="cover"
                 />
               )}
-
-
-              {/* <TextInput
-              placeholder="Your Name"
-              value={personName}
-              onChangeText={setPersonName}
-              className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
-              placeholderTextColor="#6B7280"
-            /> */}
               <TextInput
                 placeholder="Lost Object Name"
                 value={objectName}
@@ -252,14 +243,6 @@
                 className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
                 placeholderTextColor="#6B7280"
               />
-              {/* <TextInput
-              placeholder="Date"
-              value={date}
-              onChangeText={setDate}
-              className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
-              placeholderTextColor="#6B7280"
-            /> */}
-
               <View className="flex-row justify-between">
                 <Pressable
                 onPress={() => {

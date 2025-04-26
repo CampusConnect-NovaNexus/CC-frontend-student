@@ -25,6 +25,12 @@ import { getStats } from "@/service/grievance/getStats";
 import { getComment } from "@/service/grievance/getComment";
 import { postComment } from "@/service/grievance/postComment";
 
+interface Comment {
+  c_id: string,
+  c_message: string,
+  comment_id: string,
+  created_at: string
+}
 interface Grievance {
   c_id: string;
   user_id: string;
@@ -42,16 +48,36 @@ export default function GrievanceScreen() {
   const [grievanceItem, setGrievanceItem] = useState<Grievance | null>(null);
   const [grievanceVisible, setGrievanceVisible] = useState(false);
   const [stats, setStats] = useState({total_complaints:0,unresolved_complaints:0,resolved_complaints:0});
-  const [comments,setComments]=useState({});
+  const [comments,setComments]=useState<Comment[] | null>(null);
+  const [newComment,setNewComment]=useState("");
   const router = useRouter();
+
+  const handlePostComment=async(c_id:string)=>{
+    if(newComment.length===0) {
+      return;
+    }
+    try{
+        console.log('in try block of handle post comment');
+        
+        const res=await postComment(c_id,"user123",newComment);
+        if(res.c_id){
+          setNewComment("");
+          fetchComments(res.c_id);
+        }
+      }catch(err){
+        console.log('handlePostComment errro ',err);
+        
+      }
+  }
   const fetchComments=async(c_id:string)=>{
-    console.log(c_id);
-    
-      const res=await getComment(c_id)
-      console.log("comments in griev : ", res);
-      setComments(res.comments.reverse());
-      console.log('comments in object : ',comments);
-      
+      try {
+        const res=await getComment(c_id)
+        setComments(res.comments.reverse());
+        
+      } catch (error) {
+        console.log('error in fetchComments of GrievanceScreen : ',error)
+      }
+     
   }
   const loadGrievances = async () => {
     const result = await fetchGrievances();
@@ -102,14 +128,14 @@ export default function GrievanceScreen() {
         await setGrievanceItem(item);
         await fetchComments(item.c_id);
         setGrievanceVisible(true);
-        // console.log("grievance item : ", grievanceItem, grievanceVisible)
+        
 
       }}
     >
       <View className="flex-col w-[80%] overflow-hidden">
         <Text className="text-2xl font-semibold">{item.title}</Text>
         <Text  className="font-extralight mt-2 "  numberOfLines={2} >{item.description}</Text>
-        <Text className="items-end justify-end  mt-2 ">{item.created_at.slice(0,10)}</Text>
+        <Text className="items-end justify-end  mt-2 ">{item.created_at}</Text>
       </View>
       <View style={styles.voteRow}>
         <UpVoteBtn c_id={item.c_id} user_id="user123" upVotes={item.upvotes.length} />
@@ -201,20 +227,60 @@ export default function GrievanceScreen() {
       </Modal>
 
       {/* Grievance Detail Modal */}
-      <Modal animationType="slide" transparent visible={grievanceVisible}>
+      <Modal animationType="slide" transparent visible={grievanceVisible}
+        
+      >
         {grievanceItem && (
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Pressable onPress={() => setGrievanceVisible(false)} style={{ width: 30 }} className=" ">
+            <View style={styles.modalContent} className="flex ">
+              <Pressable onPress={() => {setGrievanceVisible(false);setNewComment("")}} style={{ width: 30 }} className=" ">
                 <Image source={icons.goBack} style={{ width: 30, height: 30 }} />
               </Pressable>
               <Text className="text-3xl ">{grievanceItem.title}</Text>
               <Text className="text-xl ">{grievanceItem.description}</Text>
-              <UpVoteBtn c_id={grievanceItem.c_id} user_id="user123" upVotes={grievanceItem.upvotes.length} />
-              <ScrollView  className="mb-20" >
+              <View className="flex-row mt-5 justify-between" >
+                <View>
                 <Text style={styles.detailLabel}>Posted on:</Text>
                 <Text style={styles.detailDescription}>{grievanceItem.created_at.slice(0, 10)}</Text>
-              </ScrollView>
+                </View>
+                <UpVoteBtn c_id={grievanceItem.c_id} user_id="user123" upVotes={grievanceItem.upvotes.length} />
+              </View>
+              <Text className="text-2xl text-gray-700" >Comments</Text>
+              {(comments && comments.length===0)? (<Text>No Comments yet</Text>):(
+                <FlatList 
+                data={comments}
+                keyExtractor={(item) => {
+                  console.log('item : ',item);
+                  
+                  return item.comment_id}}
+                className="w-30 h-1/3 "
+                renderItem={({item})=>(
+                  <View>
+                    <Text >{item.c_message}</Text>
+                    <Text >{item.created_at.slice(0,10)}</Text>
+                  </View>
+                    
+                )}
+              />
+              )}
+              
+              <View className="border rounded-full px-4 flex-row items-center justify-between ">
+
+                <TextInput
+                  placeholder="Your Comment here . . .  "
+                  value={newComment}
+                  onChangeText={setNewComment}
+                  numberOfLines={2}
+                />
+                <Pressable className="p-1" 
+                  onPress={()=>handlePostComment(grievanceItem.c_id)}
+                >
+                  <Image
+                    className="size-7 "
+                    source={icons.send}
+                  />
+                </Pressable>
+              </View>
             </View>
           </View>
         )}
