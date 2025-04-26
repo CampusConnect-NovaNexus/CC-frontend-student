@@ -1,299 +1,257 @@
-  "use client";
+"use client";
 
-  import { useState, useEffect, useCallback } from "react";
-  import { useFocusEffect } from "@react-navigation/native"
-  import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    TouchableOpacity,
-    Image,
-    Modal,
-    ScrollView,
-    Pressable,
-    ActivityIndicator
-  } from "react-native";
-  import { useRouter } from "expo-router";
-  import { icons } from "@/constants/icons";
-  import { images } from "@/constants/images";
-  import { LFData } from "@/service/lost-found/LFAPI";
-  import { lostItemData } from "@/service/lost-found/lostItemClick";
-  import { foundItemData } from "@/service/lost-found/foundItemClick";
-  import { fetchUser } from "@/service/lost-found/fetchUser";
-  import My_modal from "@/components/My_modal";
+import { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Image,
+  ScrollView,
+  Pressable,
+  ActivityIndicator
+} from "react-native";
+import { useRouter } from "expo-router";
+import Modal from 'react-native-modal';
+import { icons } from "@/constants/icons";
+import { images } from "@/constants/images";
+import { LFData } from "@/service/lost-found/LFAPI";
+import { lostItemData } from "@/service/lost-found/lostItemClick";
+import { foundItemData } from "@/service/lost-found/foundItemClick";
+import { fetchUser } from "@/service/lost-found/fetchUser";
 
-  interface user {
-    id: string;
-    email: string;
-    username: string;
-  }
+interface User {
+  id: string;
+  email: string;
+  username: string;
+}
 
-  export default function LostFoundScreen() {
-    const [data, setData] = useState(null);
-    const [showLostItem, setShowLostItem] = useState(false);
-    const [showFoundItem, setShowFoundItem] = useState(false);
-    const [lostItemInView, setLostItemInView] = useState(null);
-    const [foundItemInView, setFoundItemInView] = useState(null);
-    const [reportedUser, setReportedUser] = useState<user | null>(null);
-    const router = useRouter();
+interface LFItem {
+  id: string;
+  item_title: string;
+  item_description: string;
+  item_image?: string;
+  item_category: string;
+  item_date: string;
+  item_contact: string;
+  user_id: string;
+}
 
-    const lostListItem = ({ item }) => {
-      if (item.item_category === "FOUND") {
-        return null;
-      }
-      
-      return (
-        <Pressable
-          onPress={async () => {
-            await onLostItemClick(item.id, item.user_id);
-            await setLostItemInView(item)
-            console.log(lostItemInView)
-            
-          }}
-        >
-          <View
-            style={styles.itemContainer}
-            className="overflow-hidden bg-[#fafdff] rounded-2xl border-[1px] border-slate-500"
-          >
-            <Image
-              source={
-                item.item_image
-                  ? { uri: item.item_image }
-                  : images.movie_logo
-              }
-              style={styles.image}
-              className="object-cover"
-            />
-            {/* <Text className="text-white overflow-hidden text-lg font-semibold mt-2"></Text> */}
-            <Text numberOfLines={1} className="text-black overflow-hidden px-3 text-md font-semibold my-2 text-center">
-              {item.item_title}
-            </Text>
-            <Text numberOfLines={2} className="text-gray-700 overflow-hidden text-sm px-5 pb-2 ">
-              {item.item_description}
-            </Text>
-          </View>
-        </Pressable>
-      );
-    }
-    const foundListItem = ({ item }) => {
-      if (item.item_category === "LOST") return null
-      return (
-        <Pressable
-          onPress={async () => {
-            await onLostItemClick(item.id, item.user_id);
-            setLostItemInView(item)
-          }}
-        >
-          <View
-            style={styles.itemContainer}
-            className="overflow-hidden bg-[#fafdff] rounded-2xl border-[1px] border-slate-500"
-          >
-            <Image
-              source={
-                item.item_image
-                  ? { uri: item.item_image }
-                  : images.movie_logo
-              }
-              style={styles.image}
-              className="object-cover"
-            />
-            <Text className="text-black overflow-hidden px-3 text-md font-semibold my-2 text-center">
-              {item.item_title}
-            </Text>
-            <Text numberOfLines={2} className="text-gray-700 overflow-hidden text-sm px-5 pb-2 ">
-              {item.item_description}
-            </Text>
-          </View>
-        </Pressable>
-      );
-    }
-    
+export default function LostFoundScreen() {
+  const router = useRouter();
+  const [data, setData] = useState<LFItem[] | null>(null);
+  const [isLostModalVisible, setIsLostModalVisible] = useState(false);
+  const [isFoundModalVisible, setIsFoundModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<LFItem | null>(null);
+  const [reportedUser, setReportedUser] = useState<User | null>(null);
 
-    const getUser = async (id: string) => {
-      //can i reduce time by setting item_info from the retrieved data from LFAPI
-      const user_info = await fetchUser({ id });
-      setReportedUser(user_info);
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        const result = await LFData();
+        setData(result.reverse());
+      };
+      fetchData();
+    }, [])
+  );
 
-    const onLostItemClick = async (id: string, userId: string) => {
-      const item_info = await lostItemData({ id });
-      setLostItemInView(item_info);
-      await getUser(userId);
-      setShowLostItem(true);
-    };
+  const handleItemClick = async (id: string, userId: string, isLost: boolean) => {
+    const itemData = isLost
+      ? await lostItemData({ id })
+      : await foundItemData({ id });
 
-    const onFoundItemClick = async (id: string, userId: string) => {
-      const item_info = await foundItemData({ id });
-      setFoundItemInView(item_info);
-      await getUser(userId);
-      setShowFoundItem(true);
-    };
+    const userData = await fetchUser({ id: userId });
 
-    useFocusEffect(
-      useCallback(() => {
-        const fetchData = async () => {
-          const result = await LFData();
-          setData(result.reverse());
-        }
+    setSelectedItem(itemData);
+    setReportedUser(userData);
+    isLost ? setIsLostModalVisible(true) : setIsFoundModalVisible(true);
+  };
 
-        fetchData();
-      }, [])
-    )
-    return (
-      <ScrollView className="bg-[#fdfcf9] mb-[60px]">
-        <View className="flex mx-4 mt-10 flex-row justify-around">
-          <Pressable
-            onPress={() => router.push("../Lost")}
-            className="flex p-5 bg-red-500 flex-row w-[45%] items-center justify-center gap-3 rounded-xl shadow-gray-800 shadow-xl"
-          >
-            <Image
-              source={icons.sad_face}
-              tintColor="white"
-              className="h-8 w-8 m-1"
-            />
-            <Text style={{ fontFamily: "transcity" }} className="text-4xl pt-1 text-white">Lost</Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => router.push("../Found")}
-            className="flex p-3 bg-green-500 w-[45%]  flex-row items-center justify-center gap-3 rounded-xl"
-          >
-            <Image
-              source={icons.happy_face}
-              tintColor="white"
-              className="h-8 w-8 m-1"
-            />
-            <Text style={{ fontFamily: "transcity" }} className="text-4xl pt-1 text-white">Found</Text>
-          </Pressable>
-        </View>
-
-        <View className="mt-7 mx-3 rounded-xl p-2 pt-4 ">
-          <Text style={{ fontFamily: "transcity" }} className="text-4xl ml-3 font-semibold text-black">
-            Recently Lost
+  const renderItem = ({ item, isLost }: { item: LFItem; isLost: boolean }) => (
+    <Pressable onPress={() => handleItemClick(item.id, item.user_id, isLost)}>
+      <View style={styles.itemContainer} className="bg-[#fafdff] rounded-2xl border border-slate-300">
+        <Image
+          source={item.item_image ? { uri: item.item_image } : images.movie_logo}
+          style={styles.image}
+          className="rounded-t-2xl"
+        />
+        <View className="p-3">
+          <Text numberOfLines={1} className="text-black font-semibold text-center">
+            {item.item_title}
           </Text>
-
-          {/* Show ActivityIndicator if data is null or empty */}
-          {!data ? (
-            <View className="h-40 justify-center items-center">
-              <ActivityIndicator size="large" color="#f59e0b" />
-            </View>
-          ) : (
-            <FlatList
-              showsHorizontalScrollIndicator={false}
-              data={data}
-              keyExtractor={(item) => item.id}
-              horizontal
-              className="mt-5"
-              renderItem={lostListItem}
-            />
-          )}
-        </View>
-
-        <View className="mt-7 mx-3 rounded-xl p-2 pt-4">
-          <Text style={{ fontFamily: "transcity" }} className="text-4xl ml-3 font-semibold text-black">
-            Recently Found
+          <Text numberOfLines={2} className="text-gray-600 text-sm mt-1">
+            {item.item_description}
           </Text>
-
-          {/* Show loader while data is loading/empty */}
-          {!data ? (
-            <View className="h-40 justify-center items-center">
-              <ActivityIndicator size="large" color="#f59e0b" /> {/* amber-500 */}
-            </View>
-          ) : (
-            <FlatList
-              showsHorizontalScrollIndicator={false}
-              data={data}
-              keyExtractor={(item) => item.id}
-              horizontal
-              className="mt-5 mb-10"
-              renderItem={foundListItem}
-              ListEmptyComponent={  // Fallback if data becomes empty after load
-                <View className="h-40 justify-center items-center">
-                  <Text className="text-gray-500">No found items yet</Text>
-                </View>
-              }
-            />
-          )}
         </View>
+      </View>
+    </Pressable>
+  );
 
-        {/* Lost Item Modal */}
+  const renderModalContent = () => (
+    <View className="bg-white rounded-2xl p-5 mx-4">
+      <Pressable
+        onPress={() => {
+          setIsLostModalVisible(false);
+          setIsFoundModalVisible(false);
+        }}
+        className="absolute -right-2 -top-2 z-10 p-3 bg-white rounded-full"
+        style = {{ elevation: 5}}
+      >
+        <Image source={icons.cross} className="w-5 h-5" />
+      </Pressable>
 
-        <My_modal
-          visible={showLostItem && lostItemInView !== null}
-          onClose={() => setShowLostItem(false)}
+      <View className="relative mb-4">
+        {selectedItem?.item_image ? (
+          <Image
+            source={{ uri: selectedItem.item_image }}
+            className="w-full h-60 rounded-xl"
+            resizeMode="contain"
+          />
+        ) : (
+          <View className="w-full h-48 bg-gray-100 rounded-xl justify-center items-center">
+            <Text className="text-gray-400">No image available</Text>
+          </View>
+        )}
+      </View>
+
+      <Text className="text-xl font-bold text-gray-800">{selectedItem?.item_title}</Text>
+      <Text className="text-gray-600 mt-2">{selectedItem?.item_description}</Text>
+
+      <View className="mt-4 space-y-1">
+        <Text className="text-sm text-gray-500">
+          Reported by: {reportedUser?.username || "Unknown"}
+        </Text>
+        <Text className="text-sm text-gray-500">Date: {selectedItem?.item_date}</Text>
+        <Text className="text-sm text-gray-500">Contact: {selectedItem?.item_contact}</Text>
+      </View>
+
+      <Pressable
+        className={`mt-6 py-3 rounded-lg ${isLostModalVisible ? 'bg-red-500' : 'bg-green-500'}`}
+        onPress={() => {
+          setIsLostModalVisible(false);
+          setIsFoundModalVisible(false);
+        }}
+      >
+        <Text className="text-white text-center font-medium">
+          {isLostModalVisible ? 'Return Item' : 'Claim Item'}
+        </Text>
+      </Pressable>
+    </View>
+  );
+
+  return (
+    <ScrollView className="bg-[#fdfcf9] flex-1 mb-[60px]">
+      <View className="flex-row justify-between mx-5 mt-8 gap-4">
+        <Pressable
+          onPress={() => router.push("../Lost")}
+          className="flex-1 bg-red-500 p-4 rounded-xl items-center shadow-lg"
         >
-          {lostItemInView && (
-            <View className="flex-1 justify-center items-center bg-transparent px-5">
-              <View className="bg-white p-5 rounded-xl w-full max-w-md">
-                {lostItemInView.item_image ? (
-                  <Image
-                    source={{ uri: lostItemInView.item_image }}
-                    className="w-full h-40 rounded mb-4"
-                    resizeMode="cover"
-                  />
-                ) : (
-                  <Text className="text-gray-500 text-center mb-4">
-                    Image is unavailable
-                  </Text>
-                )}
-                <Text className="text-xl font-bold mb-2">
-                  {lostItemInView.item_title}
-                </Text>
-                <Text className="mb-2">{lostItemInView.item_description}</Text>
-                <Text className="text-sm text-gray-600 mt-3">
-                  Reported by {reportedUser?.username ?? "Loading..."}
-                </Text>
-                {/* <Pressable
-                  onPress={() => setShowLostItem(false)}
-                  className="bg-red-500 mt-4 py-2 px-4 rounded-lg"
-                >
-                  <Text className="text-white text-center">Close</Text>
-                </Pressable> */}
-              </View>
-            </View>
-          )}
-        </My_modal>
+          <Image source={icons.sad_face} className="w-12 h-12 tint-white" />
+          <Text style={{ fontFamily: "transcity" }} className="text-white text-2xl mt-2">
+            Lost
+          </Text>
+        </Pressable>
 
-        {/* Found Item Modal */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={showFoundItem}
-          onRequestClose={() => setShowFoundItem(false)}
+        <Pressable
+          onPress={() => router.push("../Found")}
+          className="flex-1 bg-green-500 p-4 rounded-xl items-center shadow-lg"
         >
-          {showFoundItem && foundItemInView && (
-            <View className="flex-1 justify-center items-center bg-black/60 px-5">
-              <View className="bg-white p-5 rounded-xl w-full max-w-md">
-                <Text className="text-xl font-bold mb-2">
-                  {foundItemInView.item_title}
-                </Text>
-                <Text className="mb-2">{foundItemInView.item_description}</Text>
-                <Text className="text-sm text-gray-600 mt-3">
-                  Reported by {reportedUser?.username ?? "Loading..."}
-                </Text>
-                <Pressable
-                  onPress={() => setShowFoundItem(false)}
-                  className="bg-green-500 mt-4 py-2 px-4 rounded-lg"
-                >
-                  <Text className="text-white text-center">Close</Text>
-                </Pressable>
-              </View>
-            </View>
-          )}
-        </Modal>
-      </ScrollView>
-    );
-  }
+          <Image source={icons.happy_face} className="w-12 h-12 tint-white" />
+          <Text style={{ fontFamily: "transcity" }} className="text-white text-2xl mt-2">
+            Found
+          </Text>
+        </Pressable>
+      </View>
 
-  const styles = StyleSheet.create({
-    itemContainer: {
-      marginHorizontal: 10,
-      width: 150,
-    },
-    image: {
-      width: 150,
-      height: 150,
-      backgroundColor: "#ccc",
-    },
-  });
+      {/* Recently Lost Section */}
+      <View className="mt-8 mx-5">
+        <Text style={{ fontFamily: "transcity" }} className="text-3xl text-gray-800">
+          Recently Lost
+        </Text>
+        {!data ? (
+          <View className="h-40 justify-center">
+            <ActivityIndicator size="large" color="#ef4444" />
+          </View>
+        ) : (
+          <FlatList
+            horizontal
+            data={data.filter(item => item.item_category === "LOST")}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            className="mt-4"
+            renderItem={({ item }) => renderItem({ item, isLost: true })}
+            ListEmptyComponent={
+              <Text className="text-gray-400 mt-4">No lost items found</Text>
+            }
+          />
+        )}
+      </View>
+
+      {/* Recently Found Section */}
+      <View className="mt-8 mx-5 mb-10">
+        <Text style={{ fontFamily: "transcity" }} className="text-3xl text-gray-800">
+          Recently Found
+        </Text>
+        {!data ? (
+          <View className="h-40 justify-center">
+            <ActivityIndicator size="large" color="#22c55e" />
+          </View>
+        ) : (
+          <FlatList
+            horizontal
+            data={data.filter(item => item.item_category === "FOUND")}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            className="mt-4"
+            renderItem={({ item }) => renderItem({ item, isLost: false })}
+            ListEmptyComponent={
+              <Text className="text-gray-400 mt-4">No found items</Text>
+            }
+          />
+        )}
+      </View>
+
+      {/* Unified Modal */}
+      <Modal
+        isVisible={isLostModalVisible || isFoundModalVisible}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        backdropColor="rgba(0,0,0,0.5)"
+        backdropTransitionInTiming={300}
+        backdropTransitionOutTiming={300}
+        onBackdropPress={() => {
+          setIsLostModalVisible(false);
+          setIsFoundModalVisible(false);
+        }}
+        style={styles.modal}
+      >
+        {renderModalContent()}
+      </Modal>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  itemContainer: {
+    width: 200,
+    marginRight: 16,
+    marginBottom: 10,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  image: {
+    width: 200,
+    height: 160,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    backgroundColor: "#f3f4f6",
+  },
+  modal: {
+    justifyContent: 'center',
+    margin: 0,
+  },
+});

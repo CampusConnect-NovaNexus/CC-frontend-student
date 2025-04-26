@@ -18,6 +18,8 @@ import happy_face from "@/assets/icons/happy-face.png";
 import upVote from "@/assets/icons/raise-hand.png";
 import upArrow from "@/assets/icons/up-arrow.png"
 import send from "@/assets/icons/send.png"
+import cross from "@/assets/icons/cross_icon.png";
+
 export const icons = {
   home,
   search,
@@ -39,4 +41,5 @@ export const icons = {
   upVote,
   upArrow,
   send,
+  cross,
 };
