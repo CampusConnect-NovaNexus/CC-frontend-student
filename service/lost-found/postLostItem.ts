@@ -17,6 +17,8 @@ const getMimeType = (filename: string) => {
 };
 
 export const postLostItem = async (item: LostFoundItemInput) => {
+  console.log('in lost post item');
+  
   const BASEURL = EXPO_BASE_URL;
   const form = new FormData();
 
@@ -33,7 +35,8 @@ export const postLostItem = async (item: LostFoundItemInput) => {
       type: mimeType, // ✅ correct type
     } as any);
   }
-
+  console.log('lost data : ', form);
+  
   try {
     const response = await fetch(`${BASEURL}/api/v1/item/create`, {
       method: 'POST',
@@ -41,7 +44,7 @@ export const postLostItem = async (item: LostFoundItemInput) => {
     });
 
     const contentType = response.headers.get("content-type");
-
+    console.log('respoosne : ', response)
     if (!response.ok) {
       console.error("HTTP Error:", response.status, response.statusText);
       return null;

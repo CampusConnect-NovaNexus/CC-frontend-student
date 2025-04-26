@@ -125,7 +125,9 @@ const Lost= () => {
   }
 
   const handleAddLostItem = async () => {
-    if (!personName || !objectName ||!description || !date ) {
+    console.log('in handleaddlosrItem');
+    
+    if (!objectName ||!description  ) {
       Alert.alert("Error", "Please fill all fields and pick an image.");
       return;
     }
@@ -139,16 +141,16 @@ const Lost= () => {
         image: imageFile,
         item_category: "LOST",
       });
+      console.log(response);
       
       if (response && response.status==="Item created successfully") {
         // fetchLostItems();
         Alert.alert("Upload Successful", "Thanks for your kindness ❤️");
         fetchData();
         setModalVisible(false);
-        setPersonName("");
         setObjectName("");
-        setDate("");
         setDescription("");
+        setImageFile(null)
       } else {
         Alert.alert("Upload failed", "Please try again later.");
       }
@@ -280,7 +282,11 @@ const Lost= () => {
 
             <View className="flex-row justify-between">
               <Pressable
-                onPress={() => setModalVisible(false)}
+                onPress={() =>
+                  {setModalVisible(false)
+                  setObjectName("")
+                  setDescription("");
+                  setImageFile(null)}}
                 className="px-4 py-2 bg-gray-400 rounded"
               >
                 <Text className="text-white">Cancel</Text>

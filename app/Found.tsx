@@ -125,7 +125,7 @@ const Found= () => {
   }
 
   const handleAddFoundItem = async () => {
-    if (!personName || !objectName ||!description || !date ) {
+    if (!objectName ||!description  ) {
       Alert.alert("Error", "Please fill all fields and pick an image.");
       return;
     }
@@ -248,13 +248,13 @@ const Found= () => {
             )}
 
 
-            <TextInput
+            {/* <TextInput
               placeholder="Your Name"
               value={personName}
               onChangeText={setPersonName}
               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
               placeholderTextColor="#6B7280"
-            />
+            /> */}
             <TextInput
               placeholder="Lost Object Name"
               value={objectName}
@@ -270,17 +270,20 @@ const Found= () => {
               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
               placeholderTextColor="#6B7280"
             />
-            <TextInput
+            {/* <TextInput
               placeholder="Date"
               value={date}
               onChangeText={setDate}
               className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
               placeholderTextColor="#6B7280"
-            />
+            /> */}
 
             <View className="flex-row justify-between">
               <Pressable
-                onPress={() => setModalVisible(false)}
+                onPress={() => {setModalVisible(false)
+                  setObjectName("")
+                  setDescription("");
+                  setImageFile(null)}}
                 className="px-4 py-2 bg-gray-400 rounded"
               >
                 <Text className="text-white">Cancel</Text>
