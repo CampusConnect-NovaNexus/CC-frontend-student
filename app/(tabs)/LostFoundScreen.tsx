@@ -145,7 +145,8 @@
         <View className="flex mx-4 mt-10 flex-row justify-around">
           <Pressable
             onPress={() => router.push("../Lost")}
-            className="flex p-5 bg-red-500 flex-row w-[45%] items-center justify-center gap-3 rounded-xl shadow-gray-800 shadow-xl"
+            className="flex p-5 bg-red-500 flex-row w-[45%] items-center justify-center gap-3 rounded-xl"
+            style={{elevation : 5}}
           >
             <Image
               source={icons.sad_face}
@@ -158,6 +159,7 @@
           <Pressable
             onPress={() => router.push("../Found")}
             className="flex p-3 bg-green-500 w-[45%]  flex-row items-center justify-center gap-3 rounded-xl"
+            style={{elevation : 5}}
           >
             <Image
               source={icons.happy_face}

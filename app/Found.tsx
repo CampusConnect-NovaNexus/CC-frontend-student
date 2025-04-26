@@ -1,115 +1,64 @@
-import React, { useEffect, useState,useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
   TextInput,
-  Modal,
   Pressable,
   FlatList,
   Image,
   Alert,
-  StyleSheet
+  StyleSheet,
+  ActivityIndicator
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import {fetchUser } from '@/service/lost-found/fetchUser'
 import { LFData } from "@/service/lost-found/LFAPI";
 import { postFoundItem } from "@/service/lost-found/postFoundItem";
+import { images } from '@/constants/images'
+import { icons } from '@/constants/icons'
+import Modal from 'react-native-modal';
+
 interface FoundItem {
   id: string;
   item_title: string;
   item_description: string;
-  item_image?: {
-    uri: string;
-    name: string;
-    type: string;
-  };
-
+  item_image?: string;
   item_category: string;
-  item_date:string,
-  item_reporter_name:string;
+  item_date: string;
+  item_reporter_name: string;
+  item_contact: string;
 }
-import {images} from '@/constants/images'
-
-const Found= () => {
+const Found = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [displayObject, setDisplayObject] = useState(false);
   const [selectedItem, setSelectedItem] = useState<FoundItem | null>(null);
-  const [personName, setPersonName] = useState("");
   const [objectName, setObjectName] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
+  const [contact, setContact] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
   const [imageFile, setImageFile] = useState<null | {
     uri: string;
     name: string;
     type: string;
   }>(null);
-  
-
-  
-  const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
-  const foundListItem=({item})=>{
-      if(item.item_category==="LOST") {
-        return null;
-      }
-      
-      return(
-        <Pressable
-          onPress={async () => {
-            setSelectedItem(item);
-            setDisplayObject(true);
-          }}
-        >
-          <View className="flex-col">
-            <View className="bg-[#F8F8FF] mb-4 flex-row justify-between rounded-2xl items-center shadow-md shadow-slate-400">
-              <View className="h-full w-1/2">
-                <Text className="text-black text-xl mt-2 px-3 font-semibold">
-                  {item.item_title}
-                </Text>
-                <Text className="text-gray-700 text-md mt-2 px-3">
-                  {item.item_description}
-                </Text>
-              </View>
-              <Image
-                source={
-                  item.item_image
-                    ? { uri: item.item_image }
-                    : images.movie_logo
-                }
-                style={styles.image}
-                className="object-cover rounded-r-2xl"
-              />
-            </View>
-          </View>
-        </Pressable>
-      );
-  }
-
 
   useFocusEffect(
-    useCallback(()=>{
-      const fetchData =async()=>{
-        const result=await LFData();
+    useCallback(() => {
+      const fetchData = async () => {
+        const result = await LFData();
         setFoundItems(result.reverse())
-      }
-
+      };
       fetchData();
-    },[])
+    }, [])
   )
 
-
-
-  const fetchData = async () => {
-    const result = await LFData();
-    
-    setFoundItems(result.reverse());
-  };
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
-  
+
     if (!result.canceled && result.assets.length > 0) {
       const asset = result.assets[0];
       setImageFile({
@@ -119,48 +68,88 @@ const Found= () => {
       });
     }
   };
-  
-  const embedFoundItem=async()=>{
-    
-  }
 
   const handleAddFoundItem = async () => {
-    if (!objectName ||!description  ) {
+    if (!objectName || !description || !contact) {
       Alert.alert("Error", "Please fill all fields and pick an image.");
       return;
     }
+
+    setLoading(true);
+
     try {
-      if (!imageFile) return
-      
+      // if (!imageFile) return
+
       const response = await postFoundItem({
-        user_id:"f1254d1f-6a62-495f-99fa-88740d4bb662" ,
+        user_id: "f1254d1f-6a62-495f-99fa-88740d4bb662",
         title: objectName,
         description: description,
+        contact: contact,
         image: imageFile,
         item_category: "FOUND",
       });
-      
-      if (response && response.status==="Item created successfully") {
-        // fetchLostItems();
+
+      if (response && response.status === "Item created successfully") {
         Alert.alert("Upload Successful", "Thanks for your kindness ❤️");
-        fetchData();
+        const result = await LFData();
+        setFoundItems(result.reverse());
         setModalVisible(false);
-        setPersonName("");
         setObjectName("");
-        setDate("");
         setDescription("");
+        setLoading(false)
+        setContact("");
+        setImageFile(null); // Reset Image
       } else {
         Alert.alert("Upload failed", "Please try again later.");
       }
     } catch (error) {
       console.error("Upload error : ", error);
+      Alert.alert('Error','Something went wrong.');
+      setLoading(false);
     }
   };
+
+  const renderItem = ({ item }: { item: FoundItem }) => {
+    if (item.item_category === "LOST") return null;
+
+    return (
+      <Pressable
+        onPress={async () => {
+          setSelectedItem(item);
+          setDisplayObject(true);
+        }}
+      >
+        <View className="flex-col">
+          <View className="bg-[#F8F8FF] mb-4 flex-row justify-between rounded-2xl items-center shadow-md shadow-slate-400">
+            <View className="h-full w-1/2">
+              <Text className="text-black text-xl mt-2 px-3 font-semibold">
+                {item.item_title}
+              </Text>
+              <Text className="text-gray-700 text-md mt-2 px-3">
+                {item.item_description}
+              </Text>
+            </View>
+            <Image
+              source={
+                item.item_image
+                  ? { uri: item.item_image }
+                  : images.movie_logo
+              }
+              style={styles.image}
+              className="object-cover rounded-r-2xl"
+            />
+          </View>
+        </View>
+      </Pressable>
+    );
+  }
 
   return (
     <View className="flex-1 bg-white p-4">
       <View className="flex-row justify-between items-center mb-4">
-        <Text style={{fontFamily: 'wastedVindey'}} className="text-4xl p-4 text-black">Found Items</Text>
+        <Text style={{ fontFamily: 'wastedVindey' }} className="text-4xl p-4 text-black">
+          Found Items
+        </Text>
         <Pressable
           onPress={() => setModalVisible(true)}
           className="bg-green-500 px-6 py-3 rounded-full"
@@ -174,50 +163,63 @@ const Found= () => {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
-        renderItem={foundListItem}
+        renderItem={renderItem}
       />
 
+      {/* Modal for displaying item details */}
       {displayObject && selectedItem && (
         <Modal visible={displayObject} animationType="slide" transparent={true}>
           <View className="flex-1 justify-center items-center bg-black/80 px-4">
             <View className="bg-white w-full rounded-lg p-5">
-              {selectedItem.item_image ? (
-                <Image
-                  source={{ uri: selectedItem.item_image }}
-                  className="w-full h-40 rounded mb-4"
-                  resizeMode="cover"
-                />
-              ) : (
-                <Text className="text-gray-500 text-center mb-4">
-                  Image is unavailable
-                </Text>
-              )}
+              <View className="relative mb-4">
+                {selectedItem.item_image ? (
+                  <Image
+                    source={{ uri: selectedItem.item_image }}
+                    className="w-full h-40 rounded mb-4"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View className="w-full h-40 bg-gray-200 rounded-xl justify-center items-center">
+                    <Text className="text-gray-500 text-center w-28">
+                      Image was not uploaded by the user.
+                    </Text>
+                  </View>
+                )}
 
-              <Text className="text-black font-bold text-xl mb-2">
-                Object Name: {selectedItem.item_title}
+                {/* Cross button with absolute positioning */}
+                <Pressable
+                  onPress={() => setDisplayObject(false)}
+                  className="absolute -right-2 -top-2 bg-white p-2 rounded-full shadow-md"
+                >
+                  <Image
+                    source={icons.cross}
+                    className="w-5 h-5"
+                    resizeMode="contain"
+                  />
+                </Pressable>
+              </View>
+
+              <Text className="text-black font-semibold text-xl mb-2">
+                {selectedItem.item_title}
               </Text>
-              <Text className="text-black mb-2">
-                Description & Place: {selectedItem.item_description}
+              <Text className="text-black mb-2 pl-2">
+                {selectedItem.item_description}
               </Text>
-              <View className="flex-row justify-between mb-4">
-                <Text className="text-gray-700">
-                  By: {selectedItem.item_reporter_name}
+              <View className="flex-col pl-4 justify-between mb-4">
+                <Text className="text-gray-700 mb-1">
+                  Posted By : {selectedItem.item_reporter_name}
                 </Text>
-                <Text className="text-gray-700">{selectedItem.item_date}</Text>
+                <Text className="text-gray-700 mb-1">Posted On : {selectedItem.item_date}</Text>
+                <Text className="text-gray-700">Contact Number : {selectedItem.item_contact}</Text>
               </View>
 
               <View className="flex-row justify-around">
                 <Pressable
                   onPress={() => setDisplayObject(false)}
-                  className="bg-gray-500 px-4 py-2 rounded"
+                  className="bg-blue-500 px-6 py-4 rounded-xl"
+                  style={{ elevation: 3 }}
                 >
-                  <Text className="text-white">Close</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => setDisplayObject(false)}
-                  className="bg-blue-500 px-4 py-2 rounded"
-                >
-                  <Text className="text-white">Claim</Text>
+                  <Text className="font-bold text-xl text-white">Claim</Text>
                 </Pressable>
               </View>
             </View>
@@ -225,16 +227,33 @@ const Found= () => {
         </Modal>
       )}
 
+      {/* Modal for adding new item */}
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View className="flex-1 justify-center items-center bg-black/50 px-4">
-          <View className="bg-white w-full rounded-lg p-5">
-            <Text className="text-lg font-bold mb-2 text-black">Report Found Item</Text>
-
+          <View className="bg-[#F8F8FF] w-full rounded-2xl p-5 flex-col items-center">
+            <Text className="text-lg font-bold mb-6 text-black text-center">Report Found Item</Text>
+            <Pressable
+              onPress={() => {
+                setModalVisible(false)
+                setObjectName("")
+                setDescription("");
+                setLoading(false)
+                setContact("");
+                setImageFile(null)
+              }}
+              className="absolute -right-2 -top-2 bg-white p-2 rounded-full shadow-md"
+            >
+              <Image
+                source={icons.cross}
+                className="w-5 h-5"
+                resizeMode="contain"
+              />
+            </Pressable>
             <Pressable
               onPress={pickImage}
-              className="bg-gray-200 p-3 rounded mb-3"
+              className="bg-[#FAF9F6] w-2/3 p-3 rounded-2xl mb-3 border-2 border-yellow-500"
             >
-              <Text className="text-black text-center">
+              <Text className="text-black text-center font-semibold">
                 {imageFile ? "Change Image" : "Pick Image"}
               </Text>
             </Pressable>
@@ -242,57 +261,48 @@ const Found= () => {
             {imageFile && (
               <Image
                 source={{ uri: imageFile.uri }}
-                className="w-full h-40 mb-2 rounded"
+                className="w-4/5 h-2/5 mb-2 rounded-2xl"
                 resizeMode="cover"
               />
             )}
+            <View className="w-full px-6">
+              <TextInput
+                placeholder="Found Object Name"
+                value={objectName}
+                onChangeText={setObjectName}
+                className="border-b border-gray-300 rounded-lg px-3 py-3 mb-3 text-black"
+                placeholderTextColor="#6B7280"
+              />
+              <TextInput
+                placeholder="Object Description and Place"
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                className="border-b border-gray-300 rounded px-3 py-3 mb-3 text-black"
+                placeholderTextColor="#6B7280"
+              />
+              <TextInput
+                placeholder="Contact Number"
+                value={contact}
+                onChangeText={setContact}
+                className="border-b border-gray-300 rounded px-3 py-3 mb-3 text-black"
+                placeholderTextColor="#6B7280"
+              />
 
-
-            {/* <TextInput
-              placeholder="Your Name"
-              value={personName}
-              onChangeText={setPersonName}
-              className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
-              placeholderTextColor="#6B7280"
-            /> */}
-            <TextInput
-              placeholder="Lost Object Name"
-              value={objectName}
-              onChangeText={setObjectName}
-              className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
-              placeholderTextColor="#6B7280"
-            />
-            <TextInput
-              placeholder="Object Description and Place"
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
-              placeholderTextColor="#6B7280"
-            />
-            {/* <TextInput
-              placeholder="Date"
-              value={date}
-              onChangeText={setDate}
-              className="border border-gray-300 rounded px-3 py-2 mb-3 text-black"
-              placeholderTextColor="#6B7280"
-            /> */}
+            </View>
 
             <View className="flex-row justify-between">
               <Pressable
-                onPress={() => {setModalVisible(false)
-                  setObjectName("")
-                  setDescription("");
-                  setImageFile(null)}}
-                className="px-4 py-2 bg-gray-400 rounded"
-              >
-                <Text className="text-white">Cancel</Text>
-              </Pressable>
-              <Pressable
                 onPress={handleAddFoundItem}
-                className="px-4 py-2 bg-blue-600 rounded"
+                disabled={loading}
+                className={`px-6 py-4 rounded-xl ${loading ? 'bg-green-400' : 'bg-green-600'}`}
+                style={{ elevation: 3 }}
               >
-                <Text className="text-white">Submit</Text>
+                {loading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white text-xl font-bold">Submit</Text>
+                )}
               </Pressable>
             </View>
           </View>
@@ -302,16 +312,12 @@ const Found= () => {
   );
 };
 
-export default Found;
-
 const styles = StyleSheet.create({
-  itemContainer: {
-    marginHorizontal: 10,
-    width: 150,
-  },
   image: {
     width: 150,
     height: 150,
     backgroundColor: "#ccc",
   },
 });
+
+export default Found;

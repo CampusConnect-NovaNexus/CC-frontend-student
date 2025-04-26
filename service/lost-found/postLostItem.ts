@@ -1,5 +1,15 @@
-
 import { EXPO_BASE_URL } from '@env';
+interface LostFoundItemInput {
+  title: string;
+  user_id: string;
+  description: string;
+  item_category: string;
+  image?: {
+    uri: string;
+    name: string;
+    type?: string;
+  };
+}
 
 const getMimeType = (filename: string) => {
   const ext = filename.split('.').pop()?.toLowerCase();
@@ -32,7 +42,7 @@ export const postLostItem = async (item: LostFoundItemInput) => {
     form.append('image_file', {
       uri: item.image.uri,
       name: item.image.name,
-      type: mimeType, // ✅ correct type
+      type: mimeType, // correct type
     } as any);
   }
   console.log('lost data : ', form);
