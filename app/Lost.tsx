@@ -120,7 +120,9 @@ const Lost= () => {
     }
   };
   
-  
+  const embedLostItem=async()=>{
+    
+  }
 
   const handleAddLostItem = async () => {
     if (!personName || !objectName ||!description || !date ) {

@@ -44,6 +44,37 @@ export default function LostFoundScreen() {
       <Pressable
         onPress={async () => {
           await onLostItemClick(item.id, item.user_id);
+          await setLostItemInView(item)
+          console.log(lostItemInView)
+          
+        }}
+      >
+        <View
+          style={styles.itemContainer}
+          className=" overflow-hidden bg-slate-600 p-5 rounded-lg items-center"
+        >
+          <Image
+            source={
+              item.item_image
+                ? { uri: item.item_image }
+                : images.movie_logo
+            }
+            style={styles.image}
+          />
+          <Text className="text-white overflow-hidden text-lg font-semibold mt-2" numberOfLines={1} >
+            {item.item_title}
+          </Text>
+        </View>
+      </Pressable>
+    )
+
+  }
+  const foundListItem = ({ item }) => {
+    if (item.item_category === "LOST") return null
+    return (
+      <Pressable
+        onPress={async () => {
+          await onLostItemClick(item.id, item.user_id);
           setLostItemInView(item)
         }}
       >
@@ -60,36 +91,6 @@ export default function LostFoundScreen() {
             style={styles.image}
           />
           <Text className="text-white overflow-hidden text-lg font-semibold mt-2">
-            {item.item_title}
-          </Text>
-        </View>
-      </Pressable>
-    )
-
-    return null;
-  }
-  const foundListItem = ({ item }) => {
-    if (item.item_category === "LOST") return null
-    return (
-      <Pressable
-        onPress={async () => {
-          await onFoundItemClick(item.id, item.user_id);
-          setFoundItemInView(item);
-        }}
-      >
-        <View
-          style={styles.itemContainer}
-          className="bg-slate-600 p-5 rounded-lg items-center"
-        >
-          <Image
-            source={
-              item.item_image
-                ? { uri: item.item_image }
-                : images.movie_logo
-            }
-            style={styles.image}
-          />
-          <Text className="text-white text-lg font-semibold mt-2">
             {item.item_title}
           </Text>
         </View>
@@ -117,15 +118,10 @@ export default function LostFoundScreen() {
     setShowFoundItem(true);
   };
 
-
-
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
         const result = await LFData();
-
-
-
         setData(result.reverse());
       }
 
