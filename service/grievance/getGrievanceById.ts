@@ -5,9 +5,9 @@ export const  getGrievanceById =async(c_id:string)=>{
     try{
         const response=await fetch (`${BASEURL}/complaint/${c_id}`)
         const data=await response.json();
-        console.log('GrievanceById : ',data);
+        // console.log('GrievanceById : ',data);
         return data;
     }catch(error){
-        console.log(`GrievanceById error`)
+        console.log(`GrievanceById error`,error)
     }
 }

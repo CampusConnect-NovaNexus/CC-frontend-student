@@ -102,7 +102,7 @@ export default function GrievanceScreen() {
         await setGrievanceItem(item);
         await fetchComments(item.c_id);
         setGrievanceVisible(true);
-        console.log("grievance item : ", grievanceItem, grievanceVisible)
+        // console.log("grievance item : ", grievanceItem, grievanceVisible)
 
       }}
     >
@@ -112,7 +112,7 @@ export default function GrievanceScreen() {
         <Text className="items-end justify-end  mt-2 ">{item.created_at.slice(0,10)}</Text>
       </View>
       <View style={styles.voteRow}>
-        <UpVoteBtn grievanceId={item.c_id} upvotes={item.upvotes} />
+        <UpVoteBtn c_id={item.c_id} user_id="user123" upVotes={item.upvotes.length} />
       </View>
     </TouchableOpacity>
   );
@@ -153,7 +153,7 @@ export default function GrievanceScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
-
+      <View className="mb-10" ></View>
       <TouchableOpacity style={styles.addButton} onPress={() => setFormVisible(true)}>
         <Ionicons name="add" size={24} color="white" />
       </TouchableOpacity>
@@ -210,7 +210,8 @@ export default function GrievanceScreen() {
               </Pressable>
               <Text className="text-3xl ">{grievanceItem.title}</Text>
               <Text className="text-xl ">{grievanceItem.description}</Text>
-              <ScrollView style={styles.detailScroll}>
+              <UpVoteBtn c_id={grievanceItem.c_id} user_id="user123" upVotes={grievanceItem.upvotes.length} />
+              <ScrollView  className="mb-20" >
                 <Text style={styles.detailLabel}>Posted on:</Text>
                 <Text style={styles.detailDescription}>{grievanceItem.created_at.slice(0, 10)}</Text>
               </ScrollView>
