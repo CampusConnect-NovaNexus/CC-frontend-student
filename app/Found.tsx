@@ -49,40 +49,40 @@ const Found= () => {
   
   const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
   const foundListItem=({item})=>{
-      if(item.item_category==="LOST")return null
-        return(
-          <Pressable
-                onPress={async () => {
-                  setSelectedItem(item);
-                  setDisplayObject(true);
-                }}
-              >
-                <View className=" flex-col " >
-                  <View
-                    
-                    className="bg-slate-600 p-5 mb-4 flex-row justify-between  rounded-lg items-center  "
-                  >
-                    <View className=" h-full  " >
-                    <Text className="text-white text-xl   mt-2  ">
-                      {item.item_title}
-                    </Text>
-                    <Text className="text-white text-lg  mt-2">
-                      {item.item_description}
-                    </Text>
-                    </View>
-                    <Image
-                      source={
-                        item.item_image
-                          ? { uri: item.item_image }
-                          : images.movie_logo
-                      }
-                      style={styles.image}
-                    />
-                    
-                  </View>
-                </View>
-              </Pressable>
-        )
+      if(item.item_category==="LOST") {
+        return null;
+      }
+      
+      return(
+        <Pressable
+          onPress={async () => {
+            setSelectedItem(item);
+            setDisplayObject(true);
+          }}
+        >
+          <View className="flex-col">
+            <View className="bg-[#F8F8FF] mb-4 flex-row justify-between rounded-2xl items-center shadow-md shadow-slate-400">
+              <View className="h-full w-1/2">
+                <Text className="text-black text-xl mt-2 px-3 font-semibold">
+                  {item.item_title}
+                </Text>
+                <Text className="text-gray-700 text-md mt-2 px-3">
+                  {item.item_description}
+                </Text>
+              </View>
+              <Image
+                source={
+                  item.item_image
+                    ? { uri: item.item_image }
+                    : images.movie_logo
+                }
+                style={styles.image}
+                className="object-cover rounded-r-2xl"
+              />
+            </View>
+          </View>
+        </Pressable>
+      );
   }
 
 
@@ -160,12 +160,12 @@ const Found= () => {
   return (
     <View className="flex-1 bg-white p-4">
       <View className="flex-row justify-between items-center mb-4">
-        <Text className="text-xl font-bold text-black">Found Items</Text>
+        <Text style={{fontFamily: 'wastedVindey'}} className="text-4xl p-4 text-black">Found Items</Text>
         <Pressable
           onPress={() => setModalVisible(true)}
-          className="bg-red-500 px-4 py-2 rounded"
+          className="bg-green-500 px-6 py-3 rounded-full"
         >
-          <Text className="text-white font-semibold">Add</Text>
+          <Text className="text-white text-3xl font-bold">+</Text>
         </Pressable>
       </View>
 
@@ -307,9 +307,8 @@ const styles = StyleSheet.create({
     width: 150,
   },
   image: {
-    width: 100,
-    height: 100,
-    borderRadius: 12,
+    width: 150,
+    height: 150,
     backgroundColor: "#ccc",
   },
 });
