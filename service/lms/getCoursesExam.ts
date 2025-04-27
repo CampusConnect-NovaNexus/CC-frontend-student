@@ -1,10 +1,10 @@
 import {EXPO_BASE_URL_LMS} from '@env'
 interface Exam {
-    exam_id: number;
+    exam_id: string;
     course_code: string;
     exam_type: string;
     exam_date: string;
-    created_by: number;
+    created_by: string;
   }
   
   export async function getCourseExams(courseCode: string): Promise<Exam[]> {

@@ -1,10 +1,8 @@
-// services/createCourse.ts
 import {EXPO_BASE_URL_LMS} from '@env'
 interface CreateCourseRequest {
     course_code: string;
     course_name: string;
-    description: string;
-    user_id: number;
+    user_id: string;
   }
   
   interface CreateCourseResponse {
@@ -12,6 +10,7 @@ interface CreateCourseRequest {
   }
   
   export async function createCourse(data: CreateCourseRequest): Promise<CreateCourseResponse> {
+    console.log("data in createCourse : ", data)
     const BASEURL=EXPO_BASE_URL_LMS
     const response = await fetch(`${BASEURL}/api/exam/courses`, {
       method: 'POST',
@@ -24,7 +23,7 @@ interface CreateCourseRequest {
     if (!response.ok) {
       throw new Error('Error creating course');
     }
-  
+    
     const responseData: CreateCourseResponse = await response.json();
     return responseData;
   }

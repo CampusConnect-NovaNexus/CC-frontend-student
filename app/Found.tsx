@@ -138,9 +138,9 @@ const Found = () => {
   };
 
   return (
-    <View className="flex-1 bg-white p-4">
+    <View className="flex-1 bg-[#fdfcf9] p-4 mt-10">
       <View className="flex-row justify-between items-center mb-4">
-        <Text style={{ fontFamily: 'wastedVindey' }} className="text-4xl p-4 text-black">
+        <Text style={{ fontFamily: 'wastedVindey' }} className="text-5xl p-4 text-black">
           Found Items
         </Text>
         <Pressable
@@ -150,14 +150,21 @@ const Found = () => {
           <Text className="text-white text-3xl font-bold">+</Text>
         </Pressable>
       </View>
-
-      <FlatList
-        data={foundItems}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
-        renderItem={renderItem}
-      />
+      {
+        !foundItems || foundItems.length == 0 ? (
+          <View className="h-40 w-full justify-center">
+            <ActivityIndicator size="large" color="#22c55e" />
+          </View>
+        ) : (
+          <FlatList
+            data={foundItems}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            renderItem={renderItem}
+          />
+        )
+      }
 
       {/* Item Detail Modal */}
       <Modal
@@ -187,11 +194,11 @@ const Found = () => {
                 </Text>
               </View>
             )}
-            
+
             <Pressable
               onPress={() => setDisplayObject(false)}
               className="absolute -right-8 -top-8 bg-white p-3 rounded-full"
-              style={{ elevation : 7}}
+              style={{ elevation: 7 }}
             >
               <Image
                 source={icons.cross}
@@ -207,7 +214,7 @@ const Found = () => {
           <Text className="text-gray-600 mb-4">
             {selectedItem?.item_description}
           </Text>
-          
+
           <View className="space-y-2 mb-4">
             <Text className="text-gray-500">
               Posted by: {selectedItem?.item_reporter_name}
@@ -244,11 +251,11 @@ const Found = () => {
       >
         <View className="bg-white rounded-2xl p-5 m-4">
           <Text className="text-xl font-bold mb-6 text-center">Report Found Item</Text>
-          
+
           <Pressable
             onPress={() => setModalVisible(false)}
             className="absolute -right-2 -top-2 bg-white p-3 rounded-full"
-            style={{ elevation : 5}}
+            style={{ elevation: 5 }}
           >
             <Image
               source={icons.cross}
@@ -281,7 +288,7 @@ const Found = () => {
             className="bg-gray-100 rounded-lg p-3 mb-3"
             placeholderTextColor="#6B7280"
           />
-          
+
           <TextInput
             placeholder="Description"
             value={description}
@@ -290,7 +297,7 @@ const Found = () => {
             className="bg-gray-100 rounded-lg p-3 mb-3 h-24"
             placeholderTextColor="#6B7280"
           />
-          
+
           <TextInput
             placeholder="Contact Number"
             value={contact}

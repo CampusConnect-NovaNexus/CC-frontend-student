@@ -9,6 +9,7 @@ interface LostFoundItemInput {
     name: string;
     type?: string;
   };
+  contact: string;
 }
 
 const getMimeType = (filename: string) => {

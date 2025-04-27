@@ -7,7 +7,7 @@ interface CreateUserRequest {
 interface CreateUserResponse {
   message: string;
   user: {
-    user_id: number;
+    user_id: string;
     username: string;
     email: string;
   };

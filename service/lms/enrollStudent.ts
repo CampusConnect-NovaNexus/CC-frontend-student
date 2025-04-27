@@ -1,7 +1,7 @@
 import {EXPO_BASE_URL_LMS} from '@env'
 
 interface EnrollStudentRequest {
-  student_id: number;
+  student_id: string;
   roll_no: string;
 }
 

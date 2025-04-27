@@ -2,12 +2,12 @@
   "expo": {
     "name": "frontend-student",
     "slug": "frontend-student",
-    "scheme" : "frontend-student",
+    "scheme": "frontend-student",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/adaptive-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#6366f1"
     },
@@ -21,10 +21,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#6366f1"
-      }
+      },
+      "package": "com.anonymous.frontendstudent"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/adaptive-icon.png"
     },
     "plugins": [
       [

@@ -1,13 +1,13 @@
 import {EXPO_BASE_URL_LMS} from '@env'
 interface AddSyllabusRequest {
   description: string;
-  parent_item_id: number | null;
-  user_id: number;
+  parent_item_id: string | null;
+  user_id: string;
 }
 
 interface AddSyllabusResponse {
   message: string;
-  item_id: number;
+  item_id: string;
 }
 
 export async function addSyllabusItem(body: AddSyllabusRequest): Promise<AddSyllabusResponse | null> {

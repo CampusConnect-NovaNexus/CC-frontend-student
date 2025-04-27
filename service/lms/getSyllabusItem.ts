@@ -1,14 +1,14 @@
 import {EXPO_BASE_URL_LMS} from '@env'
 
 interface SyllabusItem {
-  item_id: number;
-  exam_id: number;
-  parent_item_id: number | null;
+  item_id: string;
+  exam_id: string;
+  parent_item_id: string | null;
   description: string;
-  created_by: number;
+  created_by: string;
 }
 
-export async function getSyllabusItems(examId: number): Promise<SyllabusItem[] | null> {
+export async function getSyllabusItems(examId: string): Promise<SyllabusItem[] | null> {
   const BASEURL=EXPO_BASE_URL_LMS
   try {
     const res = await fetch(`${BASEURL}/api/exam/exams/${examId}/syllabus`);

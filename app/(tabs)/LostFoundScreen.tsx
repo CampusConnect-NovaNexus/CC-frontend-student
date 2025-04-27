@@ -96,7 +96,7 @@ export default function LostFoundScreen() {
           setIsFoundModalVisible(false);
         }}
         className="absolute -right-2 -top-2 z-10 p-3 bg-white rounded-full"
-        style = {{ elevation: 5}}
+        style={{ elevation: 5 }}
       >
         <Image source={icons.cross} className="w-5 h-5" />
       </Pressable>

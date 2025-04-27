@@ -1,6 +1,6 @@
 import {EXPO_BASE_URL_LMS} from '@env'
 interface UpdateProgressRequest {
-  student_id: number;
+  student_id: string;
   completed: boolean;
 }
 
@@ -8,7 +8,7 @@ interface UpdateProgressResponse {
   completed: boolean;
 }
 
-export async function updateProgress(itemId: number, body: UpdateProgressRequest): Promise<UpdateProgressResponse | null> {
+export async function updateProgress(itemId: string , body: UpdateProgressRequest): Promise<UpdateProgressResponse | null> {
   const BASEURL=EXPO_BASE_URL_LMS
   try {
     const res = await fetch(`${BASEURL}/api/exam/checklist/${itemId}`, {
