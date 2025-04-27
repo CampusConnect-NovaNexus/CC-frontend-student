@@ -29,6 +29,18 @@ interface LostItem {
 }
 
 const Lost = () => {
+
+
+  const navigation = useNavigation();
+
+useLayoutEffect(() => {
+  navigation.setOptions({
+    headerShown: false, 
+  });
+}, [navigation]);
+
+
+
   const [isModalVisible, setModalVisible] = useState(false);
   const [isDetailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<LostItem | null>(null);
@@ -110,13 +122,13 @@ const Lost = () => {
   const renderItem = ({ item }: { item: LostItem }) => {
     if (item.item_category === "FOUND") return null;
   
-    const navigation = useNavigation();
+    // const navigation = useNavigation();
 
-    useLayoutEffect(() => {
-      navigation.setOptions({
-        headerShown: false, 
-      });
-    }, [navigation]);
+    // useLayoutEffect(() => {
+    //   navigation.setOptions({
+    //     headerShown: false, 
+    //   });
+    // }, [navigation]);
   
 
     return (
