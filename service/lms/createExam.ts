@@ -20,7 +20,7 @@ interface CreateExamRequest {
       },
       body: JSON.stringify(data),
     });
-  
+    console.log('response in createExam : ', response)
     if (!response.ok) {
       throw new Error('Error creating exam');
     }

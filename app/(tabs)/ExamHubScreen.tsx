@@ -49,7 +49,7 @@ export default function ExamHubScreen() {
   };
   const handleSubmitPress=async()=>{
     const body:CreateCourseRequest={
-      course_code,
+      course_code:course_code.toLowerCase(),
       course_name,
       user_id:"user123"
     }
@@ -62,7 +62,7 @@ export default function ExamHubScreen() {
     return (
       <Pressable onPress={()=>handleCoursePress(item)}>
         <View className="bg-gray-300 m-2 p-2 rounded-xl">
-          <Text>{item.course_code}</Text>
+          <Text>{item.course_code.toUpperCase()}</Text>
           <Text>{item.course_name}</Text>
         </View>
       </Pressable>
@@ -75,20 +75,19 @@ export default function ExamHubScreen() {
         <FlatList
         data={courses}
         keyExtractor={(item) => item.course_code}
-        showsVerticalScrollIndicator={false}
         renderItem={renderSubjectTab}
         extraData={courses}
       />
     ):(
-      <View>
-        <Text>
+      <View className="flex-col min-h-full  bg-white   items-center" >
+        <Text className=" mt-10 text-gray-600 text-3xl " >
         No Courses Yet Add first
         </Text>
       </View>
     )}
       
       <TouchableOpacity  onPress={()=>setAddCourseFormVisible(true)} >
-        <Ionicons name="add" className="bg-purple-500 self-end p-6 rounded-full bottom-24 right-7  " size={24} color="white" />
+        <Ionicons name="add" className=" absolute bg-purple-500 self-end p-6 rounded-full bottom-24 right-7  " size={24} color="white" />
       </TouchableOpacity>
       {/* Add new course */}
       <Modal
@@ -111,7 +110,7 @@ export default function ExamHubScreen() {
             <Text className="text-4xl mt-5  " >Add  course</Text>
             <TextInput
               value={course_code}
-              placeholder="enter course code like CS-102"
+              placeholder="Enter course code, For ex. CS-212"
               onChangeText={setCourse_code}
               className="border rounded-full px-3 text-2xl "
             />

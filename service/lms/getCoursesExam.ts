@@ -19,8 +19,10 @@ interface Exam {
     if (!response.ok) {
       throw new Error('Error fetching course exams');
     }
-  
+    
     const responseData: Exam[] = await response.json();
+    console.log('response Data in get Course Exam : ', responseData);
+    
     return responseData;
   }
   

@@ -239,7 +239,7 @@ export default function GrievanceScreen() {
                 <Text style={styles.detailLabel}>Posted on:</Text>
                 <Text style={styles.detailDescription}>{grievanceItem.created_at.slice(0, 10)}</Text>
                 </View>
-                <UpVoteBtn c_id={grievanceItem.c_id} user_id="user123" upVotes={grievanceItem.upvotes.length} />
+                
               </View>
               <Text className="text-2xl text-gray-700" >Comments</Text>
               {(comments && comments.length===0)? (<Text>No Comments yet</Text>):(
