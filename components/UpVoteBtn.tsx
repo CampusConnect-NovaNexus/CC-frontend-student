@@ -13,7 +13,6 @@ const UpvoteButton = ({ user_id, c_id, upVotes }: { user_id: string; c_id: strin
   const [likes, setLikes] = useState(upVotes);
 
   const getGrievance = async (c_id: string) => {
-    console.log("grievance")
     const response = await getGrievanceById(c_id);
     try {
       setIsUpvoted(response.complaint.upvotes.includes(user_id)); 
@@ -34,19 +33,15 @@ const UpvoteButton = ({ user_id, c_id, upVotes }: { user_id: string; c_id: strin
 
   const handlePress = async () => {
     if (isUpvoted) {
+      setLikes(likes=>likes-1)
+      setIsUpvoted(false);
       const response = await downVote(c_id, user_id);
-      console.log(response);
-      if (response.c_id) {
-        setIsUpvoted(false);
-        setLikes(prev => prev - 1); // ✅ decrease like count
-      }
+      
     } else {
+      setIsUpvoted(true);
+        setLikes(prev => prev + 1)
       const response = await upVote(c_id, user_id);
-      console.log(response);
-      if (response.c_id) {
-        setIsUpvoted(true);
-        setLikes(prev => prev + 1); // ✅ increase like count
-      }
+      
     }
   };
 

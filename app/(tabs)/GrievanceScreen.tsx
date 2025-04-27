@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
@@ -57,8 +57,6 @@ export default function GrievanceScreen() {
       return;
     }
     try{
-        console.log('in try block of handle post comment');
-        
         const res=await postComment(c_id,"user123",newComment);
         if(res.c_id){
           setNewComment("");
@@ -92,13 +90,11 @@ export default function GrievanceScreen() {
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      loadGrievances();
-      loadStats();
-      
-    }, [])
-  );
+ 
+  useEffect(()=>{
+    loadGrievances();
+    loadStats()
+  },[])
 
   const postNewGrievance = async () => {
     if (newGrievance.title && newGrievance.description) {
@@ -250,8 +246,6 @@ export default function GrievanceScreen() {
                 <FlatList 
                 data={comments}
                 keyExtractor={(item) => {
-                  console.log('item : ',item);
-                  
                   return item.comment_id}}
                 className="w-30 h-1/3 "
                 renderItem={({item})=>(
