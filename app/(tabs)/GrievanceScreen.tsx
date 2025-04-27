@@ -146,23 +146,23 @@ export default function GrievanceScreen() {
   return (
     <View style={styles.container}>
       <View className="flex-row justify-around" >
-        <View className="w-[30%] bg-yellow-200 rounded-xl  p-3">
-            <Text className="text-5xl text-yellow-600 ">
+        <View className="w-[30%] bg-amber-600 rounded-xl p-4">
+            <Text className="text-5xl text-yellow-100 ">
               {stats.total_complaints}
             </Text>
-            <Text className="text-white text-xl mt-4 " >Total</Text>
+            <Text className="text-white font-semibold text-md mt-4 " >Total</Text>
         </View>
-        <View className="w-[30%] bg-red-200 rounded-xl  p-3 ">
-            <Text className="text-5xl text-red-600 ">
+        <View className="w-[30%] bg-rose-600 rounded-xl p-4 ">
+            <Text className="text-5xl text-red-100 ">
             {stats.unresolved_complaints}
             </Text>
-            <Text className="text-white text-xl mt-4 " >Pending</Text>
+            <Text className="text-white font-semibold text-md mt-4 " >Pending</Text>
         </View>
-        <View className="w-[30%] bg-green-200 rounded-xl  p-3 ">
-            <Text className="text-5xl text-yegreenlow-600 ">
+        <View className="w-[30%] bg-teal-600 rounded-xl p-4 ">
+            <Text className="text-5xl text-green-100 ">
             {stats.resolved_complaints}
             </Text>
-            <Text className="text-white text-xl mt-4" >Resolved</Text>
+            <Text className="text-white font-semibold text-md mt-4" >Resolved</Text>
         </View>
       </View>
       <Text style={styles.heading}>Recent Issues</Text>
@@ -179,7 +179,7 @@ export default function GrievanceScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
-      <View className="mb-10" ></View>
+      <View className="mb-[60px]" ></View>
       <TouchableOpacity style={styles.addButton} onPress={() => setFormVisible(true)}>
         <Ionicons name="add" size={24} color="white" />
       </TouchableOpacity>
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 32,
     fontWeight: "bold",
-    marginTop: 60,
+    marginTop: 40,
     marginLeft: 20,
   },
   listContainer: {
