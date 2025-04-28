@@ -7,6 +7,8 @@ interface Course {
   }
   
   export async function getAllCourses(): Promise<Course[]> {
+    console.log('getAllCourses Called');
+    
     const BASEURL= EXPO_BASE_URL_LMS
     
     let response:any;

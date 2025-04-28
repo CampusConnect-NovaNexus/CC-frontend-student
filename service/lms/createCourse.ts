@@ -10,6 +10,8 @@ interface CreateCourseRequest {
   }
   
   export async function createCourse(data: CreateCourseRequest): Promise<CreateCourseResponse> {
+    console.log('create course called');
+    
     console.log("data in createCourse : ", data)
     const BASEURL=EXPO_BASE_URL_LMS
     const response = await fetch(`${BASEURL}/api/exam/courses`, {

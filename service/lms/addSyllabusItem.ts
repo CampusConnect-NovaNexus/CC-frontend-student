@@ -10,17 +10,17 @@ interface AddSyllabusResponse {
   item_id: string;
 }
 
-export async function addSyllabusItem(body: AddSyllabusRequest): Promise<AddSyllabusResponse | null> {
+export async function addSyllabusItem(body: AddSyllabusRequest,exam_id:string): Promise<AddSyllabusResponse | null> {
   const BASEURL=EXPO_BASE_URL_LMS
+  console.log('addSyllabusItem called');
+  
   try {
-    const res = await fetch(`${BASEURL}/api/exam/syllabus`, {
+    const res = await fetch(`${BASEURL}/api/exam/exams/${exam_id}/syllabus`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-
-    if (!res.ok) throw new Error('Failed to add syllabus item');
-
+    console.log('res in addSyllabus : ',res)
     const data: AddSyllabusResponse = await res.json();
     return data;
   } catch (error) {
