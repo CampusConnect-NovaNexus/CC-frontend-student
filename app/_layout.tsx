@@ -50,18 +50,18 @@ export default function TabLayout() {
               headerTitle: () => (
                 <View className='flex-1 flex-row justify-between items-center pt-3 mb-0 bg-[#fdfcf9]' >
                   <Text style={{ fontFamily: 'Awesome', fontSize: 30 }} className='flex flex-1'>Campus Connect</Text>
-                  <View className=' flex-row gap-2 justify-around items-center ' >
-                    <Pressable className=' p-2 pb-6' onPress={() => router.push("/Notification")} >
+                  <View className='flex-row gap-2 justify-around items-center ' >
+                    <Pressable className='p-2 pb-6' onPress={() => router.push("/Notification")} >
                       <Image
                         source={icons.notify}
                         className='size-7'
                       />
                     </Pressable>
 
-                    <Pressable className=' p-2 pb-6 ' onPress={() => router.push("/Profile")}  >
+                    <Pressable className='p-2 pb-6 ' onPress={() => router.push("/Profile")}  >
                       <Image
                         source={icons.profile}
-                        className='size-7'
+                        className='size-8 rounded-md'
                       />
                     </Pressable>
                   </View>

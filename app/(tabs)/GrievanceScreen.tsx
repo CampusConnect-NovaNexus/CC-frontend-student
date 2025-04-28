@@ -1,36 +1,35 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
-  Image,
   FlatList,
   TouchableOpacity,
   TextInput,
-  Modal,
-  ScrollView,
   Pressable,
-  Keyboard,
+  Image,
+  ActivityIndicator,
+  StyleSheet
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import UpVoteBtn from "@/components/UpVoteBtn";
-import { icons } from "@/constants/icons";
 import { fetchGrievances } from "@/service/grievance/fetchGrievances";
-import { postGrievance } from "@/service/grievance/postGrievance"; 
-import { getStats } from "@/service/grievance/getStats"; 
+import { postGrievance } from "@/service/grievance/postGrievance";
+import { getStats } from "@/service/grievance/getStats";
 import { getComment } from "@/service/grievance/getComment";
 import { postComment } from "@/service/grievance/postComment";
+import { icons } from "@/constants/icons";
+import Modal from 'react-native-modal';
 
 interface Comment {
-  c_id: string,
-  c_message: string,
-  comment_id: string,
-  created_at: string
+  c_id: string;
+  c_message: string;
+  comment_id: string;
+  created_at: string;
 }
+
 interface Grievance {
   c_id: string;
   user_id: string;
@@ -47,357 +46,332 @@ export default function GrievanceScreen() {
   const [newGrievance, setNewGrievance] = useState({ title: "", description: "" });
   const [grievanceItem, setGrievanceItem] = useState<Grievance | null>(null);
   const [grievanceVisible, setGrievanceVisible] = useState(false);
-  const [stats, setStats] = useState({total_complaints:0,unresolved_complaints:0,resolved_complaints:0});
-  const [comments,setComments]=useState<Comment[] | null>(null);
-  const [newComment,setNewComment]=useState("");
+  const [stats, setStats] = useState({
+    total_complaints: 0,
+    unresolved_complaints: 0,
+    resolved_complaints: 0,
+  });
+  const [comments, setComments] = useState<Comment[] | null>(null);
+  const [newComment, setNewComment] = useState("");
   const router = useRouter();
 
-  const handlePostComment=async(c_id:string)=>{
-    if(newComment.length===0) {
-      return;
-    }
-    try{
-        const res=await postComment(c_id,"user123",newComment);
-        if(res.c_id){
-          setNewComment("");
-          fetchComments(res.c_id);
-        }
-      }catch(err){
-        console.log('handlePostComment errro ',err);
-        
-      }
-  }
-  const fetchComments=async(c_id:string)=>{
-      try {
-        const res=await getComment(c_id)
-        setComments(res.comments.reverse());
-        
-      } catch (error) {
-        console.log('error in fetchComments of GrievanceScreen : ',error)
-      }
-     
-  }
   const loadGrievances = async () => {
     const result = await fetchGrievances();
     if (result) {
-      await setGrievances(result.complaints.reverse());
-    }
-  };
-  const loadStats = async () => {
-    const result = await getStats();
-    if (result) {
-      await setStats(result);
+      setGrievances(result.complaints.reverse());
     }
   };
 
- 
-  useEffect(()=>{
+  const loadStats = async () => {
+    const result = await getStats();
+    if (result) {
+      setStats(result);
+    }
+  };
+
+  useEffect(() => {
     loadGrievances();
-    loadStats()
-  },[])
+    loadStats();
+  }, []);
+
+  useEffect(() => {
+    const loadComments = async () => {
+      if (grievanceItem) {
+        const result = await getComment(grievanceItem.c_id);
+        setComments(result?.comments || null);
+      }
+    };
+    loadComments();
+  }, [grievanceItem]);
 
   const postNewGrievance = async () => {
     if (newGrievance.title && newGrievance.description) {
       const payload = {
-        user_id:"user123",
+        user_id: "user123",
         title: newGrievance.title,
         description: newGrievance.description,
       };
-
       const response = await postGrievance(payload);
-
       if (response?.c_id) {
         setNewGrievance({ title: "", description: "" });
         setFormVisible(false);
         loadStats();
-        loadGrievances(); // Refresh list
-      } else {
-        console.warn("Failed to post grievance");
+        loadGrievances();
       }
     }
   };
 
-  const renderGrievanceItem = ({ item }: { item: Grievance }) => (
-    <TouchableOpacity
-      className="bg-gray-300 flex-row justify-between rounded-xl p-3 mt-5"
-      onPress={async() => {
-        await setGrievanceItem(item);
-        await fetchComments(item.c_id);
-        setGrievanceVisible(true);
-        
+  const getTimeAgo = (date: Date) => {
+    const now = new Date();
+    const isToday = date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear();
 
-      }}
-    >
-      <View className="flex-col w-[80%] overflow-hidden">
-        <Text className="text-2xl font-semibold">{item.title}</Text>
-        <Text  className="font-extralight mt-2 "  numberOfLines={2} >{item.description}</Text>
-        <Text className="items-end justify-end  mt-2 ">{item.created_at}</Text>
-      </View>
-      <View style={styles.voteRow}>
-        <UpVoteBtn c_id={item.c_id} user_id="user123" upVotes={item.upvotes.length} />
-      </View>
-    </TouchableOpacity>
-  );
+    if (isToday) {
+      const diffMs = now.getTime() - date.getTime();
+      const diffSec = Math.floor(diffMs / 1000);
+      const diffMin = Math.floor(diffSec / 60);
+      const diffHrs = Math.floor(diffMin / 60);
+
+      if (diffSec < 60) return 'just now';
+      if (diffMin < 60) return `${diffMin}m ago`;
+      return `${diffHrs}h ago`;
+    }
+
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday = date.getDate() === yesterday.getDate() &&
+      date.getMonth() === yesterday.getMonth() &&
+      date.getFullYear() === yesterday.getFullYear();
+
+    if (isYesterday) return 'yesterday';
+
+    const dateCopy = new Date(date);
+    dateCopy.setHours(0, 0, 0, 0);
+    const nowCopy = new Date(now);
+    nowCopy.setHours(0, 0, 0, 0);
+    const daysDiff = Math.floor((nowCopy.getTime() - dateCopy.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysDiff < 7) return `${daysDiff}d ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const handlePostComment = async (c_id: string) => {
+    if (newComment.trim()) {
+      await postComment(c_id, "user123", newComment);
+      setNewComment("");
+      const result = await getComment(c_id);
+      setComments(result?.comments || null);
+    }
+  };
+
+  const renderGrievanceItem = ({ item }: { item: Grievance }) => {
+
+    return (
+      <TouchableOpacity
+        className=""
+        onPress={() => {
+          setGrievanceItem(item);
+          setGrievanceVisible(true);
+        }}
+      >
+        <View className="line bg-gray-200 w-full h-[1.5px] my-2 shadow-sm shadow-slate-400"></View>
+        <View className="px-4 pb-4">
+          <View className="flex-row justify-left items-center gap-3">
+            <View className="flex-row justify-left items-center gap-3">
+              <View className="bg-gray-400 w-11 h-11 rounded-full my-2 justify-center items-center">
+                <Image
+                  source={icons.profile}
+                  className="size-12 rounded-full"
+                  resizeMode="contain"
+                />
+              </View>
+            </View>
+
+            <Text className="text-lg font-bold">UserName</Text>
+            <View className="flex-row items-center gap-1">
+              <View className="w-1.5 h-1.5 rounded-full bg-gray-400"></View>
+              <Text className="text-sm text-gray-400 font-bold">
+                {getTimeAgo(new Date(item.created_at))}
+              </Text>
+            </View>
+          </View>
+          {/* Rest of the component remains the same */}
+          <Text className="text-lg font-semibold mb-2">{item.title}</Text>
+          <Text className="text-gray-600 mb-3">{item.description}</Text>
+
+          <View className="flex-row justify-left items-center">
+            <UpVoteBtn
+              c_id={item.c_id}
+              user_id="user123"
+              upVotes={item.upvotes.length}
+            />
+            <View className="flex-row justify-center items-center px-2">
+              <Pressable
+                className="flex-row gap-2 items-center border border-gray-300 bg-white p-2 px-4 rounded-full ml-1 mt-1"
+                style={{ elevation: 1 }}
+              >
+                <Image
+                  source={icons.comment}
+                  className="size-5"
+                />
+                <Text className='text-md text-gray-600 font-bold px-1'>30</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <View style={styles.container}>
-      <View className="flex-row justify-around" >
-        <View className="w-[30%] bg-amber-600 rounded-xl p-4">
-            <Text className="text-5xl text-yellow-100 ">
-              {stats.total_complaints}
-            </Text>
-            <Text className="text-white font-semibold text-md mt-4 " >Total</Text>
+    <View className="flex-1 bg-[#fdfcf9]">
+      <View className="flex-row justify-between mb-5 p-4">
+        <View className="bg-amber-400 rounded-lg p-5 flex-1 m-1 items-center">
+          <Text className="text-2xl font-bold text-white">{stats.total_complaints}</Text>
+          <Text className="text-white">Total</Text>
         </View>
-        <View className="w-[30%] bg-rose-600 rounded-xl p-4 ">
-            <Text className="text-5xl text-red-100 ">
-            {stats.unresolved_complaints}
-            </Text>
-            <Text className="text-white font-semibold text-md mt-4 " >Pending</Text>
+        <View className="bg-amber-500 rounded-lg p-5 flex-1 m-1 items-center">
+          <Text className="text-2xl font-bold text-white">{stats.unresolved_complaints}</Text>
+          <Text className="text-white">Pending</Text>
         </View>
-        <View className="w-[30%] bg-teal-600 rounded-xl p-4 ">
-            <Text className="text-5xl text-green-100 ">
-            {stats.resolved_complaints}
-            </Text>
-            <Text className="text-white font-semibold text-md mt-4" >Resolved</Text>
+        <View className="bg-amber-600 rounded-lg p-5 flex-1 m-1 items-center">
+          <Text className="text-2xl font-bold text-white">{stats.resolved_complaints}</Text>
+          <Text className="text-white">Resolved</Text>
         </View>
       </View>
-      <Text style={styles.heading}>Recent Issues</Text>
+      <View className="z-10 bg-[#fdfcf9]">
+        <Text style={{ fontFamily: 'wastedVindey' }} className="text-3xl p-4 pb-6">Recent Issues</Text>
+      </View>
 
       {grievances.length === 0 ? (
-        <Text style={styles.emptyText}>No grievances found.</Text>
+        <View className="h-40 w-full justify-center">
+          <ActivityIndicator size="large" color="#cb612a" />
+        </View>
       ) : (
         <FlatList
           data={grievances}
           renderItem={renderGrievanceItem}
           keyExtractor={(item) => item.c_id}
-          extraData={grievances}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          className="-mt-4"
         />
       )}
-      <View className="mb-[60px]" ></View>
-      <TouchableOpacity style={styles.addButton} onPress={() => setFormVisible(true)}>
-        <Ionicons name="add" size={24} color="white" />
+
+      <TouchableOpacity
+        className="absolute bottom-20 right-6 bg-amber-600 rounded-full p-5"
+        onPress={() => setFormVisible(true)}
+      >
+        <Ionicons name="add-circle" size={26} color="#fdfcf9" />
       </TouchableOpacity>
 
       {/* New Grievance Modal */}
-      <Modal animationType="slide" transparent visible={formVisible}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Submit New Grievance</Text>
+      <Modal
+        isVisible={formVisible}
+        animationIn="fadeInUp"
+        animationOut="fadeOutDown"
+        animationInTiming={400}
+        animationOutTiming={400}
+        backdropTransitionInTiming={400}
+        backdropTransitionOutTiming={200}
+        backdropColor="rgba(0,0,0,0.5)"
+        onBackdropPress={() => setFormVisible(false)}
+        style={styles.modal}
+      >
+        <View className="bg-white rounded-2xl p-5 m-4">
+          <Text className="text-xl font-bold mb-6 text-center">Submit New Grievance</Text>
 
-            <Text style={styles.inputLabel}>Title</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter grievance title"
-              value={newGrievance.title}
-              onChangeText={(text) => setNewGrievance({ ...newGrievance, title: text })}
+          <Pressable
+            onPress={() => setFormVisible(false)}
+            className="absolute -right-2 -top-2 bg-white p-3 rounded-full"
+            style={{ elevation: 5 }}
+          >
+            <Image
+              source={icons.cross}
+              className="w-6 h-6"
+              resizeMode="contain"
             />
+          </Pressable>
 
-            <Text style={styles.inputLabel}>Description</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Describe your grievance in detail"
-              multiline
-              numberOfLines={4}
-              value={newGrievance.description}
-              onChangeText={(text) => setNewGrievance({ ...newGrievance, description: text })}
-            />
-
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
-                onPress={() => setFormVisible(false)}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.submitButton]}
-                onPress={postNewGrievance}
-              >
-                <Text style={styles.buttonText}>Submit</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <TextInput
+            className="bg-gray-100 rounded-lg p-3 mb-3"
+            placeholder="Enter grievance title"
+            value={newGrievance.title}
+            onChangeText={(text) => setNewGrievance({ ...newGrievance, title: text })}
+            placeholderTextColor="#6B7280"
+          />
+          <TextInput
+            className="bg-gray-100 rounded-lg p-3 mb-6 h-24"
+            placeholder="Describe your grievance in detail"
+            multiline
+            value={newGrievance.description}
+            onChangeText={(text) => setNewGrievance({ ...newGrievance, description: text })}
+            placeholderTextColor="#6B7280"
+          />
+          <Pressable
+            onPress={postNewGrievance}
+            className="bg-amber-600 p-4 rounded-xl"
+          >
+            <Text className="text-white text-center font-bold text-lg">
+              Submit Grievance
+            </Text>
+          </Pressable>
         </View>
       </Modal>
 
       {/* Grievance Detail Modal */}
-      <Modal animationType="slide" transparent visible={grievanceVisible}
-        
+      <Modal
+        isVisible={grievanceVisible}
+        animationIn="fadeInUp"
+        animationOut="fadeOutDown"
+        animationInTiming={400}
+        animationOutTiming={400}
+        backdropTransitionInTiming={400}
+        backdropTransitionOutTiming={200}
+        backdropColor="rgba(0,0,0,0.5)"
+        onBackdropPress={() => setGrievanceVisible(false)}
+        style={styles.modal}
       >
-        {grievanceItem && (
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent} className="flex ">
-              <Pressable onPress={() => {setGrievanceVisible(false);setNewComment("")}} style={{ width: 30 }} className=" ">
-                <Image source={icons.goBack} style={{ width: 30, height: 30 }} />
-              </Pressable>
-              <Text className="text-3xl ">{grievanceItem.title}</Text>
-              <Text className="text-xl ">{grievanceItem.description}</Text>
-              <View className="flex-row mt-5 justify-between" >
-                <View>
-                <Text style={styles.detailLabel}>Posted on:</Text>
-                <Text style={styles.detailDescription}>{grievanceItem.created_at.slice(0, 10)}</Text>
-                </View>
-                
-              </View>
-              <Text className="text-2xl text-gray-700" >Comments</Text>
-              {(comments && comments.length===0)? (<Text>No Comments yet</Text>):(
-                <FlatList 
-                data={comments}
-                keyExtractor={(item) => {
-                  return item.comment_id}}
-                className="w-30 h-1/3 "
-                renderItem={({item})=>(
-                  <View>
-                    <Text >{item.c_message}</Text>
-                    <Text >{item.created_at.slice(0,10)}</Text>
-                  </View>
-                    
-                )}
+        <View className="bg-white rounded-2xl p-5 m-4">
+          <View className="relative">
+            <Pressable
+              onPress={() => setGrievanceVisible(false)}
+              className="absolute -right-8 -top-8 bg-white p-3 rounded-full"
+              style={{ elevation: 7 }}
+            >
+              <Image
+                source={icons.cross}
+                className="w-5 h-5"
+                resizeMode="contain"
               />
-              )}
-              
-              <View className="border rounded-full px-4 flex-row items-center justify-between ">
-
-                <TextInput
-                  placeholder="Your Comment here . . .  "
-                  value={newComment}
-                  onChangeText={setNewComment}
-                  numberOfLines={2}
-                />
-                <Pressable className="p-1" 
-                  onPress={()=>handlePostComment(grievanceItem.c_id)}
-                >
-                  <Image
-                    className="size-7 "
-                    source={icons.send}
-                  />
-                </Pressable>
-              </View>
-            </View>
+            </Pressable>
           </View>
-        )}
+
+          <Text className="text-black font-bold text-xl mb-2">{grievanceItem?.title}</Text>
+          <Text className="text-gray-600 mb-4">{grievanceItem?.description}</Text>
+          <Text className="text-gray-500 mb-6">
+            Posted {grievanceItem ? getTimeAgo(new Date(grievanceItem.created_at)) : ''}
+          </Text>
+
+          <Text className="text-lg font-bold mb-3">Comments</Text>
+          <FlatList
+            data={comments || []}
+            keyExtractor={(item) => item.comment_id}
+            renderItem={({ item }) => (
+              <View className="bg-gray-50 rounded-lg p-3 mb-2">
+                <Text className="text-gray-800">{item.c_message}</Text>
+                <Text className="text-gray-400 text-xs mt-1">
+                  {getTimeAgo(new Date(item.created_at))}
+                </Text>
+              </View>
+            )}
+            className="mb-4 max-h-40"
+          />
+
+          <View className="flex-row items-center gap-2 mt-2">
+            <TextInput
+              className="bg-gray-100 rounded-lg flex-1 p-3"
+              placeholder="Your Comment here..."
+              value={newComment}
+              onChangeText={setNewComment}
+              placeholderTextColor="#6B7280"
+            />
+            <Pressable
+              onPress={() => grievanceItem && handlePostComment(grievanceItem.c_id)}
+              className="bg-amber-600 p-3 rounded-full"
+            >
+              <Ionicons name="send" size={24} color="white" />
+            </Pressable>
+          </View>
+        </View>
       </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding:16,
-    minHeight:40,
-    backgroundColor: "#fff",
-  },
-  heading: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginTop: 40,
-    marginLeft: 20,
-  },
-  listContainer: {
-    padding: 10,
-    paddingBottom: 100,  
-  },
-  emptyText: {
-    textAlign: "center",
-    color: "gray",
-    marginTop: 20,
-  },
-  grievanceItem: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 10,
-  },
-  grievanceHeader: {
-    marginBottom: 10,
-  },
-  grievanceText: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  grievanceTime: {
-    fontSize: 12,
-    color: "gray",
-  },
-  voteRow: {
-    justifyContent: "flex-end",
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 90,
-    right: 30,
-    backgroundColor: "#007AFF",
-    borderRadius: 50,
-    padding: 15,
-    elevation: 4,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-  inputLabel: {
-    fontWeight: "600",
-    marginBottom: 5,
-  },
-  input: {
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    height: 40,
-  },
-  textArea: {
-    height: 80,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  button: {
-    padding: 10,
-    borderRadius: 10,
-    width: "45%",
-    alignItems: "center",
-  },
-  cancelButton: {
-    backgroundColor: "gray",
-  },
-  submitButton: {
-    backgroundColor: "#007AFF",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "600",
-  },
-  detailTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 10,
-  },
-  detailScroll: {
-    marginTop: 10,
-  },
-  detailLabel: {
-    fontWeight: "bold",
-  },
-  detailDescription: {
-    color: "gray",
-    marginTop: 5,
+  modal: {
+    justifyContent: 'flex-end',
+    margin: 0,
   },
 });

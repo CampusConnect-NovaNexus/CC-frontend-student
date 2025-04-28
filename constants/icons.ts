@@ -11,7 +11,6 @@ import lostfound from "@/assets/icons/lost-and-found.png";
 import grievance from "@/assets/icons/grievance.png";
 import library from "@/assets/icons/library.png";
 import notify from "@/assets/icons/notification.gif";
-import profile from "@/assets/icons/profile.png";
 import goBack from "@/assets/icons/left-arrow.png";
 import sad_face from "@/assets/icons/sad-face.png";
 import happy_face from "@/assets/icons/happy-face.png";
@@ -19,7 +18,9 @@ import upVote from "@/assets/icons/raise-hand.png";
 import upArrow from "@/assets/icons/up-arrow.png"
 import send from "@/assets/icons/send.png"
 import cross from "@/assets/icons/cross_icon.png";
-import upvote from "@/assets/icons/upvote.svg";
+import upvote from "@/assets/icons/upvote.png";
+import comment from "@/assets/icons/comment.png";
+import profile from "@/assets/icons/profile.png";
 
 export const icons = {
   home,
@@ -43,5 +44,6 @@ export const icons = {
   upArrow,
   send,
   cross,
-  upvote
+  upvote,
+  comment
 };
