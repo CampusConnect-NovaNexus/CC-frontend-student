@@ -5,8 +5,7 @@ export const fetchGrievances = async () => {
   try {
     const response = await fetch(`${BASEURL}/complaints`);
     const data=await response.json();
-    
-    
+        
     return data;
   } catch (error) {
     console.error('fetchGrievances error :', error);
