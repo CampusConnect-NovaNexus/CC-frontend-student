@@ -29,7 +29,6 @@ const DetailedCourse = () => {
   const getAllExams = async () => {
     const res = await getCourseExams(course_code);
     setAllExams(res);
-    console.log(res);
   };
 
   const handleSubmit = async () => {
@@ -45,9 +44,6 @@ const DetailedCourse = () => {
       user_id:"user123"
     });
 
-    setExamType('');
-    setExamDate(new Date());
-    setModalVisible(false);
     getAllExams(); // refresh list
   };
 
@@ -71,7 +67,6 @@ const DetailedCourse = () => {
 
 
   const renderExamTab = ({ item }: { item: Exam }) => {
-    console.log('item in render Exa tab : ', item);
     const time=getRemainingDays(item.exam_date)
     return (
       <Pressable
@@ -143,10 +138,10 @@ const DetailedCourse = () => {
               onValueChange={(itemValue) => setExamType(itemValue)}
             >
               <Picker.Item label="Select Exam Type" value="" />
-              <Picker.Item label="Mid" value="Mid Term" />
-              <Picker.Item label="End" value="End Term" />
-              <Picker.Item label="CT1" value="Class Test I" />
-              <Picker.Item label="CT2" value="Class Test II" />
+              <Picker.Item label="Mid Term" value="mt" />
+              <Picker.Item label="End Term" value="et" />
+              <Picker.Item label="Class Test 1" value="ct1" />
+              <Picker.Item label="Class Test 2" value="ct2" />
             </Picker>
 
             {/* Date Picker */}
@@ -172,14 +167,24 @@ const DetailedCourse = () => {
             <View className="flex-row justify-between mt-6">
               <TouchableOpacity
                 className="bg-red-500 p-3 rounded-md flex-1 mr-2"
-                onPress={handleCancel}
+                onPress={()=>{
+                  handleCancel()
+                  setExamType('');
+                  setExamDate(new Date());
+                  setModalVisible(false);
+                }}
               >
                 <Text className="text-white text-center font-bold">Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 className="bg-green-500 p-3 rounded-md flex-1 ml-2"
-                onPress={handleSubmit}
+                onPress={()=>{
+                  handleSubmit()
+                  setExamType('');
+                  setExamDate(new Date());
+                  setModalVisible(false);
+                }}
               >
                 <Text className="text-white text-center font-bold">Submit</Text>
               </TouchableOpacity>

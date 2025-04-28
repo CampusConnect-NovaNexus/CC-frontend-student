@@ -8,6 +8,6 @@ export const getStats = async () => {
     console.log('Stats :',data);
     return data;
   } catch (error) {
-    console.error('Get Satss Error:', error);
+    console.error('Unable to reach servers at the moment');
   }
 };
