@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useCallback, useLayoutEffect } from "react";
-import { useFocusEffect,useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState, useCallback } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -17,6 +18,7 @@ import { postLostItem } from "@/service/lost-found/postLostItem";
 import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
 import Modal from 'react-native-modal';
+
 interface LostItem {
   id: string;
   item_title: string;
@@ -24,25 +26,13 @@ interface LostItem {
   item_image?: string;
   item_category: string;
   item_date: string;
-  item_contact: string;
   item_reporter_name: string;
+  item_contact: string;
 }
 
 const Lost = () => {
-
-
-  const navigation = useNavigation();
-
-useLayoutEffect(() => {
-  navigation.setOptions({
-    headerShown: false, 
-  });
-}, [navigation]);
-
-
-
   const [isModalVisible, setModalVisible] = useState(false);
-  const [isDetailModalVisible, setDetailModalVisible] = useState(false);
+  const [displayObject, setDisplayObject] = useState(false);
   const [selectedItem, setSelectedItem] = useState<LostItem | null>(null);
   const [objectName, setObjectName] = useState("");
   const [description, setDescription] = useState("");
@@ -58,8 +48,25 @@ useLayoutEffect(() => {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        const result = await LFData();
-        setLostItems(result.reverse());
+        try {
+          // Load cached data
+          const cachedDataString = await AsyncStorage.getItem("lostItems");
+          if (cachedDataString) {
+            const cachedData = JSON.parse(cachedDataString);
+            setLostItems(cachedData);
+          }
+        } catch (error) {
+          console.error("Error loading cached data:", error);
+        }
+        try {
+          // Fetch new data from API
+          const apiData = await LFData();
+          setLostItems(apiData.reverse());
+          // Update cache with fresh data
+          await AsyncStorage.setItem("lostItems", JSON.stringify(apiData));
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       };
       fetchData();
     }, [])
@@ -121,20 +128,11 @@ useLayoutEffect(() => {
 
   const renderItem = ({ item }: { item: LostItem }) => {
     if (item.item_category === "FOUND") return null;
-  
-    // const navigation = useNavigation();
-
-    // useLayoutEffect(() => {
-    //   navigation.setOptions({
-    //     headerShown: false, 
-    //   });
-    // }, [navigation]);
-  
 
     return (
       <Pressable onPress={() => {
         setSelectedItem(item);
-        setDetailModalVisible(true);
+        setDisplayObject(true);
       }}>
         <View className="flex-col">
           <View className="bg-[#F8F8FF] mb-4 flex-row justify-between rounded-2xl items-center shadow-md shadow-slate-400">
@@ -171,9 +169,9 @@ useLayoutEffect(() => {
         </Pressable>
       </View>
       {
-        !lostItems || lostItems.length == 0 ?  (
+        !lostItems || lostItems.length == 0 ? (
           <View className="h-40 w-full justify-center">
-            <ActivityIndicator size="large" color="#ef4444" />
+            <ActivityIndicator size="large" color="#22c55e" />
           </View>
         ) : (
           <FlatList
@@ -188,7 +186,7 @@ useLayoutEffect(() => {
 
       {/* Item Detail Modal */}
       <Modal
-        isVisible={isDetailModalVisible}
+        isVisible={displayObject}
         animationIn="fadeInUp"
         animationOut="fadeOutDown"
         animationInTiming={400}
@@ -196,7 +194,7 @@ useLayoutEffect(() => {
         backdropTransitionInTiming={400}
         backdropTransitionOutTiming={200}
         backdropColor="rgba(0,0,0,0.5)"
-        onBackdropPress={() => setDetailModalVisible(false)}
+        onBackdropPress={() => setDisplayObject(false)}
         style={styles.modal}
       >
         <View className="bg-white rounded-2xl p-5 m-4">
@@ -216,7 +214,7 @@ useLayoutEffect(() => {
             )}
 
             <Pressable
-              onPress={() => setDetailModalVisible(false)}
+              onPress={() => setDisplayObject(false)}
               className="absolute -right-8 -top-8 bg-white p-3 rounded-full"
               style={{ elevation: 7 }}
             >
@@ -248,7 +246,7 @@ useLayoutEffect(() => {
           </View>
 
           <Pressable
-            onPress={() => setDetailModalVisible(false)}
+            onPress={() => setDisplayObject(false)}
             className="bg-blue-500 px-6 py-3 rounded-xl self-center"
           >
             <Text className="text-white font-bold text-lg">Claim Item</Text>

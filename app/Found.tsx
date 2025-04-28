@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
@@ -47,8 +48,25 @@ const Found = () => {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        const result = await LFData();
-        setFoundItems(result.reverse());
+        try {
+          // Load cached data
+          const cachedDataString = await AsyncStorage.getItem("foundItems");
+          if (cachedDataString) {
+            const cachedData = JSON.parse(cachedDataString);
+            setFoundItems(cachedData);
+          }
+        } catch (error) {
+          console.error("Error loading cached data:", error);
+        }
+        try {
+          // Fetch new data from API
+          const apiData = await LFData();
+          setFoundItems(apiData.reverse());
+          // Update cache with fresh data
+          await AsyncStorage.setItem("foundItems", JSON.stringify(apiData));
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       };
       fetchData();
     }, [])
