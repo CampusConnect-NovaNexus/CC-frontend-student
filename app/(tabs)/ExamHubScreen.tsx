@@ -7,17 +7,19 @@ import {
   FlatList,
   TouchableOpacity,
   ScrollView,
-  Modal,
   TextInput,
   Pressable,
   Image,
   Alert,
+  StyleSheet,
+  ActivityIndicator
 } from "react-native";
 import { icons } from "@/constants/icons";
 import { getAllCourses } from "@/service/lms/getAllCourses";
 import { Ionicons } from "@expo/vector-icons";
 import { createCourse } from "@/service/lms/createCourse";
 import { enrollStudent } from "@/service/lms/enrollStudent";
+import Modal from 'react-native-modal';
 
 interface Course {
   course_code: string;
@@ -42,13 +44,13 @@ export default function ExamHubScreen() {
   const [course_code, setCourse_code] = useState("");
   const [course_name, setCourse_name] = useState("");
 
-  const getAllCourses = async () => {
+  const fetchAllCourses = async () => {
     const res = await getAllCourses();
     setCourses(res.reverse());
   };
   useFocusEffect(
     useCallback(() => {
-      getAllCourses();
+      fetchAllCourses();
     }, [])
   );
 
@@ -68,7 +70,7 @@ export default function ExamHubScreen() {
       user_id: "user123",
     };
     const res = await createCourse(body);
-    getAllCourses();
+    fetchAllCourses();
   };
   const handleEnrollClassPress = async (course_code: string) => {
     const body: EnrollStudentRequest = {
@@ -76,188 +78,225 @@ export default function ExamHubScreen() {
       roll_no: "b23cs019",
     };
     const res = await enrollStudent(course_code, body);
-    getAllCourses();
+    fetchAllCourses();
   };
 
   const renderSubjectTab = ({ item }: { item: Course }) => {
     return (
       <Pressable onPress={() => handleCoursePress(item)}>
-        <View className="bg-gray-300 m-2 p-2 rounded-xl">
-          <Text>{item.course_code.toUpperCase()}</Text>
-          <Text>{item.course_name}</Text>
+        <View className="line bg-gray-200 w-full h-[1.5px] my-2 shadow-sm shadow-slate-400"></View>
+        <View className="bg-[#FFFFF0] m-2 p-4 rounded-xl shadow-md">
+          <View className="flex-row justify-between items-center mb-2">
+            <View className="bg-teal-500 px-3 py-1 rounded-lg">
+              <Text className="text-white font-bold">{item.course_code.toUpperCase()}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#888" />
+          </View>
+          <Text className="text-lg font-semibold">{item.course_name}</Text>
+          <Text className="text-gray-500 text-sm mt-1">Created by: {item.created_by || "Instructor"}</Text>
         </View>
       </Pressable>
     );
   };
 
   return (
-    <View className="flex-col min-h-full  bg-white">
-      {courses && courses.length > 0 ? (
+    <View className="flex-1 bg-[#fdfcf9]">
+      <View className="flex-row justify-between mb-5 p-4">
+        <View className="bg-teal-400 rounded-lg p-5 flex-1 m-1 items-center">
+          <Text className="text-2xl font-bold text-white">{courses?.length || 0}</Text>
+          <Text className="text-white">Total</Text>
+        </View>
+        <View className="bg-teal-500 rounded-lg p-5 flex-1 m-1 items-center">
+          <Text className="text-2xl font-bold text-white">{courses?.length || 0}</Text>
+          <Text className="text-white">Courses</Text>
+        </View>
+        <View className="bg-teal-600 rounded-lg p-5 flex-1 m-1 items-center">
+          <Text className="text-2xl font-bold text-white">0</Text>
+          <Text className="text-white">Exams</Text>
+        </View>
+      </View>
+      
+      <View className="z-10 bg-[#fdfcf9]">
+        <Text style={{fontFamily : "wastedVindey"}} className="text-3xl p-4 pb-6">My Courses</Text>
+      </View>
+
+      {!courses ? (
+        <View className="h-40 w-full justify-center">
+          <ActivityIndicator size="large" color="#cb612a" />
+        </View>
+      ) : courses.length > 0 ? (
         <FlatList
           data={courses}
           keyExtractor={(item) => item.course_code}
           renderItem={renderSubjectTab}
           extraData={courses}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          className="-mt-4"
         />
       ) : (
-        <View className="flex-col min-h-full  bg-white   items-center">
-          <Text className=" mt-10 text-gray-600 text-3xl ">
-            No Courses Yet Add first
+        <View className="flex-col min-h-[200px] bg-[#fdfcf9] items-center justify-center">
+          <Text className="text-gray-600 text-xl">
+            No courses yet. Add your first course!
           </Text>
         </View>
       )}
 
-      <TouchableOpacity onPress={() => setJoinExistingClassModal(true)}>
-        <Ionicons
-          name="add"
-          className=" absolute bg-green-500 self-end p-3 rounded-full bottom-24 right-7  "
-          size={40}
-          color="white"
-        />
+      <TouchableOpacity
+        className="absolute bottom-20 right-6 bg-teal-600 rounded-full p-5"
+        onPress={() => setJoinExistingClassModal(true)}
+      >
+        <Ionicons name="add-circle" size={26} color="#fdfcf9" />
       </TouchableOpacity>
       {/* Add new course */}
       <Modal
-        visible={addCourseFormVisible}
-        animationType="slide"
-        onDismiss={() => setAddCourseFormVisible(false)}
+        isVisible={addCourseFormVisible}
+        animationIn="fadeInUp"
+        animationOut="fadeOutDown"
+        animationInTiming={400}
+        animationOutTiming={400}
+        backdropTransitionInTiming={400}
+        backdropTransitionOutTiming={200}
+        backdropColor="rgba(0,0,0,0.5)"
+        onBackdropPress={() => setAddCourseFormVisible(false)}
+        style={styles.modal}
       >
-        <View className="flex-col h-full w-full items-center justify-center bg-black/70">
-          <View className="bg-white w-[60%] rounded-xl py-5 w-[80%] p-[5%] flex">
-            <Pressable
-              onPress={() => {
-                setAddCourseFormVisible(false);
-              }}
-            >
-              <Image source={icons.goBack} className="size-7 " />
-            </Pressable>
-            <Text className="text-4xl  ">Add course</Text>
-            <Pressable
-              onPress={() => {
-                setJoinExistingClassModal(true);
-                setAddCourseFormVisible(false);
-              }}
-            >
-              <Text className=" underline text-gray-500">
-                or join an existing class
-              </Text>
-            </Pressable>
-            <Text className="mt-8 text-2xl ">Enter Course Code</Text>
-            <TextInput
-              value={course_code}
-              placeholder="CS212"
-              onChangeText={setCourse_code}
-              className="border rounded-full px-3 text-2xl "
-              numberOfLines={1}
+        <View className="bg-white rounded-2xl p-5 m-4">
+          <Text className="text-xl font-bold mb-6 text-center">Add New Course</Text>
+          
+          <Pressable
+            onPress={() => setAddCourseFormVisible(false)}
+            className="absolute -right-2 -top-2 bg-white p-3 rounded-full"
+            style={{ elevation: 5 }}
+          >
+            <Image
+              source={icons.cross}
+              className="w-6 h-6"
+              resizeMode="contain"
             />
-            <Text className="mt-6 text-2xl ">Enter Course Name</Text>
-            <TextInput
-              value={course_name}
-              placeholder="Principles of Programming"
-              onChangeText={setCourse_name}
-              numberOfLines={1}
-              className="border rounded-full px-3 text-xl "
-            />
-            <View className="flex-row mt-8 items-center justify-around">
-              <Pressable
-                className="bg-red-700 px-2 py-1 flex text-center rounded-xl "
-                onPress={() => {
-                  setCourse_code("");
-                  setCourse_name("");
-                  setAddCourseFormVisible(false);
-                }}
-              >
-                <Text className="text-red-100 text-3xl ">Cancle</Text>
-              </Pressable>
-              <Pressable
-                className="bg-green-700 px-2 py-1 flex text-center rounded-xl "
-                onPress={() => {
-                  if (course_code.trim() && course_name.trim()) {
-                    handleCreateClassPress();
-                    setCourse_code("");
-                    setCourse_name("");
-                    setAddCourseFormVisible(false);
-                  }
-                }}
-              >
-                <Text className="text-green-100 text-3xl">Submit</Text>
-              </Pressable>
-            </View>
-          </View>
+          </Pressable>
+          
+          <Pressable
+            onPress={() => {
+              setJoinExistingClassModal(true);
+              setAddCourseFormVisible(false);
+            }}
+            className="mb-4"
+          >
+            <Text className="underline text-teal-600">
+              or join an existing class
+            </Text>
+          </Pressable>
+
+          <TextInput
+            className="bg-gray-100 rounded-lg p-3 mb-3"
+            placeholder="Enter Course Code (e.g. CS212)"
+            value={course_code}
+            onChangeText={setCourse_code}
+            placeholderTextColor="#6B7280"
+          />
+          
+          <TextInput
+            className="bg-gray-100 rounded-lg p-3 mb-6"
+            placeholder="Enter Course Name"
+            value={course_name}
+            onChangeText={setCourse_name}
+            placeholderTextColor="#6B7280"
+          />
+          
+          <Pressable
+            onPress={() => {
+              if (course_code.trim() && course_name.trim()) {
+                handleCreateClassPress();
+                setCourse_code("");
+                setCourse_name("");
+                setAddCourseFormVisible(false);
+              } else {
+                Alert.alert("Error", "Please fill all the details");
+              }
+            }}
+            className="bg-teal-600 p-4 rounded-xl"
+          >
+            <Text className="text-white text-center font-bold text-lg">
+              Create Course
+            </Text>
+          </Pressable>
         </View>
       </Modal>
+      
       {/* Join Existing course */}
       <Modal
-        visible={joinExistingClassModal}
-        animationType="fade"
-        onDismiss={() => setJoinExistingClassModal(false)}
+        isVisible={joinExistingClassModal}
+        animationIn="fadeInUp"
+        animationOut="fadeOutDown"
+        animationInTiming={400}
+        animationOutTiming={400}
+        backdropTransitionInTiming={400}
+        backdropTransitionOutTiming={200}
+        backdropColor="rgba(0,0,0,0.5)"
+        onBackdropPress={() => setJoinExistingClassModal(false)}
+        style={styles.modal}
       >
-        <View className="flex-col h-full w-full items-center justify-center bg-black/70">
-          <View className="bg-white w-[60%] rounded-xl py-5 w-[80%] p-[5%] flex">
-            <Pressable
-              onPress={() => {
-                setJoinExistingClassModal(false);
-              }}
-            >
-              <Image source={icons.goBack} className="size-7 " />
-            </Pressable>
-            <Text className="text-4xl  ">Join a Class</Text>
-            <Pressable
-              onPress={() => {
-                setAddCourseFormVisible(true);
-                setJoinExistingClassModal(false);
-              }}
-            >
-              <Text className=" underline text-gray-500">
-                or create a new class
-              </Text>
-            </Pressable>
-            <Text className="mt-8 text-2xl ">Enter Course Code of Class</Text>
-            <TextInput
-              value={course_code}
-              placeholder="CS212"
-              onChangeText={setCourse_code}
-              className="border rounded-full px-3 text-2xl "
-              numberOfLines={1}
+        <View className="bg-white rounded-2xl p-5 m-4">
+          <Text className="text-xl font-bold mb-6 text-center">Join a Class</Text>
+          
+          <Pressable
+            onPress={() => setJoinExistingClassModal(false)}
+            className="absolute -right-2 -top-2 bg-white p-3 rounded-full"
+            style={{ elevation: 5 }}
+          >
+            <Image
+              source={icons.cross}
+              className="w-6 h-6"
+              resizeMode="contain"
             />
-            {/* <Text className="mt-6 text-2xl " >Enter Course Name</Text>
-            <TextInput
-              value={course_name}
-              placeholder="Principles of Programming"
-              onChangeText={setCourse_name}
-              numberOfLines={1}
-              className="border rounded-full px-3 text-xl "
-            /> */}
-            <View className="flex-row mt-8 items-center justify-around">
-              <Pressable
-                className="bg-red-700 px-2 py-1 flex text-center rounded-xl "
-                onPress={() => {
-                  setCourse_code("");
-                  setCourse_name("");
-                  setJoinExistingClassModal(false);
-                }}
-              >
-                <Text className="text-red-100 text-3xl ">Cancle</Text>
-              </Pressable>
-              <Pressable
-                className="bg-green-700 px-2 py-1 flex text-center rounded-xl "
-                onPress={() => {
-                  // handleSubmitPress();
-                  if (course_code.trim()) {
-                    handleEnrollClassPress(course_code);
-                    setCourse_code("");
-                    setCourse_name("");
-                    setJoinExistingClassModal(false);
-                  } else {
-                    alert("kindly fill all the details");
-                  }
-                }}
-              >
-                <Text className="text-green-100 text-3xl">Submit</Text>
-              </Pressable>
-            </View>
-          </View>
+          </Pressable>
+          
+          <Pressable
+            onPress={() => {
+              setAddCourseFormVisible(true);
+              setJoinExistingClassModal(false);
+            }}
+            className="mb-4"
+          >
+            <Text className="underline text-teal-600">
+              or create a new class
+            </Text>
+          </Pressable>
+
+          <TextInput
+            className="bg-gray-100 rounded-lg p-3 mb-6"
+            placeholder="Enter Course Code (e.g. CS212)"
+            value={course_code}
+            onChangeText={setCourse_code}
+            placeholderTextColor="#6B7280"
+          />
+          
+          <Pressable
+            onPress={() => {
+              if (course_code.trim()) {
+                handleEnrollClassPress(course_code);
+                setCourse_code("");
+                setCourse_name("");
+                setJoinExistingClassModal(false);
+              } else {
+                Alert.alert("Error", "Please enter a course code");
+              }
+            }}
+            className="bg-teal-600 p-4 rounded-xl"
+          >
+            <Text className="text-white text-center font-bold text-lg">
+              Join Course
+            </Text>
+          </Pressable>
         </View>
       </Modal>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  modal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+});

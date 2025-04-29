@@ -3,6 +3,7 @@ import {EXPO_BASE_URL_GR} from '@env'
 export const  getGrievanceById =async(c_id:string)=>{
     const BASEURL=EXPO_BASE_URL_GR;
     try{
+        console.log(BASEURL);
         const response=await fetch (`${BASEURL}/complaint/${c_id}`)
         const data=await response.json();
         // console.log('GrievanceById : ',data);
