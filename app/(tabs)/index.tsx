@@ -62,7 +62,7 @@ export default function HomeScreen() {
       elevation: 4 
     }}>
       <View style={{ flex: 1, paddingRight: 16 }}>
-        <Text style={{ fontSize: 16, fontWeight: '600', color: '#1f2937' }} numberOfLines={2}>{title}</Text>
+        <Text style={{ fontSize: 15, fontWeight: '600', color: '#1f2937' }} numberOfLines={2}>{title}</Text>
       </View>
       <TouchableOpacity
         style={{ 
@@ -95,7 +95,7 @@ export default function HomeScreen() {
         flexDirection: 'row', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        padding: 24, 
+        padding: 20, 
         borderRadius: 12, 
         marginBottom: 16, 
         shadowColor: '#d1d5db', 
@@ -105,20 +105,20 @@ export default function HomeScreen() {
         elevation: 4 
       }}>
         <View style={{ flex: 1, paddingRight: 12 }}>
-          <Text style={{ fontSize: 8, fontWeight: '500', color: '#9ca3af', marginBottom: 4 }}>Upcoming Exam</Text>
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#1f2937', marginTop: 4 }} numberOfLines={2}>
+          <Text style={{ fontSize: 10, fontWeight: '500', color: '#9ca3af', marginBottom: 4 }}>Upcoming Exam</Text>
+          <Text style={{ fontSize: 13, fontWeight: '600', color: '#1f2937', marginTop: 4 }} numberOfLines={2}>
             {title}
           </Text>
         </View>
         <View style={{ alignItems: 'center' }}>
-          <Text style={{ fontSize: 8, fontWeight: '500', color: '#6b7280', marginRight: 8, marginBottom: 4 }}>Scheduled On</Text>
-          <Text style={{ fontSize: 12, fontWeight: '700', color: '#0d9488', marginTop: 4, marginRight: 24 }}>
+          <Text style={{ fontSize: 10, fontWeight: '500', color: '#6b7280', marginRight: 8, marginBottom: 4 }}>Scheduled On</Text>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#0d9488', marginTop: 4, marginRight: 24 }}>
             {formatDate(date)}
           </Text>
         </View>
         <View style={{ alignItems: 'center' }}>
-          <Text style={{ fontSize: 8, fontWeight: '500', color: '#6b7280', marginBottom: 4 }}>Course Code</Text>
-          <Text style={{ fontSize: 12, fontWeight: '700', color: '#f87171', marginTop: 4 }}>
+          <Text style={{ fontSize: 10, fontWeight: '500', color: '#6b7280', marginBottom: 4 }}>Course Code</Text>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#f87171', marginTop: 4 }}>
             {course_code.toUpperCase()}
           </Text>
         </View>
