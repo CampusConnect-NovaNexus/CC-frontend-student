@@ -7,7 +7,6 @@ import { useRouter } from 'expo-router';
 import { icons } from '@/constants/icons';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider } from '@/context/ThemeContext';
-import { NotificationProvider } from '@/context/NotificationContext';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -42,7 +41,7 @@ export default function TabLayout() {
       <SafeAreaProvider>
         <StatusBar style="dark" backgroundColor="#fdfcf9" />
 
-        <NotificationProvider>
+        {/* <NotificationProvider> */}
           <ThemeProvider>
             <Stack
               screenOptions={{
@@ -99,7 +98,7 @@ export default function TabLayout() {
               />
             </Stack>
           </ThemeProvider>
-        </NotificationProvider>
+        {/* </NotificationProvider> */}
       </SafeAreaProvider>
   );
 }

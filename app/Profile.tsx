@@ -12,10 +12,14 @@ import { useTheme } from "@/context/ThemeContext";
 import { icons } from "@/constants/icons";
 import { useRouter } from "expo-router";
 import { images } from "@/constants/images";
-
+import Forum from "@/components/Forum";
 const HomeScreen = () => {
   const router = useRouter();
   const [addSocialsVisible, setAddSocialsVisible] = useState(false);
+  const [address, setAddress] = useState<String>(
+    "Bhadohi, Uttar Pradesh, India"
+  );
+  const [email, setEmail] = useState<String>("Eumarshashank@gmail.com");
   const [instagramLink, setInstagramLink] = useState<String>("http://");
   const [linkedinLink, setLinkedinLink] = useState<String>("");
   const [youtubeLink, setYoutubeLink] = useState<String>("http://");
@@ -23,7 +27,10 @@ const HomeScreen = () => {
   const [twitterLink, setTwitterLink] = useState<String>("");
   const [leetCodeLink, setLeetCodeLink] = useState<String>("");
   const [codeForcesLink, setCodeForcesLink] = useState<String>("http ");
-  const [about, setAbout] = useState<String>("Lorem is a bad b Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, autemfuga quos sit quasi modi... ");
+  const [phoneNumber, setPhoneNumber] = useState<String>("69696696969");
+  const [about, setAbout] = useState<String>(
+    "Lorem is a bad b Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, autemfuga quos sit quasi modi... "
+  );
 
   return (
     <ScrollView className="flex flex-col bg-yellow-100">
@@ -38,25 +45,35 @@ const HomeScreen = () => {
             source={icons.profile}
             className="rounded-full h-[100px] aspect-square"
           />
+          <Pressable
+            className="absolute bg-white p-1 rounded-full"
+            style={{
+              transform: [
+                { rotate: "45deg" },
+                { translateX: 55 },
+                { translateY: -5 },
+              ],
+            }}
+          >
+            <Image source={icons.cross} className=" size-5  m-1" />
+          </Pressable>
         </View>
       </View>
 
       {/* User Info */}
       <View className="flex-col mx-4 mt-6">
         <Text className="text-4xl font-bold">Shashank Umar</Text>
-        <Text className="text-md text-gray-600 mt-2">
-          Bhadohi, Uttar Pradesh, India
-        </Text>
+        <Text className="text-md text-gray-600 mt-2">{address}</Text>
 
         {/* Social Links */}
         <View className="mt-10">
           <View className="flex-row justify-between items-center">
-            <Text className="text-3xl font-semibold text-gray-800">
-              Your Social Links
+            <Text className="text-2xl font-semibold text-gray-800">
+              My Socials
             </Text>
             <Pressable
               onPress={() => setAddSocialsVisible(true)}
-              className="bg-blue-500 px-3 py-1 rounded-full"
+              className="bg-yellow-600 px-3 py-1 rounded-full"
             >
               <Text className="text-white font-semibold">Add</Text>
             </Pressable>
@@ -87,8 +104,8 @@ const HomeScreen = () => {
             ) : null}
           </View>
         </View>
-        <View className="rounded-xl mt-10 flex-row justify-between items-center mt-20 ">
-          <Text className="text-3xl font-semibold">Your About</Text>
+        <View className="rounded-xl mt-10 flex-row justify-between items-center  ">
+          <Text className="text-2xl font-semibold">About Me </Text>
           <Pressable>
             <Image source={icons.pencil} className="size-6" />
           </Pressable>
@@ -96,10 +113,19 @@ const HomeScreen = () => {
 
         {/* About Text */}
         <ScrollView className="max-h-32 mt-4 p-2 bg-white rounded-lg shadow-sm">
-          <Text className="text-gray-800">
-            {about}
-          </Text>
+          <Text className="text-gray-800">{about}</Text>
         </ScrollView>
+        <View className="justify-self-end  ">
+          <Text className="text-2xl font-semibold mt-10 ">Contact Me </Text>
+          <View className="flex-row  gap-3 ">
+            <Image source={icons.phone} className="size-6" />
+            <Text className="text-sm text-gray-800">{phoneNumber}</Text>
+          </View>
+          <View className="flex-row  gap-3 ">
+            <Image source={icons.email} className="size-6" />
+            <Text className="text-sm text-gray-800">{email}</Text>
+          </View>
+        </View>
       </View>
 
       {/* Modal */}
@@ -147,6 +173,10 @@ const HomeScreen = () => {
           ))}
         </ScrollView>
       </Modal>
+      <Forum  />
+      <View className="mb-12 h-20 bg-red-400 rounded-full mt- 10 " >
+
+      </View>
     </ScrollView>
   );
 };

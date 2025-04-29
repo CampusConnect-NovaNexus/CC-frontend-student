@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import {
   View,
   Text,
@@ -70,21 +72,26 @@ export default function GrievanceScreen() {
     }
   };
 
-  useEffect(() => {
-    loadGrievances();
-    loadStats();
-  }, []);
+  // useEffect(() => {
+  //   loadGrievances();
+  //   loadStats();
+  // }, []);
 
-  useEffect(() => {
-    const loadComments = async () => {
-      if (grievanceItem) {
-        const result = await getComment(grievanceItem.c_id);
-        setComments(result?.comments || null);
-      }
-    };
-    loadComments();
-  }, [grievanceItem]);
-
+  // useEffect(() => {
+  //   const loadComments = async () => {
+  //     if (grievanceItem) {
+  //       const result = await getComment(grievanceItem.c_id);
+  //       setComments(result?.comments || null);
+  //     }
+  //   };
+  //   loadComments();
+  // }, [grievanceItem]);
+    useFocusEffect(
+      useCallback(() => {
+        loadGrievances();
+        loadStats();
+      }, [])
+    );
   const postNewGrievance = async () => {
     if (newGrievance.title && newGrievance.description) {
       const payload = {
@@ -153,7 +160,7 @@ export default function GrievanceScreen() {
             <UpVoteBtn
               c_id={item.c_id}
               user_id="user123"
-              upVotes={item.upvotes.length}
+              upVotes={item.upvotes}
             />
             <View className="flex-row justify-center items-center px-2">
               <Pressable

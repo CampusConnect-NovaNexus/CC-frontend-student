@@ -1,6 +1,7 @@
 import {EXPO_BASE_URL_GR} from '@env';
 export const postGrievance = async ({user_id,title,description}:{user_id:string, title:string,description:string}) => {
     const BASEURL=EXPO_BASE_URL_GR
+    console.log('BASEURL : ',BASEURL);
     
     
     try {

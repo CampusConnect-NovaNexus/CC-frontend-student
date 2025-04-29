@@ -11,6 +11,7 @@ interface EnrollStudentResponse {
 
 export async function enrollStudent(courseCode: string, body: EnrollStudentRequest): Promise<EnrollStudentResponse | null> {
   const BASEURL=EXPO_BASE_URL_LMS
+  console.log('BASEURL : ',BASEURL);
   console.log('course code : ' ,courseCode, 'body : ',body);
   
   try {

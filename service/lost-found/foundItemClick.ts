@@ -1,6 +1,7 @@
 import { EXPO_BASE_URL } from '@env';
 export const foundItemData =async(params: { id: string })=>{
     const BASEURL = EXPO_BASE_URL;
+    console.log('BASEURL : ',BASEURL);
     const { id } = params;
     try{
         console.log("item.id : ",id)

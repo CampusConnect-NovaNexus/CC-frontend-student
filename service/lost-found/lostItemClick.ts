@@ -1,6 +1,7 @@
 import {EXPO_BASE_URL} from '@env';
 export const lostItemData =async({id})=>{
     const BASEURL=EXPO_BASE_URL
+    console.log('BASEURL : ',BASEURL);
     try{
         console.log("item.id : ",id)
         const result= await fetch(`${BASEURL}/api/v1/item/${id}`,{method:'GET'});

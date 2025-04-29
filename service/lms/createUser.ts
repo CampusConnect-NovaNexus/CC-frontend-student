@@ -15,6 +15,7 @@ interface CreateUserResponse {
 
 export async function createUser(data: CreateUserRequest): Promise<CreateUserResponse> {
   const BASEURL=EXPO_BASE_URL_LMS
+  console.log('BASEURL : ',BASEURL);
   const response = await fetch(`${BASEURL}/api/exam/users`, {
     method: 'POST',
     headers: {
