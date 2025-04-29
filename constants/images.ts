@@ -4,7 +4,6 @@ import rankingGradient from "@/assets/images/rankingGradient.png";
 import nit_logo from "@/assets/images/nit_logo_noBG.png";
 import movie_logo from "@/assets/images/logo.png";
 import main_bg from "@/assets/images/collge_BG.png";
-
 export const images = {
   bg,
   highlight,

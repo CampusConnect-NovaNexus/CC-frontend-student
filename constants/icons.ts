@@ -21,7 +21,14 @@ import cross from "@/assets/icons/cross_icon.png";
 import upvote from "@/assets/icons/upvote.png";
 import comment from "@/assets/icons/comment.png";
 import profile from "@/assets/icons/profile.png";
-
+import pencil from "@/assets/icons/pencil.png"
+import instagram from '@/assets/icons/instagram.png'
+import linkedin from '@/assets/icons/linkedin.png'
+import leetcode from '@/assets/icons/leetcode.png'
+import codeforces from '@/assets/icons/code-forces.png'
+import youTube from '@/assets/icons/youtube.png'
+import twitter from '@/assets/icons/twitter.png'
+import github from '@/assets/icons/github-sign.png' 
 export const icons = {
   home,
   search,
@@ -45,5 +52,13 @@ export const icons = {
   send,
   cross,
   upvote,
-  comment
+  comment,
+  pencil,
+  instagram,
+  linkedin,
+  leetcode,
+  codeforces,
+  youTube,
+  twitter,
+  github
 };
