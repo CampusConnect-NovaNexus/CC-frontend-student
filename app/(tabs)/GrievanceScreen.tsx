@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import {
   View,
   Text,
@@ -26,9 +28,9 @@ import Modal from 'react-native-modal';
 
 interface Comment {
   c_id: string;
-  c_message: string;
+  comment: string;
   comment_id: string;
-  created_at: string;
+  user_id: string;
 }
 
 interface Grievance {
@@ -70,21 +72,21 @@ export default function GrievanceScreen() {
     }
   };
 
-  useEffect(() => {
-    loadGrievances();
-    loadStats();
-  }, []);
+  // useEffect(() => {
+  //   loadGrievances();
+  //   loadStats();
+  // }, []);
 
-  useEffect(() => {
-    const loadComments = async () => {
-      if (grievanceItem) {
-        const result = await getComment(grievanceItem.c_id);
-        setComments(result?.comments || null);
-      }
-    };
-    loadComments();
-  }, [grievanceItem]);
-
+  // useEffect(() => {
+    
+  //   loadComments();
+  // }, [grievanceItem]);
+    useFocusEffect(
+      useCallback(() => {
+        loadGrievances();
+        loadStats();
+      }, [])
+    );
   const postNewGrievance = async () => {
     if (newGrievance.title && newGrievance.description) {
       const payload = {
@@ -101,7 +103,12 @@ export default function GrievanceScreen() {
       }
     }
   };
-
+  const loadComments = async () => {
+    if (grievanceItem) {
+      const result = await getComment(grievanceItem.c_id);
+      setComments(result?.comments.reverse() || null);
+    }
+  };
   // getTimeAgo function has been moved to the TimeAgo component
 
   const handlePostComment = async (c_id: string) => {
@@ -121,6 +128,7 @@ export default function GrievanceScreen() {
         onPress={() => {
           setGrievanceItem(item);
           setGrievanceVisible(true);
+          loadComments();
         }}
       >
         <View className="line bg-gray-200 w-full h-[1.5px] my-2 shadow-sm shadow-slate-400"></View>
@@ -153,7 +161,7 @@ export default function GrievanceScreen() {
             <UpVoteBtn
               c_id={item.c_id}
               user_id="user123"
-              upVotes={item.upvotes.length}
+              upVotes={item.upvotes}
             />
             <View className="flex-row justify-center items-center px-2">
               <Pressable

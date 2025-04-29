@@ -16,10 +16,10 @@ const getMimeType = (filename: string) => {
   }
 };
 
-export const postFoundItem = async (item: LostFoundItemInput) => {
-  console.log('in found post item');
+export const postFoundItem = async (item:any) => {
   
   const BASEURL = EXPO_BASE_URL;
+  console.log('BASEURL : ',BASEURL);
   const form = new FormData();
 
   form.append('title', item.title);

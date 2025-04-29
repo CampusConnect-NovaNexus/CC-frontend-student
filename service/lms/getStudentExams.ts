@@ -11,6 +11,7 @@ interface Exam {
 
 export async function getStudentExams(studentId: string): Promise<Exam[] | null> {
   const BASEURL=EXPO_BASE_URL_LMS
+  console.log('BASEURL : ',BASEURL);
   try {
     const res = await fetch(`${BASEURL}/api/exam/students/${studentId}/upcoming-exams`);
 

@@ -6,27 +6,31 @@ import { getGrievanceById } from '@/service/grievance/getGrievanceById';
 import { upVote } from '@/service/grievance/upVote'
 import { downVote } from '@/service/grievance/downVote'
 
-const UpvoteButton = ({ user_id, c_id, upVotes }: { user_id: string; c_id: string; upVotes: number }) => {
+const UpvoteButton = ({ user_id, c_id, upVotes }: { user_id: string; c_id: string; upVotes: string[] }) => {
   // console.log('inUpvoteBtn');
 
   const [isUpvoted, setIsUpvoted] = useState(false);
-  const [likes, setLikes] = useState(upVotes);
+  const [likes, setLikes] = useState(upVotes.length);
+  useEffect(()=>{
+   if (upVotes.includes(user_id)){
+    setIsUpvoted(true);
+   }
+  },[])
+  // const getGrievance = async (c_id: string) => {
+  //   const response = await getGrievanceById(c_id);
+  //   try {
+  //     setIsUpvoted(response.complaint.upvotes.includes(user_id));
+  //     setLikes(response.complaint.upvotes.length);
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // };
 
-  const getGrievance = async (c_id: string) => {
-    const response = await getGrievanceById(c_id);
-    try {
-      setIsUpvoted(response.complaint.upvotes.includes(user_id));
-      setLikes(response.complaint.upvotes.length);
-    } catch (error) {
-      console.log(error)
-    }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      getGrievance(c_id)
-    }, [])
-  )
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     getGrievance(c_id)
+  //   }, [])
+  // )
   // useEffect(() => {
   //   getGrievance(c_id);
   // }, []);
@@ -34,14 +38,15 @@ const UpvoteButton = ({ user_id, c_id, upVotes }: { user_id: string; c_id: strin
   const handlePress = async () => {
     if (isUpvoted) {
       setLikes(likes => likes - 1)
-      setIsUpvoted(false);
+      setIsUpvoted(false);``
       const response = await downVote(c_id, user_id);
-
+      console.log('downvoted response', response);
+      
     } else {
       setIsUpvoted(true);
       setLikes(prev => prev + 1)
       const response = await upVote(c_id, user_id);
-
+      console.log('upvoted response', response);
     }
   };
 

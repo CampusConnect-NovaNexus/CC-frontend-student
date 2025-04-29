@@ -10,7 +10,7 @@ interface Course {
     console.log('getAllCourses Called');
     
     const BASEURL= EXPO_BASE_URL_LMS
-    
+    console.log('BASEURL : ',BASEURL);
     let response:any;
     try {
       response = await fetch(`${BASEURL}/api/exam/courses`)
