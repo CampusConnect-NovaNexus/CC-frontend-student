@@ -28,9 +28,9 @@ import Modal from 'react-native-modal';
 
 interface Comment {
   c_id: string;
-  c_message: string;
+  comment: string;
   comment_id: string;
-  created_at: string;
+  user_id: string;
 }
 
 interface Grievance {
@@ -78,12 +78,7 @@ export default function GrievanceScreen() {
   // }, []);
 
   // useEffect(() => {
-  //   const loadComments = async () => {
-  //     if (grievanceItem) {
-  //       const result = await getComment(grievanceItem.c_id);
-  //       setComments(result?.comments || null);
-  //     }
-  //   };
+    
   //   loadComments();
   // }, [grievanceItem]);
     useFocusEffect(
@@ -108,7 +103,12 @@ export default function GrievanceScreen() {
       }
     }
   };
-
+  const loadComments = async () => {
+    if (grievanceItem) {
+      const result = await getComment(grievanceItem.c_id);
+      setComments(result?.comments.reverse() || null);
+    }
+  };
   // getTimeAgo function has been moved to the TimeAgo component
 
   const handlePostComment = async (c_id: string) => {
@@ -128,6 +128,7 @@ export default function GrievanceScreen() {
         onPress={() => {
           setGrievanceItem(item);
           setGrievanceVisible(true);
+          loadComments();
         }}
       >
         <View className="line bg-gray-200 w-full h-[1.5px] my-2 shadow-sm shadow-slate-400"></View>
