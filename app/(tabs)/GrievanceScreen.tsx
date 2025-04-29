@@ -15,6 +15,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import UpVoteBtn from "@/components/UpVoteBtn";
+import TimeAgo from "@/components/TimeAgo";
 import { fetchGrievances } from "@/service/grievance/fetchGrievances";
 import { postGrievance } from "@/service/grievance/postGrievance";
 import { getStats } from "@/service/grievance/getStats";
@@ -101,40 +102,7 @@ export default function GrievanceScreen() {
     }
   };
 
-  const getTimeAgo = (date: Date) => {
-    const now = new Date();
-    const isToday = date.getDate() === now.getDate() &&
-      date.getMonth() === now.getMonth() &&
-      date.getFullYear() === now.getFullYear();
-
-    if (isToday) {
-      const diffMs = now.getTime() - date.getTime();
-      const diffSec = Math.floor(diffMs / 1000);
-      const diffMin = Math.floor(diffSec / 60);
-      const diffHrs = Math.floor(diffMin / 60);
-
-      if (diffSec < 60) return 'just now';
-      if (diffMin < 60) return `${diffMin}m ago`;
-      return `${diffHrs}h ago`;
-    }
-
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-    const isYesterday = date.getDate() === yesterday.getDate() &&
-      date.getMonth() === yesterday.getMonth() &&
-      date.getFullYear() === yesterday.getFullYear();
-
-    if (isYesterday) return 'yesterday';
-
-    const dateCopy = new Date(date);
-    dateCopy.setHours(0, 0, 0, 0);
-    const nowCopy = new Date(now);
-    nowCopy.setHours(0, 0, 0, 0);
-    const daysDiff = Math.floor((nowCopy.getTime() - dateCopy.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (daysDiff < 7) return `${daysDiff}d ago`;
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
+  // getTimeAgo function has been moved to the TimeAgo component
 
   const handlePostComment = async (c_id: string) => {
     if (newComment.trim()) {
@@ -171,9 +139,10 @@ export default function GrievanceScreen() {
             <Text className="text-lg font-bold">UserName</Text>
             <View className="flex-row items-center gap-1">
               <View className="w-1.5 h-1.5 rounded-full bg-gray-400"></View>
-              <Text className="text-sm text-gray-400 font-bold">
-                {getTimeAgo(new Date(item.created_at))}
-              </Text>
+              <TimeAgo 
+                date={item.created_at}
+                className="text-sm text-gray-400 font-bold"
+              />
             </View>
           </View>
           {/* Rest of the component remains the same */}
@@ -190,6 +159,10 @@ export default function GrievanceScreen() {
               <Pressable
                 className="flex-row gap-2 items-center border border-gray-300 bg-white p-2 px-4 rounded-full ml-1 mt-1"
                 style={{ elevation: 1 }}
+                onPressIn={() => {
+                  setGrievanceItem(item);
+                  setGrievanceVisible(true);
+                }}
               >
                 <Image
                   source={icons.comment}
@@ -330,7 +303,7 @@ export default function GrievanceScreen() {
           <Text className="text-black font-bold text-xl mb-2">{grievanceItem?.title}</Text>
           <Text className="text-gray-600 mb-4">{grievanceItem?.description}</Text>
           <Text className="text-gray-500 mb-6">
-            Posted {grievanceItem ? getTimeAgo(new Date(grievanceItem.created_at)) : ''}
+            Posted {grievanceItem ? <TimeAgo date={grievanceItem.created_at} /> : ''}
           </Text>
 
           <Text className="text-lg font-bold mb-3">Comments</Text>
@@ -340,9 +313,10 @@ export default function GrievanceScreen() {
             renderItem={({ item }) => (
               <View className="bg-gray-50 rounded-lg p-3 mb-2">
                 <Text className="text-gray-800">{item.c_message}</Text>
-                <Text className="text-gray-400 text-xs mt-1">
-                  {getTimeAgo(new Date(item.created_at))}
-                </Text>
+                <TimeAgo
+                  date={item.created_at}
+                  className="text-gray-400 text-xs mt-1"
+                />
               </View>
             )}
             className="mb-4 max-h-40"

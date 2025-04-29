@@ -14,8 +14,10 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import Modal from 'react-native-modal';
+import { LinearGradient } from 'expo-linear-gradient';
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
+import TimeAgo from "@/components/TimeAgo";
 import { LFData } from "@/service/lost-found/LFAPI";
 import { lostItemData } from "@/service/lost-found/lostItemClick";
 import { foundItemData } from "@/service/lost-found/foundItemClick";
@@ -74,16 +76,31 @@ export default function LostFoundScreen() {
         <Image
           source={item.item_image ? { uri: item.item_image } : images.movie_logo}
           style={styles.image}
-          className="rounded-t-2xl"
+          className="rounded-2xl"
         />
-        <View className="p-3">
-          <Text numberOfLines={1} className="text-black font-semibold text-center">
+        <LinearGradient
+          colors={['rgba(0,0,0,0.9)', 'rgba(0,0,0,0.02)']}
+          start={{ x: 0, y: 1 }}
+          end={{ x: 0, y: 0 }}
+          className="p-6 h-24"
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            borderBottomLeftRadius: 16,
+            borderBottomRightRadius: 16,
+            padding: 12
+          }}
+          >
+          <Text numberOfLines={1} className="text-white font-bold text-md text-center">
             {item.item_title}
           </Text>
-          <Text numberOfLines={2} className="text-gray-600 text-sm mt-1">
+          <Text numberOfLines={1} className="text-gray-50 text-sm mt-1">
             {item.item_description}
           </Text>
-        </View>
+          <TimeAgo date={item.item_date} className="text-gray-300 text-xs mt-1" />
+        </LinearGradient>
       </View>
     </Pressable>
   );
@@ -122,7 +139,7 @@ export default function LostFoundScreen() {
         <Text className="text-sm text-gray-500">
           Reported by: {reportedUser?.username || "Unknown"}
         </Text>
-        <Text className="text-sm text-gray-500">Date: {selectedItem?.item_date}</Text>
+        <Text className="text-sm text-gray-500">Date: {selectedItem?.item_date ? <TimeAgo date={selectedItem.item_date} /> : ''}</Text>
         <Text className="text-sm text-gray-500">Contact: {selectedItem?.item_contact}</Text>
       </View>
 
@@ -245,7 +262,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: 200,
-    height: 160,
+    height: 240,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     backgroundColor: "#f3f4f6",

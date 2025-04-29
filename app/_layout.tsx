@@ -1,4 +1,4 @@
-// app/(tabs)/_layout.js
+// app/_layout.tsx
 import './globals.css';
 import { Stack } from "expo-router";
 import React from "react";
@@ -7,10 +7,13 @@ import { useRouter } from 'expo-router';
 import { icons } from '@/constants/icons';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider } from '@/context/ThemeContext';
+import { NotificationProvider } from '@/context/NotificationContext';
 import { useFonts } from 'expo-font';
-import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { setBackgroundColorAsync } from 'expo-system-ui';
+import { useEffect } from 'react';
+
 
 export default function TabLayout() {
   const router = useRouter();
@@ -20,6 +23,10 @@ export default function TabLayout() {
     'transcity': require('../assets/fonts/transcity.regular.otf'),
     'wastedVindey': require('../assets/fonts/wasted-vindey.regular.ttf'),
   });
+
+  useEffect(() => {
+    setBackgroundColorAsync('#fdfcf9'); // Change to your desired color
+  }, []);
 
   useEffect(() => {
     if (loaded || error) {
@@ -32,70 +39,67 @@ export default function TabLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style="dark" backgroundColor="#fdfcf9" />
+      <SafeAreaProvider>
+        <StatusBar style="dark" backgroundColor="#fdfcf9" />
 
-      <ThemeProvider>
-        <Stack
-          screenOptions={{
-            animation: 'slide_from_right', // 👈 This enables the animation!
-          }}
-        >
-          <Stack.Screen
-            name="(tabs)"
-            options={{
-              animation: 'slide_from_bottom',
+        <NotificationProvider>
+          <ThemeProvider>
+            <Stack
+              screenOptions={{
+                animation: 'slide_from_right', // 👈 This enables the animation!
+              }}
+            >
+              <Stack.Screen
+                name="(tabs)"
+                options={{
+                  animation: 'slide_from_bottom',
 
-              headerShadowVisible: false,
-              headerTitle: () => (
-                <View className='flex-1 flex-row justify-between items-center pt-3 mb-0 bg-[#fdfcf9]' >
-                  <Text style={{ fontFamily: 'Awesome', fontSize: 30 }} className='flex flex-1'>Campus Connect</Text>
-                  <View className='flex-row gap-2 justify-around items-center ' >
-                    <Pressable className='p-2 pb-6' onPress={() => router.push("/Notification")} >
-                      <Image
-                        source={icons.notify}
-                        className='size-7'
-                      />
-                    </Pressable>
+                  headerShadowVisible: false,
+                  headerTitle: () => (
+                    <View className='flex-1 flex-row justify-between items-center pt-3 mb-0 bg-[#fdfcf9]' >
+                      <Text style={{ fontFamily: 'Awesome', fontSize: 30 }} className='flex flex-1'>Campus Connect</Text>
+                      <View className='flex-row gap-2 justify-around items-center ' >
+                        <Pressable className='p-2 pb-6' onPress={() => router.push("/Notification")} >
+                          <Image
+                            source={icons.notify}
+                            className='size-7'
+                          />
+                        </Pressable>
 
-                    <Pressable className='p-2 pb-6 ' onPress={() => router.push("/Profile")}  >
-                      <Image
-                        source={icons.profile}
-                        className='size-8 rounded-md'
-                      />
-                    </Pressable>
-                  </View>
-                </View>
+                        <Pressable className='p-2 pb-6 ' onPress={() => router.push("/Profile")}  >
+                          <Image
+                            source={icons.profile}
+                            className='size-8 rounded-md'
+                          />
+                        </Pressable>
+                      </View>
+                    </View>
 
-              ),
-            }}
-          />
-          <Stack.Screen
-            name="Notification"
-            options={{
-              headerShown: false,
-              animation: 'slide_from_bottom'
-            }}
-          />
-          <Stack.Screen
-            name="Profile"
-            options={{
-              headerShown: false,
-              animation: 'slide_from_bottom',
-            }}
-          />
-          <Stack.Screen
-            name="Found"
-            options={{ headerShown: false,
-             }}
-          />
-          <Stack.Screen
-            name="Lost"
-            options={{ headerShown: false,
-             }}
-          />
-        </Stack>
-      </ThemeProvider>
-    </SafeAreaProvider>
+                  ),
+                }}
+              />
+              <Stack.Screen
+                name="Profile"
+                options={{
+                  headerShown: false,
+                  animation: 'slide_from_bottom',
+                }}
+              />
+              <Stack.Screen
+                name="Found"
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="Lost"
+                options={{
+                  headerShown: false,
+                }}
+              />
+            </Stack>
+          </ThemeProvider>
+        </NotificationProvider>
+      </SafeAreaProvider>
   );
 }

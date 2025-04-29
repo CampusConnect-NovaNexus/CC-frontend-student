@@ -1,16 +1,15 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { View,Text,ImageBackground,Image } from 'react-native';
+import { View, Text, ImageBackground, Image } from 'react-native';
 // import { useColorScheme } from '@/hooks/useColorScheme';
-
 import { icons } from '@/constants/icons';
 
 const TabIcon=({focused,icon, title}:any )=>{ 
   if(focused){  
       return(
-          <View className='size-full justify-center items-center mt-4 rounded-md bg-[#A8B5DB] ' >
+          <View className='size-full justify-center items-center mt-4 p-6 rounded-full bg-[#3f3f3f]' >
              <Image
-              source={icon} tintColor="blue" className="size-5"
+              source={icon} tintColor="white" className="size-5"
           />
           </View>
       )
@@ -18,7 +17,7 @@ const TabIcon=({focused,icon, title}:any )=>{
   return(
       <View className='size-full justify-center items-center mt-4 rounded-full ' >
           <Image
-              source={icon} tintColor="#A8B5DB" className="size-5"
+              source={icon} tintColor="gray" className="size-6"
           />
       </View>
   ) 
@@ -41,11 +40,12 @@ export default function TabLayout() {
           alignItems: 'center',
       },
       tabBarStyle:{
-          backgroundColor: '#000000',
+          backgroundColor: '#f3f3f1',
           padding: 15,
           height: 60,
           position:'absolute',
           overflow:'hidden',
+          elevation : 5
       }
   }}
     >

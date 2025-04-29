@@ -1,7 +1,7 @@
-import { View, Text, ScrollView, TouchableOpacity, ImageBackground, Animated, Linking } from 'react-native';
-import { useRouter } from "expo-router";
+import { View, Text, ScrollView, TouchableOpacity, ImageBackground, Animated, Linking, ActivityIndicator } from 'react-native';
 import { images } from "@/constants/images";
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { getStudentExams } from '@/service/lms/getStudentExams';
 
 interface UpdatesCardProps {
   title: string;
@@ -13,21 +13,68 @@ interface ScheduleCardProps {
   course_code: string;
 }
 
+interface Exam {
+  course_code: string;
+  course_name: string;
+  created_by: string;
+  exam_date: string;
+  exam_id: string;
+  exam_type: string;
+}
+
 export default function HomeScreen() {
-  const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch upcoming exams when component mounts
+  useEffect(() => {
+    const fetchExams = async () => {
+      try {
+        const studentId = 'user123'; 
+        const examData = await getStudentExams(studentId);
+        if (examData) {
+          setExams(examData);
+        }
+      } catch (error) {
+        console.error('Error fetching exams:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchExams();
+  }, []);
 
   const UpdatesCard = ({ title, link }: UpdatesCardProps) => (
-    <View className="bg-white flex flex-row justify-between items-center p-6 rounded-2xl mb-4 shadow-lg shadow-gray-200">
-      <View className="flex-1 pr-4">
-        <Text className="text-md font-semibold text-gray-800" numberOfLines={2}>{title}</Text>
+    <View style={{ 
+      backgroundColor: 'white', 
+      flexDirection: 'row', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      padding: 24, 
+      borderRadius: 16, 
+      marginBottom: 16, 
+      shadowColor: '#d1d5db', 
+      shadowOffset: { width: 0, height: 4 }, 
+      shadowOpacity: 0.2, 
+      shadowRadius: 4, 
+      elevation: 4 
+    }}>
+      <View style={{ flex: 1, paddingRight: 16 }}>
+        <Text style={{ fontSize: 16, fontWeight: '600', color: '#1f2937' }} numberOfLines={2}>{title}</Text>
       </View>
       <TouchableOpacity
-        className="bg-amber-600 py-3 px-4 rounded-lg active:bg-amber-700"
+        style={{ 
+          backgroundColor: '#d97706', 
+          paddingVertical: 12, 
+          paddingHorizontal: 16, 
+          borderRadius: 8 
+        }}
         activeOpacity={0.8}
         onPress={() => Linking.openURL(link)}
       >
-        <Text className="text-white font-semibold text-sm">Know More</Text>
+        <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>Know More</Text>
       </TouchableOpacity>
     </View>
   );
@@ -41,28 +88,43 @@ export default function HomeScreen() {
     return `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}`;
   };
 
-  const ScheduleCard = ({ title, date, course_code }: ScheduleCardProps) => (
-    <View className="bg-white flex flex-row justify-between items-center p-6 rounded-xl mb-4 shadow-lg shadow-gray-200">
-      <View className="flex-1 pr-3">
-        <Text className="text-xs font-medium text-gray-400 mb-1">Upcoming Exam</Text>
-        <Text className="text-md font-semibold text-gray-800 mt-1" numberOfLines={2}>
-          {title}
-        </Text>
+  const ScheduleCard = ({ title, date, course_code }: ScheduleCardProps) => {
+    return (
+      <View style={{ 
+        backgroundColor: 'white', 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        padding: 24, 
+        borderRadius: 12, 
+        marginBottom: 16, 
+        shadowColor: '#d1d5db', 
+        shadowOffset: { width: 0, height: 4 }, 
+        shadowOpacity: 0.2, 
+        shadowRadius: 4, 
+        elevation: 4 
+      }}>
+        <View style={{ flex: 1, paddingRight: 12 }}>
+          <Text style={{ fontSize: 8, fontWeight: '500', color: '#9ca3af', marginBottom: 4 }}>Upcoming Exam</Text>
+          <Text style={{ fontSize: 12, fontWeight: '600', color: '#1f2937', marginTop: 4 }} numberOfLines={2}>
+            {title}
+          </Text>
+        </View>
+        <View style={{ alignItems: 'center' }}>
+          <Text style={{ fontSize: 8, fontWeight: '500', color: '#6b7280', marginRight: 8, marginBottom: 4 }}>Scheduled On</Text>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: '#0d9488', marginTop: 4, marginRight: 24 }}>
+            {formatDate(date)}
+          </Text>
+        </View>
+        <View style={{ alignItems: 'center' }}>
+          <Text style={{ fontSize: 8, fontWeight: '500', color: '#6b7280', marginBottom: 4 }}>Course Code</Text>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: '#f87171', marginTop: 4 }}>
+            {course_code.toUpperCase()}
+          </Text>
+        </View>
       </View>
-      <View className="items-center">
-        <Text className="text-xs font-medium text-gray-500 mr-2 mb-1">Scheduled On</Text>
-        <Text className="text-md font-bold text-teal-600 mt-1 mr-6">
-          {formatDate(date)}
-        </Text>
-      </View>
-      <View className="items-center ">
-        <Text className="text-xs font-medium text-gray-500 mb-1">Course Code</Text>
-        <Text className="text-md font-bold text-rose-400 mt-1">
-          {course_code}
-        </Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   // Animated header style
   const headerOpacity = scrollY.interpolate({
@@ -78,18 +140,21 @@ export default function HomeScreen() {
   });
 
   return (
-    <View className="flex-1 bg-amber-50">
+    <View style={{ flex: 1, backgroundColor: '#f9fcf9' }}>
       {/* Animated Header Image */}
       <Animated.View
-        className="h-1/3 absolute w-full z-10"
         style={{
+          height: '33%',
+          position: 'absolute',
+          width: '100%',
+          zIndex: 10,
           opacity: headerOpacity,
           transform: [{ translateY: imageTranslateY }],
         }}
       >
         <ImageBackground
           source={images.main_bg}
-          className="w-full h-full"
+          style={{ width: '100%', height: '100%' }}
           resizeMode="cover"
         />
       </Animated.View>
@@ -103,25 +168,34 @@ export default function HomeScreen() {
         )}
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
-        className="flex-1 pt-4 mb-[60px]"
+        style={{ flex: 1, paddingTop: 16, marginBottom: 60 }}
         contentContainerStyle={{ paddingTop: 220 }}
       >
 
         {/* Handle */}
-        <View className='w-full flex items-center bg-[#fdfcf9] pt-8 rounded-t-full z-20'>
-          <View className='w-1/3 h-2 bg-gray-400 rounded-full' />
+        <View style={{ 
+          width: '100%', 
+          display: 'flex', 
+          alignItems: 'center', 
+          backgroundColor: '#fdfcf9', 
+          paddingTop: 32, 
+          borderTopLeftRadius: 9999, 
+          borderTopRightRadius: 9999, 
+          zIndex: 20 
+        }}>
+          <View style={{ 
+            width: '33%', 
+            height: 8, 
+            backgroundColor: '#9ca3af', 
+            borderRadius: 9999 
+          }} />
         </View>
 
         {/* Content */}
-        <View className="p-6 bg-[#fdfcf9]">
-          <Text className="text-xl text-gray-700 mb-1 font-bold">Latest Updates</Text>
-          <Text className="text-sm text-gray-400 pl-1 mb-4 font-bold">Be the one who knows everything !!!</Text>
-          <ScrollView
-            nestedScrollEnabled={true}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-            className="mb-4 h-60"
-          >
+        <View style={{ padding: 24, backgroundColor: '#fdfcf9' }}>
+          <Text style={{ fontSize: 20, color: '#374151', marginBottom: 4, fontWeight: '700' }}>Latest Updates</Text>
+          <Text style={{ fontSize: 14, color: '#9ca3af', paddingLeft: 4, marginBottom: 16, fontWeight: '700' }}>Be the one who knows everything !!!</Text>
+          <View style={{ marginBottom: 16, height: 'auto' }}>
             <UpdatesCard
               title="Notification on Spring 25 Mid Term Feedback"
               link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf"
@@ -134,15 +208,41 @@ export default function HomeScreen() {
               title="Notification on Spring 25 Mid Term Feedback"
               link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf"
             />
-          </ScrollView>
+          </View>
 
+          <Text style={{ fontSize: 20, fontWeight: '700', color: '#374151', marginTop: 8, marginBottom: 4 }}>Your Schedule</Text>
+          <Text style={{ fontSize: 14, color: '#9ca3af', marginBottom: 16, fontWeight: '700', paddingLeft: 4 }}>You need to face this !!!</Text>
 
-          <Text className="text-xl font-bold text-gray-700 mt-2 mb-1">Your Schedule</Text>
-          <Text className="text-sm text-gray-400 mb-4 font-bold pl-1">You need to face this !!!</Text>
-
-          <ScheduleCard title="MID TERM" date="2025-03-21" course_code="CS220" />
-          <ScheduleCard title="CLASS TEST II" date="2025-05-07" course_code="CS220" />
-          <ScheduleCard title="END TERM" date="2025-05-22" course_code="CS220" />
+          {loading ? (
+            <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 32 }}>
+              <ActivityIndicator size="large" color="#0891b2" />
+              <Text style={{ color: '#6b7280', marginTop: 8 }}>Loading your exams...</Text>
+            </View>
+          ) : exams.length > 0 ? (
+            exams.map((exam) => (
+              <ScheduleCard 
+                key={exam.exam_id}
+                title={exam.exam_type} 
+                date={exam.exam_date} 
+                course_code={exam.course_code} 
+              />
+            ))
+          ) : (
+            <View style={{ 
+              backgroundColor: 'white', 
+              padding: 24, 
+              borderRadius: 12, 
+              marginBottom: 16, 
+              shadowColor: '#d1d5db', 
+              shadowOffset: { width: 0, height: 4 }, 
+              shadowOpacity: 0.2, 
+              shadowRadius: 4, 
+              elevation: 4,
+              alignItems: 'center' 
+            }}>
+              <Text style={{ color: '#6b7280' }}>No upcoming exams found</Text>
+            </View>
+          )}
 
         </View>
       </Animated.ScrollView>

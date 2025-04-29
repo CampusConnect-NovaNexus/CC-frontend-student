@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/adaptive-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#6366f1"
+      "backgroundColor": "#f3f3f1"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -20,6 +20,10 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
+    },
+    "androidNavigationBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#f3f3f1"
     },
     "android": {
       "adaptiveIcon": {
