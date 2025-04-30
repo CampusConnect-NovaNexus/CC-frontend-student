@@ -20,7 +20,7 @@ import { postLostItem } from "@/service/lost-found/postLostItem";
 import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
 import Modal from 'react-native-modal';
-
+import { Ionicons } from "@expo/vector-icons";
 interface LostItem {
   id: string;
   item_title: string;

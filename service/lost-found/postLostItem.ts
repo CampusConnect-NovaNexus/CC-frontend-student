@@ -35,7 +35,7 @@ export const postLostItem = async (item: LostFoundItemInput) => {
   const form = new FormData();
 
   form.append('title', item.title);
-  form.append('user_id', item.user_id); // better to not hardcode it
+  form.append('user_id', item.user_id); 
   form.append('description', item.description);
   form.append('item_category', item.item_category);
 
@@ -44,7 +44,7 @@ export const postLostItem = async (item: LostFoundItemInput) => {
     form.append('image_file', {
       uri: item.image.uri,
       name: item.image.name,
-      type: mimeType, // correct type
+      type: mimeType, 
     } as any);
   }
   console.log('lost data : ', form);
@@ -54,23 +54,25 @@ export const postLostItem = async (item: LostFoundItemInput) => {
       method: 'POST',
       body: form,
     });
+    const data=await response.json()
+      console.log("data : ",data);
+      return data
+    // const contentType = response.headers.get("content-type");
+    // console.log('respoosne : ', response)
+    // if (!response.ok) {
+    //   console.error("HTTP Error:", response.status, response.statusText);
+    //   return null;
+    // }
 
-    const contentType = response.headers.get("content-type");
-    console.log('respoosne : ', response)
-    if (!response.ok) {
-      console.error("HTTP Error:", response.status, response.statusText);
-      return null;
-    }
-
-    if (contentType && contentType.includes("application/json")) {
-      const data = await response.json();
-      console.log("Response from postLostItem:", data);
-      return data;
-    } else {
-      const text = await response.text();
-      console.error("Non-JSON response:", text);
-      return null;
-    }
+    // if (contentType && contentType.includes("application/json")) {
+    //   const data = await response.json();
+    //   console.log("Response from postLostItem:", data);
+    //   return data;
+    // } else {
+    //   const text = await response.text();
+    //   console.error("Non-JSON response:", text);
+    //   return null;
+    // }
   } catch (error) {
     console.error("Error posting lost item:", error);
     return null;
