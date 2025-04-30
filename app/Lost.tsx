@@ -48,34 +48,6 @@ const Lost = () => {
   }>(null);
   const [phoneNumber, setPhoneNumber] = useState<string | null>("1234567890");
   
-
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     const fetchData = async () => {
-  //       try {
-  //         // Load cached data
-  //         const cachedDataString = await AsyncStorage.getItem("lostItems");
-  //         if (cachedDataString) {
-  //           const cachedData = JSON.parse(cachedDataString);
-  //           setLostItems(cachedData);
-  //         }
-  //       } catch (error) {
-  //         console.error("Error loading cached data:", error);
-  //       }
-  //       try {
-  //         // Fetch new data from API
-  //         const apiData = await LFData();
-  //         setLostItems(apiData.reverse());
-  //         // Update cache with fresh data
-  //         await AsyncStorage.setItem("lostItems", JSON.stringify(apiData));
-  //       } catch (error) {
-  //         console.error("Error fetching data:", error);
-  //       }
-  //     };
-  //     fetchData();
-  //   }, [])
-  // );
-
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {

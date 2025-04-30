@@ -173,10 +173,7 @@ const HomeScreen = () => {
           ))}
         </ScrollView>
       </Modal>
-      <Forum  />
-      <View className="mb-12 h-20 bg-red-400 rounded-full mt- 10 " >
-
-      </View>
+    
     </ScrollView>
   );
 };

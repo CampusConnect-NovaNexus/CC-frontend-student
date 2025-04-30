@@ -1,16 +1,31 @@
 import { View, Text,Image , TouchableOpacity, Pressable} from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { icons } from '@/constants/icons'
-import TimeAgo from './TimeAgo'
-import UpVoteBtn from './UpVoteBtn'
+import Likes from './Likes'
+import { fetchUser } from '@/service/lost-found/fetchUser'
+import {TimeAgo} from '@/components/TimeAgo'
 
 interface ForumItem{
-
+   post_id: string,
+   comment_count: number,
+   created_at: string,
+   description: string,
+   title: string,
+   image:string,
+   upvotes: string[],
+  user_id: string,
 }
-const Forum = () => {
+
+const Forum = ({item}:{item:ForumItem}) => {
+  
+  
+  useEffect (()=>{
+
+  },[])
+
   return (
-    <TouchableOpacity
-        className="bg-red-500"
+    <Pressable
+        className=""
         onPress={() => {
         }}
       >
@@ -27,7 +42,7 @@ const Forum = () => {
               </View>
             </View>
 
-            <Text className="text-lg font-bold">UserName</Text>
+            <Text className="text-lg font-bold">{}</Text>
             <View className="flex-row items-center gap-1">
               <View className="w-1.5 h-1.5 rounded-full bg-gray-400"></View>
               {/* <TimeAgo 
@@ -38,16 +53,18 @@ const Forum = () => {
             </View>
           </View>
           {/* Rest of the component remains the same */}
-          <Text className="text-lg font-semibold mb-2">Title</Text>
-          <Text className="text-gray-600 mb-3">Description</Text>
-            {
-
+          <Text className="text-lg font-semibold mb-2">{item.title}</Text>
+          <Text className="text-gray-600 mb-3">{item.description}</Text>
+            {item.image && 
+            <Image
+            source={{ uri : item.image}}
+            />
             }
           <View className="flex-row justify-left items-center">
-            <UpVoteBtn
-              c_id="c_id"
-              user_id="user123"
-              upVotes={12}
+            <Likes
+              post_id={item.post_id}
+              user_id={item.user_id}
+              upVotes={item.upvotes}
             />
             <View className="flex-row justify-center items-center px-2">
               <Pressable
@@ -60,12 +77,12 @@ const Forum = () => {
                   source={icons.comment}
                   className="size-5"
                 />
-                <Text className='text-md text-gray-600 font-bold px-1'>30</Text>
+                <Text className='text-md text-gray-600 font-bold px-1'>{item.comment_count}</Text>
               </Pressable>
             </View>
           </View>
         </View>
-      </TouchableOpacity>
+      </Pressable>
   )
 }
 

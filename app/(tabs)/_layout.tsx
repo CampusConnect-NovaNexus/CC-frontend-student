@@ -80,7 +80,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="LibraryScreen"
+        name="SocialScreen"
         options={{
           headerShown: false,
           title: 'Library',

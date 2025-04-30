@@ -2,17 +2,18 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { Pressable, Image, Text, View } from 'react-native';
 import { icons } from '@/constants/icons';
-import { getGrievanceById } from '@/service/grievance/getGrievanceById';
-import { upVote } from '@/service/grievance/upVote'
-import { downVote } from '@/service/grievance/downVote'
 
-const UpvoteButton = ({ user_id, c_id, upVotes }: { user_id: string; c_id: string; upVotes: string[] }) => {
+import { upvotePost } from '@/service/socials/upVotePost';
+import { downvotePost } from '@/service/socials/downVotePost';
 
+const Likes = ({ post_id,user_id,upVotes }: { user_id: string; post_id: string; upVotes: string[] }) => {
+  console.log(upVotes);
+  
 
-  const [isUpvoted, setIsUpvoted] = useState(false);
-   const [likes, setLikes] =useState(upVotes.length );
+  const [isUpvoted, setIsUpvoted] = useState(upVotes?.includes(user_id) || false);
+   const [likes, setLikes] =useState(upVotes.length);
   useEffect(()=>{
-   if (upVotes.includes(user_id)){
+   if (upVotes?.includes(user_id)){
     setIsUpvoted(true);
    }
   },[])
@@ -21,15 +22,17 @@ const UpvoteButton = ({ user_id, c_id, upVotes }: { user_id: string; c_id: strin
     if (isUpvoted) {
       setLikes(likes => likes - 1)
       setIsUpvoted(false);``
-      const response = await downVote(c_id, user_id);
-      console.log('downvoted response', response);
+      const response = await downvotePost(post_id, user_id);
+      console.log(response);
       
     } else {
       setIsUpvoted(true);
       setLikes(prev => prev + 1)
-      const response = await upVote(c_id, user_id);
-      console.log('upvoted response', response);
+      const response = await upvotePost(post_id, user_id);
+      console.log(response);
     }
+    console.log('pressed');
+    
   };
 
   return (
@@ -52,4 +55,4 @@ const UpvoteButton = ({ user_id, c_id, upVotes }: { user_id: string; c_id: strin
   );
 };
 
-export default UpvoteButton;
+export default Likes
