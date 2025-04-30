@@ -9,9 +9,14 @@ interface TimeAgoProps {
 
 const TimeAgo: React.FC<TimeAgoProps> = ({ date, className, style }) => {
   const getTimeAgo = (dateString: string | Date): string => {
+    if (!dateString) return 'unknown';
     // Convert input to Date object if it's a string
     const utcDate = typeof dateString === 'string' ? new Date(dateString) : dateString;
     
+    if (!(utcDate instanceof Date) || isNaN(utcDate.getTime())) {
+      return 'invalid date';
+    }
+
     // Convert UTC to Indian Standard Time (+5:30)
     const indianTimeOffsetMs = 5.5 * 60 * 60 * 1000; // 5 hours and 30 minutes in milliseconds
     const indianDate = new Date(utcDate.getTime() + indianTimeOffsetMs);

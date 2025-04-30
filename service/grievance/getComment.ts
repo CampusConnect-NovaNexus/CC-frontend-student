@@ -6,10 +6,7 @@ export const getComment = async (c_id: string) => {
   try {
     
     const response = await fetch(`${BASEURL}/get_comments/${c_id}`);
-    console.log('response from getComments: ',response);
-    
     const data=response.json();
-    console.log('Comments:',data);
     return data;
   } catch (error) {
     console.error('Get Comments Error:', error);

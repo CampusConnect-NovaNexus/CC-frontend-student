@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from '@react-navigation/native';
+
 import {
   View,
   Text,
   TextInput,
   Pressable,
+  Linking,
   FlatList,
   Image,
   Alert,
@@ -44,34 +46,82 @@ const Lost = () => {
     name: string;
     type: string;
   }>(null);
+  const [phoneNumber, setPhoneNumber] = useState<string | null>("1234567890");
+  
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const fetchData = async () => {
+  //       try {
+  //         // Load cached data
+  //         const cachedDataString = await AsyncStorage.getItem("lostItems");
+  //         if (cachedDataString) {
+  //           const cachedData = JSON.parse(cachedDataString);
+  //           setLostItems(cachedData);
+  //         }
+  //       } catch (error) {
+  //         console.error("Error loading cached data:", error);
+  //       }
+  //       try {
+  //         // Fetch new data from API
+  //         const apiData = await LFData();
+  //         setLostItems(apiData.reverse());
+  //         // Update cache with fresh data
+  //         await AsyncStorage.setItem("lostItems", JSON.stringify(apiData));
+  //       } catch (error) {
+  //         console.error("Error fetching data:", error);
+  //       }
+  //     };
+  //     fetchData();
+  //   }, [])
+  // );
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
+        const oneHour = 60 * 60 * 1000;
+        const now = Date.now();
+  
         try {
-          // Load cached data
           const cachedDataString = await AsyncStorage.getItem("lostItems");
           if (cachedDataString) {
-            const cachedData = JSON.parse(cachedDataString);
-            setLostItems(cachedData);
+            const { timestamp, data } = JSON.parse(cachedDataString);
+            if (timestamp && now - timestamp < oneHour) {
+              setLostItems(data);
+            } else {
+              await AsyncStorage.removeItem("lostItems");
+            }
           }
         } catch (error) {
-          console.error("Error loading cached data:", error);
+          console.error("Error reading cache:", error);
         }
+  
         try {
-          // Fetch new data from API
           const apiData = await LFData();
           setLostItems(apiData.reverse());
-          // Update cache with fresh data
-          await AsyncStorage.setItem("lostItems", JSON.stringify(apiData));
+          await AsyncStorage.setItem("lostItems", JSON.stringify({
+            timestamp: now,
+            data: apiData
+          }));
         } catch (error) {
           console.error("Error fetching data:", error);
         }
       };
+  
       fetchData();
     }, [])
   );
+  
+  const dialScreen = async () => {
+    if (phoneNumber) {
 
+      const url = `tel:${phoneNumber}`;
+      Linking.openURL(url); 
+    } 
+    else{
+      alert("Phone number is not provided");
+    }
+  }
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -246,7 +296,10 @@ const Lost = () => {
           </View>
 
           <Pressable
-            onPress={() => setDisplayObject(false)}
+            onPress={() => {
+              setDisplayObject(false)
+              dialScreen();
+            }}
             className="bg-blue-500 px-6 py-3 rounded-xl self-center"
           >
             <Text className="text-white font-bold text-lg">Claim Item</Text>
