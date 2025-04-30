@@ -84,7 +84,6 @@ export default function ExamHubScreen() {
   const renderSubjectTab = ({ item }: { item: Course }) => {
     return (
       <Pressable onPress={() => handleCoursePress(item)}>
-        <View className="line bg-gray-200 w-full h-[1.5px] my-2 shadow-sm shadow-slate-400"></View>
         <View className="bg-[#FFFFF0] m-2 p-4 rounded-xl shadow-md">
           <View className="flex-row justify-between items-center mb-2">
             <View className="bg-teal-500 px-3 py-1 rounded-lg">
@@ -115,9 +114,9 @@ export default function ExamHubScreen() {
           <Text className="text-white">Exams</Text>
         </View>
       </View>
-      
+
       <View className="z-10 bg-[#fdfcf9]">
-        <Text style={{fontFamily : "wastedVindey"}} className="text-3xl p-4 pb-6">My Courses</Text>
+        <Text style={{ fontFamily: "wastedVindey" }} className="text-3xl p-4 pb-6">My Courses</Text>
       </View>
 
       {!courses ? (
@@ -131,7 +130,7 @@ export default function ExamHubScreen() {
           renderItem={renderSubjectTab}
           extraData={courses}
           contentContainerStyle={{ paddingBottom: 100 }}
-          className="-mt-4"
+          className="mt-1"
         />
       ) : (
         <View className="flex-col min-h-[200px] bg-[#fdfcf9] items-center justify-center">
@@ -162,7 +161,7 @@ export default function ExamHubScreen() {
       >
         <View className="bg-white rounded-2xl p-5 m-4">
           <Text className="text-xl font-bold mb-6 text-center">Add New Course</Text>
-          
+
           <Pressable
             onPress={() => setAddCourseFormVisible(false)}
             className="absolute -right-2 -top-2 bg-white p-3 rounded-full"
@@ -174,19 +173,10 @@ export default function ExamHubScreen() {
               resizeMode="contain"
             />
           </Pressable>
-          
-          <Pressable
-            onPress={() => {
-              setJoinExistingClassModal(true);
-              setAddCourseFormVisible(false);
-            }}
-            className="mb-4"
-          >
-            <Text className="underline text-teal-600">
-              or join an existing class
-            </Text>
-          </Pressable>
 
+          <Text className="font-bold mb-3">
+            Course Name
+          </Text>
           <TextInput
             className="bg-gray-100 rounded-lg p-3 mb-3"
             placeholder="Enter Course Code (e.g. CS212)"
@@ -194,7 +184,10 @@ export default function ExamHubScreen() {
             onChangeText={setCourse_code}
             placeholderTextColor="#6B7280"
           />
-          
+
+          <Text className="font-bold mb-3">
+            Course Code
+          </Text>
           <TextInput
             className="bg-gray-100 rounded-lg p-3 mb-6"
             placeholder="Enter Course Name"
@@ -202,7 +195,17 @@ export default function ExamHubScreen() {
             onChangeText={setCourse_name}
             placeholderTextColor="#6B7280"
           />
-          
+          <Pressable
+            onPress={() => {
+              setJoinExistingClassModal(true);
+              setAddCourseFormVisible(false);
+            }}
+            className="mb-4"
+          >
+            <Text className="underline text-teal-600 self-end">
+              or join an existing class
+            </Text>
+          </Pressable>
           <Pressable
             onPress={() => {
               if (course_code.trim() && course_name.trim()) {
@@ -222,7 +225,7 @@ export default function ExamHubScreen() {
           </Pressable>
         </View>
       </Modal>
-      
+
       {/* Join Existing course */}
       <Modal
         isVisible={joinExistingClassModal}
@@ -238,7 +241,7 @@ export default function ExamHubScreen() {
       >
         <View className="bg-white rounded-2xl p-5 m-4">
           <Text className="text-xl font-bold mb-6 text-center">Join a Class</Text>
-          
+
           <Pressable
             onPress={() => setJoinExistingClassModal(false)}
             className="absolute -right-2 -top-2 bg-white p-3 rounded-full"
@@ -250,18 +253,7 @@ export default function ExamHubScreen() {
               resizeMode="contain"
             />
           </Pressable>
-          
-          <Pressable
-            onPress={() => {
-              setAddCourseFormVisible(true);
-              setJoinExistingClassModal(false);
-            }}
-            className="mb-4"
-          >
-            <Text className="underline text-teal-600">
-              or create a new class
-            </Text>
-          </Pressable>
+
 
           <TextInput
             className="bg-gray-100 rounded-lg p-3 mb-6"
@@ -270,7 +262,22 @@ export default function ExamHubScreen() {
             onChangeText={setCourse_code}
             placeholderTextColor="#6B7280"
           />
-          
+          <Text className="text-md italic font-bold text-teal-600 self-center pb-3">
+            OR
+          </Text>
+          <Pressable
+            onPress={() => {
+              setAddCourseFormVisible(true);
+              setJoinExistingClassModal(false);
+            }}
+            className="mb-4 border-[1px] border-gray-300 self-center w-fit p-3 rounded-xl bg-white"
+            style={{ elevation: 1 }}
+          >
+            <Text className="text-md text-teal-600">
+              + Add Course
+            </Text>
+          </Pressable>
+
           <Pressable
             onPress={() => {
               if (course_code.trim()) {
