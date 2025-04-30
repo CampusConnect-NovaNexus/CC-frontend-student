@@ -8,7 +8,6 @@ export const getStats = async () => {
     console.log(BASEURL);
     const response = await fetch(`${BASEURL}/stats`);
     const data=await response.json();
-    console.log('Stats :',data);
     return data;
   } catch (error) {
     console.error('Unable to fetch Stats at the moment');
