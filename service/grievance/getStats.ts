@@ -5,6 +5,7 @@ export const getStats = async () => {
     console.log('BASEURL : ',BASEURL);
     
   try {
+    console.log(BASEURL);
     const response = await fetch(`${BASEURL}/stats`);
     const data=await response.json();
     return data;
