@@ -48,6 +48,14 @@ export default function LostFoundScreen() {
   const [selectedItem, setSelectedItem] = useState<LFItem | null>(null);
   const [reportedUser, setReportedUser] = useState<User | null>(null);
 
+  const openLost = () => {
+    router.push("../Lost")
+  }
+
+  const openFound = () => {
+    router.push("../Found")
+  }
+  
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
@@ -92,7 +100,7 @@ export default function LostFoundScreen() {
             borderBottomRightRadius: 16,
             padding: 12
           }}
-          >
+        >
           <Text numberOfLines={1} className="text-white font-bold text-md text-center">
             {item.item_title}
           </Text>
@@ -193,7 +201,7 @@ export default function LostFoundScreen() {
         ) : (
           <FlatList
             horizontal
-            data={data.filter(item => item.item_category === "LOST")}
+            data={data.filter(item => item.item_category === "LOST").slice(0, 6)}
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
             className="mt-4"
@@ -201,7 +209,10 @@ export default function LostFoundScreen() {
             ListEmptyComponent={
               <Text className="text-gray-400 mt-4">No lost items found</Text>
             }
+            onEndReachedThreshold={0.5}
+            onEndReached={openLost}
           />
+
         )}
       </View>
 
@@ -217,7 +228,7 @@ export default function LostFoundScreen() {
         ) : (
           <FlatList
             horizontal
-            data={data.filter(item => item.item_category === "FOUND")}
+            data={data.filter(item => item.item_category === "FOUND").slice(0.6)}
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
             className="mt-4"
@@ -225,6 +236,8 @@ export default function LostFoundScreen() {
             ListEmptyComponent={
               <Text className="text-gray-400 mt-4">No found items</Text>
             }
+            onEndReachedThreshold={0.5}
+            onEndReached={openFound}
           />
         )}
       </View>

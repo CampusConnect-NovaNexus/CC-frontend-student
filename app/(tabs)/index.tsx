@@ -106,19 +106,19 @@ export default function HomeScreen() {
       }}>
         <View style={{ flex: 1, paddingRight: 12 }}>
           <Text style={{ fontSize: 10, fontWeight: '500', color: '#9ca3af', marginBottom: 4 }}>Upcoming Exam</Text>
-          <Text style={{ fontSize: 13, fontWeight: '600', color: '#1f2937', marginTop: 4 }} numberOfLines={2}>
+          <Text style={{ fontSize: 12, fontWeight: '600', color: '#1f2937', marginTop: 4 }} numberOfLines={2}>
             {title}
           </Text>
         </View>
         <View style={{ alignItems: 'center' }}>
           <Text style={{ fontSize: 10, fontWeight: '500', color: '#6b7280', marginRight: 8, marginBottom: 4 }}>Scheduled On</Text>
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#0d9488', marginTop: 4, marginRight: 24 }}>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: '#0d9488', marginTop: 4, marginRight: 24 }}>
             {formatDate(date)}
           </Text>
         </View>
         <View style={{ alignItems: 'center' }}>
           <Text style={{ fontSize: 10, fontWeight: '500', color: '#6b7280', marginBottom: 4 }}>Course Code</Text>
-          <Text style={{ fontSize: 13, fontWeight: '700', color: '#f87171', marginTop: 4 }}>
+          <Text style={{ fontSize: 12, fontWeight: '700', color: '#f87171', marginTop: 4 }}>
             {course_code.toUpperCase()}
           </Text>
         </View>

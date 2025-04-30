@@ -85,6 +85,20 @@ export default function TabLayout() {
                 }}
               />
               <Stack.Screen
+                name="DetailedCourse"
+                options={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                }}
+              />
+              <Stack.Screen
+                name="ExamDetail"
+                options={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                }}
+              />
+              <Stack.Screen
                 name="Found"
                 options={{
                   headerShown: false,
