@@ -90,14 +90,14 @@ export default function LostFoundScreen() {
         await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(freshItems));
       }
 
-      // 2. Fetch from API
+      
       const apiData = await LFData();
       const timestamped = apiData.map((item) => ({
         ...item,
         _cachedAt: now,
       }));
 
-      // Combine and remove duplicates by ID
+      
       const combinedMap = new Map();
       [...timestamped, ...finalData].forEach((item) => {
         combinedMap.set(item.id, item);
@@ -342,7 +342,7 @@ export default function LostFoundScreen() {
         ) : (
           <FlatList
             horizontal
-            data={data.filter(item => item.item_category === "FOUND").slice(0.6)}
+            data={data.filter(item => item.item_category === "FOUND").slice(0,6)}
             keyExtractor={(item) => item.id}
             showsHorizontalScrollIndicator={false}
             className="mt-4"

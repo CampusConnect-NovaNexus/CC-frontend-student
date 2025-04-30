@@ -10,7 +10,8 @@ interface TimeAgoProps {
 const TimeAgo: React.FC<TimeAgoProps> = ({ date, className, style }) => {
   const getTimeAgo = (dateString: string | Date): string => {
     if (!dateString || !(typeof dateString === 'string' || dateString instanceof Date)) {
-      console.error("Invalid date provided")
+      
+      return "unknown"
     }
     // Convert input to Date object if it's a string
     const utcDate = typeof dateString === 'string' ? new Date(dateString) : dateString;

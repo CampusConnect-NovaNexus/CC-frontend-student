@@ -41,23 +41,24 @@ export const postFoundItem = async (item:any) => {
       method: 'POST',
       body: form,
     });
+    const data=await response.json();
+    return data;
+    // const c  ontentType = response.headers.get("content-type");
+    // console.log('respoosne : ', response)
+    // if (!response.ok) {
+    //   console.error("HTTP Error:", response.status, response.statusText);
+    //   return null;
+    // }
 
-    const contentType = response.headers.get("content-type");
-    console.log('respoosne : ', response)
-    if (!response.ok) {
-      console.error("HTTP Error:", response.status, response.statusText);
-      return null;
-    }
-
-    if (contentType && contentType.includes("application/json")) {
-      const data = await response.json();
-      console.log("Response from postFoundItem:", data);
-      return data;
-    } else {
-      const text = await response.text();
-      console.error("Non-JSON response:", text);
-      return null;
-    }
+    // if (contentType && contentType.includes("application/json")) {
+    //   const data = await response.json();
+    //   console.log("Response from postFoundItem:", data);
+    //   return data;
+    // } else {
+    //   const text = await response.text();
+    //   console.error("Non-JSON response:", text);
+    //   return null;
+    // }
   } catch (error) {
     console.error("Error posting Found item:", error);
     return null;
