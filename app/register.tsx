@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -24,24 +24,98 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register, isLoading, error, clearError } = useAuth();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    return () => {
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+    };
+  }, []);
+  
+  useEffect(() => {
+    if (error) {
+      if (error.includes('Registration failed')) {
+        setErrorMessage('Something went wrong with request');
+      } else if (error.includes('provide') || error.includes('fields')) {
+        setErrorMessage('Details not complete');
+      } else {
+        setErrorMessage('Server error');
+      }
+      
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+      
+      errorTimeoutRef.current = setTimeout(() => {
+        setErrorMessage(null);
+        clearError();
+      }, 5000);
+    } else {
+      setErrorMessage(null);
+    }
+  }, [error, clearError]);
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
-      alert('Please fill in all fields');
+      setErrorMessage('Details not complete');
+      
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+      
+      errorTimeoutRef.current = setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+      
       return;
     }
 
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setErrorMessage('Passwords do not match');
+      
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+      
+      errorTimeoutRef.current = setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+      
       return;
     }
 
     if (password.length < 8) {
-      alert('Password must be at least 8 characters long');
+      setErrorMessage('Password must be at least 8 characters long');
+      
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+      
+      errorTimeoutRef.current = setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+      
       return;
     }
 
-    await register(email, password, name);
+    try {
+      await register(email, password, name);
+    } catch (err) {
+      // Errors are handled by the auth context
+    }
+  };
+  
+  const dismissError = () => {
+    setErrorMessage(null);
+    clearError();
+    
+    if (errorTimeoutRef.current) {
+      clearTimeout(errorTimeoutRef.current);
+      errorTimeoutRef.current = null;
+    }
   };
 
   return (
@@ -52,7 +126,6 @@ export default function RegisterScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         <StatusBar style="dark" />
         
-        {/* Logo and Heading */}
         <View style={styles.logoContainer}>
           <Image
             source={require('@/assets/adaptive-icon.png')}
@@ -62,17 +135,18 @@ export default function RegisterScreen() {
           <Text style={styles.subtitle}>Create a new account</Text>
         </View>
 
-        {/* Error Message
-        {error && (
+        {errorMessage && (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity onPress={clearError} style={styles.errorDismiss}>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+            <TouchableOpacity 
+              onPress={dismissError}
+              style={styles.errorDismiss}
+            >
               <Ionicons name="close" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-        )} */}
+        )}
 
-        {/* Register Form */}
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
             <Ionicons name="person-outline" size={24} color="#666" style={styles.inputIcon} />
@@ -83,6 +157,7 @@ export default function RegisterScreen() {
               autoCapitalize="words"
               value={name}
               onChangeText={setName}
+              editable={!isLoading}
             />
           </View>
 
@@ -96,6 +171,7 @@ export default function RegisterScreen() {
               autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
+              editable={!isLoading}
             />
           </View>
 
@@ -108,15 +184,17 @@ export default function RegisterScreen() {
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
+              editable={!isLoading}
             />
             <TouchableOpacity 
               onPress={() => setShowPassword(!showPassword)}
               style={styles.passwordToggle}
+              disabled={isLoading}
             >
               <Ionicons 
                 name={showPassword ? "eye-off-outline" : "eye-outline"} 
                 size={24} 
-                color="#666" 
+                color={isLoading ? "#aaa" : "#666"} 
               />
             </TouchableOpacity>
           </View>
@@ -130,21 +208,23 @@ export default function RegisterScreen() {
               secureTextEntry={!showConfirmPassword}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
+              editable={!isLoading}
             />
             <TouchableOpacity 
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}
               style={styles.passwordToggle}
+              disabled={isLoading}
             >
               <Ionicons 
                 name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} 
                 size={24} 
-                color="#666" 
+                color={isLoading ? "#aaa" : "#666"} 
               />
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity 
-            style={styles.registerButton} 
+            style={[styles.registerButton, isLoading && styles.registerButtonDisabled]} 
             onPress={handleRegister}
             disabled={isLoading}
           >
@@ -158,8 +238,8 @@ export default function RegisterScreen() {
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>
             <Link href="/login" asChild>
-              <TouchableOpacity>
-                <Text style={styles.loginLink}>Login</Text>
+              <TouchableOpacity disabled={isLoading}>
+                <Text style={[styles.loginLink, isLoading && styles.disabledLink]}>Login</Text>
               </TouchableOpacity>
             </Link>
           </View>
@@ -235,6 +315,9 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 8,
   },
+  registerButtonDisabled: {
+    backgroundColor: '#aaa',
+  },
   registerButtonText: {
     color: '#fff',
     fontSize: 18,
@@ -253,6 +336,9 @@ const styles = StyleSheet.create({
     color: '#6366f1',
     fontSize: 16,
     fontWeight: '600',
+  },
+  disabledLink: {
+    color: '#aaa',
   },
   errorContainer: {
     backgroundColor: '#ff5252',

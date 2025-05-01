@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -22,13 +22,70 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading, error, clearError } = useAuth();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (error) {
+      if (error.includes('Invalid credentials') || error.includes('Login failed')) {
+        setErrorMessage('Something went wrong with request');
+      } else if (error.includes('provide') || error.includes('fields')) {
+        setErrorMessage('Details not complete');
+      } else {
+        setErrorMessage('Server error');
+      }
+      
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+      
+      errorTimeoutRef.current = setTimeout(() => {
+        setErrorMessage(null);
+        clearError();
+      }, 5000);
+    } else {
+      setErrorMessage(null);
+    }
+  }, [error, clearError]);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert('Please enter both email and password');
+      setErrorMessage('Details not complete');
+      
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+      
+      errorTimeoutRef.current = setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+      
       return;
     }
-    await login(email, password);
+    
+    try {
+      await login(email, password);
+    } catch (err) {
+      // Errors are handled by the auth context
+    }
+  };
+
+  const dismissError = () => {
+    setErrorMessage(null);
+    clearError();
+    
+    if (errorTimeoutRef.current) {
+      clearTimeout(errorTimeoutRef.current);
+      errorTimeoutRef.current = null;
+    }
   };
 
   return (
@@ -39,7 +96,6 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         <StatusBar style="dark" />
         
-        {/* Logo and Heading */}
         <View style={styles.logoContainer}>
           <Image
             source={require('@/assets/adaptive-icon.png')}
@@ -49,17 +105,18 @@ export default function LoginScreen() {
           <Text style={styles.subtitle}>Login to your account</Text>
         </View>
 
-        {/* Error Message
-        {error && (
+        {errorMessage && (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity onPress={clearError} style={styles.errorDismiss}>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+            <TouchableOpacity 
+              onPress={dismissError} 
+              style={styles.errorDismiss}
+            >
               <Ionicons name="close" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-        )} */}
+        )}
 
-        {/* Login Form */}
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
             <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
@@ -71,6 +128,7 @@ export default function LoginScreen() {
               autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
+              editable={!isLoading}
             />
           </View>
 
@@ -83,21 +141,23 @@ export default function LoginScreen() {
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
+              editable={!isLoading}
             />
             <TouchableOpacity 
               onPress={() => setShowPassword(!showPassword)}
               style={styles.passwordToggle}
+              disabled={isLoading}
             >
               <Ionicons 
                 name={showPassword ? "eye-off-outline" : "eye-outline"} 
                 size={24} 
-                color="#666" 
+                color={isLoading ? "#aaa" : "#666"} 
               />
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity 
-            style={styles.loginButton} 
+            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]} 
             onPress={handleLogin}
             disabled={isLoading}
           >
@@ -111,8 +171,8 @@ export default function LoginScreen() {
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>Don't have an account? </Text>
             <Link href="/register" asChild>
-              <TouchableOpacity>
-                <Text style={styles.registerLink}>Register</Text>
+              <TouchableOpacity disabled={isLoading}>
+                <Text style={[styles.registerLink, isLoading && styles.disabledLink]}>Register</Text>
               </TouchableOpacity>
             </Link>
           </View>
@@ -223,5 +283,12 @@ const styles = StyleSheet.create({
   },
   errorDismiss: {
     padding: 4,
+  },
+  loginButtonDisabled: {
+    backgroundColor: '#aaa',
+    shadowColor: '#aaa',
+  },
+  disabledLink: {
+    color: '#aaa',
   },
 });
