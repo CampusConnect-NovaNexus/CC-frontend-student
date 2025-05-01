@@ -140,7 +140,6 @@ export default function GrievanceScreen() {
   // };
   const loadComments = async () => {
     if (!grievanceItem) return;
-    console.log("load Comments Called ");
 
     const cacheKey = `comments_${grievanceItem.c_id}`;
 

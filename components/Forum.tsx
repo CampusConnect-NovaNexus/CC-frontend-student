@@ -24,8 +24,8 @@ const Forum = ({item}:{item:ForumItem}) => {
   },[])
 
   return (
-    <Pressable
-        className=""
+    <View
+        className="bg-white"
         onPress={() => {
         }}
       >
@@ -82,7 +82,7 @@ const Forum = ({item}:{item:ForumItem}) => {
             </View>
           </View>
         </View>
-      </Pressable>
+      </View>
   )
 }
 

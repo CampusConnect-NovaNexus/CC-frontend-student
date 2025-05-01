@@ -57,22 +57,6 @@ export const postLostItem = async (item: LostFoundItemInput) => {
     const data=await response.json()
       console.log("data : ",data);
       return data
-    // const contentType = response.headers.get("content-type");
-    // console.log('respoosne : ', response)
-    // if (!response.ok) {
-    //   console.error("HTTP Error:", response.status, response.statusText);
-    //   return null;
-    // }
-
-    // if (contentType && contentType.includes("application/json")) {
-    //   const data = await response.json();
-    //   console.log("Response from postLostItem:", data);
-    //   return data;
-    // } else {
-    //   const text = await response.text();
-    //   console.error("Non-JSON response:", text);
-    //   return null;
-    // }
   } catch (error) {
     console.error("Error posting lost item:", error);
     return null;

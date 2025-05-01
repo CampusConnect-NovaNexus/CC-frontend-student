@@ -7,7 +7,7 @@ import { upvotePost } from '@/service/socials/upVotePost';
 import { downvotePost } from '@/service/socials/downVotePost';
 
 const Likes = ({ post_id,user_id,upVotes }: { user_id: string; post_id: string; upVotes: string[] }) => {
-  console.log(upVotes);
+  
   
 
   const [isUpvoted, setIsUpvoted] = useState(upVotes?.includes(user_id) || false);
@@ -31,7 +31,7 @@ const Likes = ({ post_id,user_id,upVotes }: { user_id: string; post_id: string; 
       const response = await upvotePost(post_id, user_id);
       console.log(response);
     }
-    console.log('pressed');
+   
     
   };
 

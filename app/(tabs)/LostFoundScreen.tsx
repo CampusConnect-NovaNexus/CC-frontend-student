@@ -92,7 +92,7 @@ export default function LostFoundScreen() {
 
       
       const apiData = await LFData();
-      const timestamped = apiData.map((item) => ({
+      const timestamped = apiData.map((item:any) => ({
         ...item,
         _cachedAt: now,
       }));
@@ -105,10 +105,10 @@ export default function LostFoundScreen() {
 
       const combinedData = Array.from(combinedMap.values());
 
-      // 3. Save to AsyncStorage
+      
       await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(combinedData));
 
-      // 4. Show on screen
+      
       setData(combinedData.reverse());
     } catch (error) {
       console.error("Failed to load or cache data:", error);
