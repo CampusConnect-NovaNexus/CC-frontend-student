@@ -197,16 +197,16 @@ export default function HomeScreen() {
           <Text style={{ fontSize: 14, color: '#9ca3af', paddingLeft: 4, marginBottom: 16, fontWeight: '700' }}>Be the one who knows everything !!!</Text>
           <View style={{ marginBottom: 16, height: 'auto' }}>
             <UpdatesCard
-              title="Notification on Spring 25 Mid Term Feedback"
+              title="Fee Remittance for Spring of B.Tech Students for 2025"
+              link="https://www.nitm.ac.in/uploads/ff9ce7995dfaeaac2962d7859056a4f5.pdf"
+            />
+            <UpdatesCard
+              title="Spring 25 Mid Term Feedback"
               link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf"
             />
             <UpdatesCard
-              title="Notification on Spring 25 Mid Term Feedback"
-              link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf"
-            />
-            <UpdatesCard
-              title="Notification on Spring 25 Mid Term Feedback"
-              link="https://www.nitm.ac.in/uploads/91d1b01f76b8744a3a39af32b027dd89.pdf"
+              title="SWAYAM NPTEL and Institute Online courses"
+              link="https://www.nitm.ac.in/uploads/f0bec46eef100759d8e3297bef6411f9.pdf"
             />
           </View>
 
