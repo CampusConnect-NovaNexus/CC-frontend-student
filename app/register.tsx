@@ -62,7 +62,7 @@ export default function RegisterScreen() {
           <Text style={styles.subtitle}>Create a new account</Text>
         </View>
 
-        {/* Error Message */}
+        {/* Error Message
         {error && (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{error}</Text>
@@ -70,7 +70,7 @@ export default function RegisterScreen() {
               <Ionicons name="close" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-        )}
+        )} */}
 
         {/* Register Form */}
         <View style={styles.formContainer}>
