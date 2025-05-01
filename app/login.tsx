@@ -49,7 +49,7 @@ export default function LoginScreen() {
           <Text style={styles.subtitle}>Login to your account</Text>
         </View>
 
-        {/* Error Message */}
+        {/* Error Message
         {error && (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{error}</Text>
@@ -57,7 +57,7 @@ export default function LoginScreen() {
               <Ionicons name="close" size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-        )}
+        )} */}
 
         {/* Login Form */}
         <View style={styles.formContainer}>
