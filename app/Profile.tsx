@@ -7,19 +7,24 @@ import {
   Pressable,
   ScrollView,
   Image,
+  TouchableOpacity,
+  Animated,
+  ImageBackground,
 } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
 import { icons } from "@/constants/icons";
 import { useRouter } from "expo-router";
 import { images } from "@/constants/images";
 import Forum from "@/components/Forum";
-const HomeScreen = () => {
+import { Ionicons } from "@expo/vector-icons";
+
+const ProfileScreen = () => {
   const router = useRouter();
   const [addSocialsVisible, setAddSocialsVisible] = useState(false);
   const [address, setAddress] = useState<String>(
     "Bhadohi, Uttar Pradesh, India"
   );
-  const [email, setEmail] = useState<String>("Eumarshashank@gmail.com");
+  const [email, setEmail] = useState<String>("b23cs019@gmail.com");
   const [instagramLink, setInstagramLink] = useState<String>("http://");
   const [linkedinLink, setLinkedinLink] = useState<String>("");
   const [youtubeLink, setYoutubeLink] = useState<String>("http://");
@@ -27,155 +32,374 @@ const HomeScreen = () => {
   const [twitterLink, setTwitterLink] = useState<String>("");
   const [leetCodeLink, setLeetCodeLink] = useState<String>("");
   const [codeForcesLink, setCodeForcesLink] = useState<String>("http ");
-  const [phoneNumber, setPhoneNumber] = useState<String>("69696696969");
+  const [phoneNumber, setPhoneNumber] = useState<String>("+91 9898281290");
   const [about, setAbout] = useState<String>(
-    "Lorem is a bad b Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, autemfuga quos sit quasi modi... "
+    "Passionate about technology and innovation, I'm currently pursuing my degree in Computer Science. I enjoy solving complex problems and building applications that make a difference."
   );
 
   return (
-    <ScrollView className="flex flex-col bg-yellow-100">
+    <View style={{ flex: 1, backgroundColor: '#f9fcf9' }}>
       {/* Header Image and Profile */}
-      <View className="mt-10 h-[220px]">
+      <View style={{ height: 220, marginTop: 10 }}>
         <Image
-          source={images.main_bg}
-          className="w-full h-[150px] object-cover object-center"
+          source={images.banner}
+          className="object-contain"
         />
-        <View className="bg-white rounded-full h-[110px] aspect-square items-center justify-center absolute top-[100px] left-2 shadow-md">
+        <View style={{
+          position: 'absolute',
+          top: 100,
+          left: '50%',
+          marginLeft: -55,
+          backgroundColor: 'white',
+          borderRadius: 999,
+          height: 110,
+          width: 110,
+          alignItems: 'center',
+          justifyContent: 'center',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 5,
+          elevation: 5
+        }}>
           <Image
             source={icons.profile}
-            className="rounded-full h-[100px] aspect-square"
+            style={{ height: 100, width: 100, borderRadius: 999 }}
           />
-          <Pressable
-            className="absolute bg-white p-1 rounded-full"
+          <TouchableOpacity
             style={{
-              transform: [
-                { rotate: "45deg" },
-                { translateX: 55 },
-                { translateY: -5 },
-              ],
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              backgroundColor: '#d97706',
+              padding: 8,
+              borderRadius: 999,
             }}
           >
-            <Image source={icons.cross} className=" size-5  m-1" />
-          </Pressable>
+            <Ionicons name="camera" size={18} color="white" />
+          </TouchableOpacity>
         </View>
       </View>
 
-      {/* User Info */}
-      <View className="flex-col mx-4 mt-6">
-        <Text className="text-4xl font-bold">Shashank Umar</Text>
-        <Text className="text-md text-gray-600 mt-2">{address}</Text>
+      {/* Content */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1, backgroundColor: '#fdfcf9', borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        {/* Handle */}
+        <View style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          paddingTop: 12,
+        }}>
+          <View style={{
+            width: '33%',
+            height: 5,
+            backgroundColor: '#d1d5db',
+            borderRadius: 9999
+          }} />
+        </View>
+
+        {/* User Info */}
+        <View style={{ alignItems: 'center', marginTop: 10 }}>
+          <Text style={{ fontSize: 28, fontWeight: '700', color: '#1f2937' }}>Shashank Umar</Text>
+          <Text style={{ fontSize: 16, color: '#6b7280', marginTop: 4 }}>{address}</Text>
+        </View>
 
         {/* Social Links */}
-        <View className="mt-10">
-          <View className="flex-row justify-between items-center">
-            <Text className="text-2xl font-semibold text-gray-800">
+        <View style={{ marginHorizontal: 20, marginTop: 24 }}>
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: 'white',
+            padding: 16,
+            borderRadius: 16,
+            shadowColor: '#d1d5db',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 2
+          }}>
+            <Text style={{ fontSize: 18, fontWeight: '600', color: '#374151' }}>
               My Socials
             </Text>
-            <Pressable
+            <TouchableOpacity
               onPress={() => setAddSocialsVisible(true)}
-              className="bg-yellow-600 px-3 py-1 rounded-full"
+              style={{
+                backgroundColor: '#d97706',
+                paddingVertical: 8,
+                paddingHorizontal: 16,
+                borderRadius: 999
+              }}
             >
-              <Text className="text-white font-semibold">Add</Text>
-            </Pressable>
+              <Text style={{ color: 'white', fontWeight: '600' }}>Add</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Icons */}
-          <View className="flex-row flex-wrap gap-4 mt-4">
+          <View style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 16,
+            marginTop: 16,
+            backgroundColor: 'white',
+            padding: 16,
+            borderRadius: 16,
+            shadowColor: '#d1d5db',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 2
+          }}>
             {instagramLink ? (
-              <Image source={icons.instagram} className="size-6" />
+              <View style={{ alignItems: 'center' }}>
+                <Image source={icons.instagram} style={{ width: 32, height: 32 }} />
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>Instagram</Text>
+              </View>
             ) : null}
             {linkedinLink ? (
-              <Image source={icons.linkedin} className="size-6" />
+              <View style={{ alignItems: 'center' }}>
+                <Image source={icons.linkedin} style={{ width: 32, height: 32 }} />
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>LinkedIn</Text>
+              </View>
             ) : null}
             {youtubeLink ? (
-              <Image source={icons.youTube} className="size-6" />
+              <View style={{ alignItems: 'center' }}>
+                <Image source={icons.youTube} style={{ width: 32, height: 32 }} />
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>YouTube</Text>
+              </View>
             ) : null}
             {githubLink ? (
-              <Image source={icons.github} className="size-6" />
+              <View style={{ alignItems: 'center' }}>
+                <Image source={icons.github} style={{ width: 32, height: 32 }} />
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>GitHub</Text>
+              </View>
             ) : null}
             {twitterLink ? (
-              <Image source={icons.twitter} className="size-6" />
+              <View style={{ alignItems: 'center' }}>
+                <Image source={icons.twitter} style={{ width: 32, height: 32 }} />
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>Twitter</Text>
+              </View>
             ) : null}
             {leetCodeLink ? (
-              <Image source={icons.leetcode} className="size-6" />
+              <View style={{ alignItems: 'center' }}>
+                <Image source={icons.leetcode} style={{ width: 32, height: 32 }} />
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>LeetCode</Text>
+              </View>
             ) : null}
             {codeForcesLink ? (
-              <Image source={icons.codeforces} className="size-6" />
+              <View style={{ alignItems: 'center' }}>
+                <Image source={icons.codeforces} style={{ width: 32, height: 32 }} />
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>CodeForces</Text>
+              </View>
             ) : null}
           </View>
         </View>
-        <View className="rounded-xl mt-10 flex-row justify-between items-center  ">
-          <Text className="text-2xl font-semibold">About Me </Text>
-          <Pressable>
-            <Image source={icons.pencil} className="size-6" />
-          </Pressable>
+
+        {/* About Me */}
+        <View style={{ marginHorizontal: 20, marginTop: 24 }}>
+          {/* About Text */}
+          <View style={{
+            marginTop: 16,
+            backgroundColor: 'white',
+            padding: 16,
+            borderRadius: 16,
+            shadowColor: '#d1d5db',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 2
+          }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: '#374151', padding: 4}}>
+                About Me
+              </Text>
+              <TouchableOpacity style={{ padding: 4 }}>
+                <Ionicons name="pencil" size={20} color="#d97706" />
+              </TouchableOpacity>
+            </View>
+            <Text style={{ color: '#4b5563', lineHeight: 22, paddingLeft: 6}}>{about}</Text>
+          </View>
         </View>
 
-        {/* About Text */}
-        <ScrollView className="max-h-32 mt-4 p-2 bg-white rounded-lg shadow-sm">
-          <Text className="text-gray-800">{about}</Text>
-        </ScrollView>
-        <View className="justify-self-end  ">
-          <Text className="text-2xl font-semibold mt-10 ">Contact Me </Text>
-          <View className="flex-row  gap-3 ">
-            <Image source={icons.phone} className="size-6" />
-            <Text className="text-sm text-gray-800">{phoneNumber}</Text>
-          </View>
-          <View className="flex-row  gap-3 ">
-            <Image source={icons.email} className="size-6" />
-            <Text className="text-sm text-gray-800">{email}</Text>
+        {/* Contact Me */}
+        <View style={{ marginHorizontal: 20, marginTop: 24 }}>
+          <View style={{
+            backgroundColor: 'white',
+            padding: 16,
+            borderRadius: 16,
+            shadowColor: '#d1d5db',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 2
+          }}>
+            <Text style={{ fontSize: 18, fontWeight: '600', color: '#374151', marginBottom: 12 }}>
+              Contact Me
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+              <View style={{
+                backgroundColor: '#f3f4f6',
+                padding: 10,
+                borderRadius: 999,
+                marginRight: 12
+              }}>
+                <Ionicons name="call" size={20} color="#0891b2" />
+              </View> 
+              <Text style={{ color: '#4b5563', fontSize: 16 }}>{phoneNumber}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{
+                backgroundColor: '#f3f4f6',
+                padding: 10,
+                borderRadius: 999,
+                marginRight: 12
+              }}>
+                <Ionicons name="mail" size={20} color="#0891b2" />
+              </View>
+              <Text style={{ color: '#4b5563', fontSize: 16 }}>{email}</Text>
+            </View>
           </View>
         </View>
-      </View>
+      </ScrollView>
 
       {/* Modal */}
-      <Modal visible={addSocialsVisible} animationType="slide">
-        <ScrollView className="flex-1 p-4 bg-white">
-          <View className="items-end">
-            <Pressable
-              onPress={() => setAddSocialsVisible(false)}
-              className="p-2 bg-red-400 rounded-full"
-            >
-              <Image source={icons.cross} className="size-6" />
-            </Pressable>
-          </View>
-          <Text className="text-2xl font-bold mb-4 text-center">
-            Add Social Links
-          </Text>
-
-          {/* Input fields */}
-          {[
-            {
-              label: "Instagram",
-              value: instagramLink,
-              setter: setInstagramLink,
-            },
-            { label: "LinkedIn", value: linkedinLink, setter: setLinkedinLink },
-            { label: "YouTube", value: youtubeLink, setter: setYoutubeLink },
-            { label: "GitHub", value: githubLink, setter: setGithubLink },
-            { label: "Twitter", value: twitterLink, setter: setTwitterLink },
-            { label: "LeetCode", value: leetCodeLink, setter: setLeetCodeLink },
-            {
-              label: "Codeforces",
-              value: codeForcesLink,
-              setter: setCodeForcesLink,
-            },
-          ].map((field, idx) => (
-            <View key={idx} className="mb-4">
-              <Text className="text-lg font-semibold mb-2">{field.label}</Text>
-              <TextInput
-                value={field.value}
-                onChangeText={field.setter}
-                placeholder={`Enter ${field.label} link`}
-                className="border border-gray-300 p-2 rounded-lg"
-              />
+      <Modal visible={addSocialsVisible} animationType="slide" transparent={true}>
+        <View style={{
+          flex: 1,
+          backgroundColor: 'rgba(0,0,0,0.06)',
+          justifyContent: 'flex-end'
+        }}>
+          <View style={{
+            backgroundColor: 'white',
+            borderTopLeftRadius: 30,
+            borderTopRightRadius: 30,
+            paddingBottom: 30,
+            maxHeight: '80%'
+          }}>
+            <View style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              paddingTop: 12,
+              marginBottom: 8
+            }}>
+              <View style={{
+                width: '33%',
+                height: 5,
+                backgroundColor: '#d1d5db',
+                borderRadius: 9999
+              }} />
             </View>
-          ))}
-        </ScrollView>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 16 }}>
+              <Text style={{ fontSize: 20, fontWeight: '700', color: '#1f2937' }}>
+                Add Social Links
+              </Text>
+              <TouchableOpacity
+                onPress={() => setAddSocialsVisible(false)}
+                style={{ padding: 8 }}
+              >
+                <Ionicons name="close" size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={{ paddingHorizontal: 20 }}>
+              {/* Input fields */}
+              {[
+                {
+                  label: "Instagram",
+                  value: instagramLink,
+                  setter: setInstagramLink,
+                  icon: "logo-instagram"
+                },
+                {
+                  label: "LinkedIn",
+                  value: linkedinLink,
+                  setter: setLinkedinLink,
+                  icon: "logo-linkedin"
+                },
+                {
+                  label: "YouTube",
+                  value: youtubeLink,
+                  setter: setYoutubeLink,
+                  icon: "logo-youtube"
+                },
+                {
+                  label: "GitHub",
+                  value: githubLink,
+                  setter: setGithubLink,
+                  icon: "logo-github"
+                },
+                {
+                  label: "Twitter",
+                  value: twitterLink,
+                  setter: setTwitterLink,
+                  icon: "logo-twitter"
+                },
+                {
+                  label: "LeetCode",
+                  value: leetCodeLink,
+                  setter: setLeetCodeLink,
+                  icon: "code-slash"
+                },
+                {
+                  label: "Codeforces",
+                  value: codeForcesLink,
+                  setter: setCodeForcesLink,
+                  icon: "code"
+                },
+              ].map((field, idx) => (
+                <View key={idx} style={{ marginBottom: 16 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '600', color: '#374151', marginBottom: 8 }}>
+                    {field.label}
+                  </Text>
+                  <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    borderWidth: 1,
+                    borderColor: '#d1d5db',
+                    borderRadius: 12,
+                    paddingHorizontal: 12
+                  }}>
+                    <Ionicons name={field.icon} size={20} color="#6b7280" style={{ marginRight: 8 }} />
+                    <TextInput
+                      value={field.value}
+                      onChangeText={field.setter}
+                      placeholder={`Enter ${field.label} link`}
+                      style={{
+                        flex: 1,
+                        paddingVertical: 12,
+                        fontSize: 16,
+                        color: '#4b5563'
+                      }}
+                    />
+                  </View>
+                </View>
+              ))}
+
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#d97706',
+                  paddingVertical: 14,
+                  borderRadius: 12,
+                  alignItems: 'center',
+                  marginTop: 16,
+                  marginBottom: 24
+                }}
+                onPress={() => setAddSocialsVisible(false)}
+              >
+                <Text style={{ color: 'white', fontWeight: '700', fontSize: 16 }}>Save Changes</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
       </Modal>
-    
-    </ScrollView>
+    </View>
   );
 };
 
-export default HomeScreen;
+export default ProfileScreen;
