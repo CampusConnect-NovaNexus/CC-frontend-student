@@ -1,5 +1,4 @@
-
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -54,7 +53,23 @@ const SocialScreen = () => {
   const [detailPostVisible, setDetailPostVisible] = useState<boolean>(false);
   const [newComment, setNewComment] = useState<string>("");
   const [comments, setComments] = useState<Comment[] | null>(null);
-  const user_id = "user3456";
+  const [user_id, setUserId] = useState<string>("");
+
+  useEffect(() => {
+    // Load user_id from AsyncStorage when component mounts
+    const getUserId = async () => {
+      try {
+        const id = await AsyncStorage.getItem('@user_id');
+        if (id) {
+          setUserId(id);
+        }
+      } catch (error) {
+        console.error('Error fetching user id:', error);
+      }
+    };
+    
+    getUserId();
+  }, []);
 
   const [imageFile, setImageFile] = useState<null | {
     uri: string;

@@ -62,7 +62,24 @@ export default function GrievanceScreen() {
   });
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [newComment, setNewComment] = useState("");
+  const [user_id, setUserId] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    // Load user_id from AsyncStorage when component mounts
+    const getUserId = async () => {
+      try {
+        const id = await AsyncStorage.getItem('@user_id');
+        if (id) {
+          setUserId(id);
+        }
+      } catch (error) {
+        console.error('Error fetching user id:', error);
+      }
+    };
+    
+    getUserId();
+  }, []);
 
   const clearOldCommentCaches = async () => {
     const keys = await AsyncStorage.getAllKeys();
@@ -119,7 +136,7 @@ export default function GrievanceScreen() {
   const postNewGrievance = async () => {
     if (newGrievance.title && newGrievance.description) {
       const payload = {
-        user_id: "user123",
+        user_id: user_id,
         title: newGrievance.title,
         description: newGrievance.description,
       };
@@ -186,19 +203,11 @@ export default function GrievanceScreen() {
   };
   // getTimeAgo function has been moved to the TimeAgo component
 
-  // const handlePostComment = async (c_id: string) => {
-  //   if (newComment.trim()) {
-  //     await postComment(c_id, "user123", newComment);
-  //     setNewComment("");
-  //     const result = await getComment(c_id);
-  //     setComments(result?.comments || null);
-  //   }
-  // };
   const handlePostComment = async (c_id: string) => {
     if (!newComment.trim()) return;
 
     try {
-      await postComment(c_id, "user123", newComment);
+      await postComment(c_id, user_id, newComment);
       setNewComment("");
 
       const result = await getComment(c_id);
@@ -254,7 +263,7 @@ export default function GrievanceScreen() {
           <View className="flex-row justify-left items-center">
             <UpVoteBtn
               c_id={item.c_id}
-              user_id="user123"
+              user_id={user_id}
               upVotes={item.upvotes}
             />
             <View className="flex-row justify-center items-center px-2">

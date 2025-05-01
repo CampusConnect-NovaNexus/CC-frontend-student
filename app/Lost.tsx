@@ -41,12 +41,29 @@ const Lost = () => {
   const [contact, setContact] = useState("");
   const [loading, setLoading] = useState(false);
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
+  const [user_id, setUserId] = useState<string>("");
   const [imageFile, setImageFile] = useState<null | {
     uri: string;
     name: string;
     type: string;
   }>(null);
   const [phoneNumber, setPhoneNumber] = useState<string | null>("1234567890");
+  
+  useEffect(() => {
+    // Load user_id from AsyncStorage when component mounts
+    const getUserId = async () => {
+      try {
+        const id = await AsyncStorage.getItem('@user_id');
+        if (id) {
+          setUserId(id);
+        }
+      } catch (error) {
+        console.error('Error fetching user id:', error);
+      }
+    };
+    
+    getUserId();
+  }, []);
   
   useFocusEffect(
     useCallback(() => {
@@ -120,7 +137,7 @@ const Lost = () => {
 
     try {
       const response = await postLostItem({
-        user_id: "f1254d1f-6a62-495f-99fa-88740d4bb662",
+        user_id: user_id,
         title: objectName,
         description: description,
         contact: contact,

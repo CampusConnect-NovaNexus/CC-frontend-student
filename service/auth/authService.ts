@@ -45,8 +45,22 @@ export const login = async (email: string, password: string): Promise<AuthRespon
     // Store auth tokens and user info
     await AsyncStorage.setItem('@auth_token', data.accessToken);
     await AsyncStorage.setItem('@refresh_token', data.refreshToken);
+    
+    // Store user data from response
     if (data.user?.id) {
       await AsyncStorage.setItem('@user_id', data.user.id);
+    }
+    
+    // Store email directly from response or use the input email
+    if (data.user?.email) {
+      await AsyncStorage.setItem('@user_email', data.user.email);
+    } else {
+      await AsyncStorage.setItem('@user_email', email);
+    }
+    
+    // Store name if available
+    if (data.user?.name) {
+      await AsyncStorage.setItem('@user_name', data.user.name);
     }
 
     return data;
@@ -91,8 +105,24 @@ export const register = async (
     // Store auth tokens and user info
     await AsyncStorage.setItem('@auth_token', data.accessToken);
     await AsyncStorage.setItem('@refresh_token', data.refreshToken);
+    
+    // Store user data from response
     if (data.user?.id) {
       await AsyncStorage.setItem('@user_id', data.user.id);
+    }
+    
+    // Store email directly from response or use the input email
+    if (data.user?.email) {
+      await AsyncStorage.setItem('@user_email', data.user.email);
+    } else {
+      await AsyncStorage.setItem('@user_email', email);
+    }
+    
+    // Store name from response or input
+    if (data.user?.name) {
+      await AsyncStorage.setItem('@user_name', data.user.name);
+    } else {
+      await AsyncStorage.setItem('@user_name', name);
     }
 
     return data;
@@ -147,6 +177,8 @@ export const logout = async (): Promise<void> => {
     await AsyncStorage.removeItem('@auth_token');
     await AsyncStorage.removeItem('@refresh_token');
     await AsyncStorage.removeItem('@user_id');
+    await AsyncStorage.removeItem('@user_email');
+    await AsyncStorage.removeItem('@user_name');
   } catch (error) {
     console.error('Logout error:', error);
     throw error;
