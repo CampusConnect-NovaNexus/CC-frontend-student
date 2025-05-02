@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useLayoutEffect } from "react";
+import { useState, useCallback, useLayoutEffect, useEffect } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import {
   View,
@@ -19,6 +19,7 @@ import { getAllCourses } from "@/service/lms/getAllCourses";
 import { Ionicons } from "@expo/vector-icons";
 import { createCourse } from "@/service/lms/createCourse";
 import { enrollStudent } from "@/service/lms/enrollStudent";
+import { getStudentExams } from "@/service/lms/getStudentExams";
 import Modal from 'react-native-modal';
 
 interface Course {
@@ -35,10 +36,20 @@ interface EnrollStudentRequest {
   student_id: string;
   roll_no: string;
 }
+interface Exam {
+  course_code: string;
+  course_name: string;
+  created_by: string;
+  exam_date: string;
+  exam_id: string;
+  exam_type: string;
+}
+
 export default function ExamHubScreen() {
   const router = useRouter();
 
   const [courses, setCourses] = useState<Course[]>();
+  const [exams, setExams] = useState<Exam[]>([]);
   const [addCourseFormVisible, setAddCourseFormVisible] = useState(false);
   const [joinExistingClassModal, setJoinExistingClassModal] = useState(false);
   const [course_code, setCourse_code] = useState("");
@@ -48,9 +59,23 @@ export default function ExamHubScreen() {
     const res = await getAllCourses();
     setCourses(res.reverse());
   };
+
+  const fetchExams = async () => {
+    try {
+      const studentId = 'user123'; 
+      const examData = await getStudentExams(studentId);
+      if (examData) {
+        setExams(examData);
+      }
+    } catch (error) {
+      console.error('Error fetching exams:', error);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchAllCourses();
+      fetchExams();
     }, [])
   );
 
@@ -110,8 +135,8 @@ export default function ExamHubScreen() {
           <Text className="text-white">Courses</Text>
         </View>
         <View className="bg-teal-600 rounded-lg p-5 flex-1 m-1 items-center">
-          <Text className="text-2xl font-bold text-white">0</Text>
-          <Text className="text-white">Exams</Text>
+          <Text className="text-2xl font-bold text-white">{exams?.length || 0}</Text>
+          <Text className="text-white">Deadlines</Text>
         </View>
       </View>
 

@@ -41,39 +41,29 @@ const Found = () => {
   const [loading, setLoading] = useState(false);
   const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
   const [phoneNumber, setPhoneNumber] = useState<string | null>("1234567890"); // Add phoneNumber state
+  const [user_id, setUserId] = useState<string>("");
   const [imageFile, setImageFile] = useState<null | {
     uri: string;
     name: string;
     type: string;
   }>(null);
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     const fetchData = async () => {
-  //       try {
-  //         // Load cached data
-  //         const cachedDataString = await AsyncStorage.getItem("foundItems");
-  //         if (cachedDataString) {
-  //           const cachedData = JSON.parse(cachedDataString);
-  //           setFoundItems(cachedData);
-  //         }
-  //       } catch (error) {
-  //         console.error("Error loading cached data:", error);
-  //       }
-  //       try {
-  //         // Fetch new data from API
-  //         const apiData = await LFData();
-  //         setFoundItems(apiData.reverse());
-  //         // Update cache with fresh data
-  //         await AsyncStorage.setItem("foundItems", JSON.stringify(apiData));
-  //       } catch (error) {
-  //         console.error("Error fetching data:", error);
-  //       }
-  //     };
-  //     fetchData();
-  //   }, [])
-  // );
-  
+  useEffect(() => {
+    // Load user_id from AsyncStorage when component mounts
+    const getUserId = async () => {
+      try {
+        const id = await AsyncStorage.getItem('@user_id');
+        if (id) {
+          setUserId(id);
+        }
+      } catch (error) {
+        console.error('Error fetching user id:', error);
+      }
+    };
+    
+    getUserId();
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
@@ -145,7 +135,7 @@ const Found = () => {
 
     try {
       const response = await postFoundItem({
-        user_id: "f1254d1f-6a62-495f-99fa-88740d4bb662",
+        user_id: user_id,
         title: objectName,
         description: description,
         contact: contact,

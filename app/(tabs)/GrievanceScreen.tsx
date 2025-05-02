@@ -1,4 +1,5 @@
 "use client";
+import { EXPO_AUTH_API_URL } from '@env';
 
 import { useState, useEffect } from "react";
 import { useFocusEffect } from "expo-router";
@@ -62,7 +63,52 @@ export default function GrievanceScreen() {
   });
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [newComment, setNewComment] = useState("");
+  const [user_id, setUserId] = useState("");
+  const [userNames, setUserNames] = useState<Record<string, string>>({});
   const router = useRouter();
+
+  useEffect(() => {
+    // Load user_id from AsyncStorage when component mounts
+    const getUserId = async () => {
+      try {
+        const id = await AsyncStorage.getItem('@user_id');
+        if (id) {
+          setUserId(id);
+        }
+      } catch (error) {
+        console.error('Error fetching user id:', error);
+      }
+    };
+    
+    getUserId();
+  }, []);
+
+  // Fetch usernames for all grievances
+  useEffect(() => {
+    const fetchUserNames = async () => {
+      const userNamesMap: Record<string, string> = {};
+      
+      for (const grievance of grievances) {
+        if (!userNamesMap[grievance.user_id]) {
+          try {
+            const response = await fetch(`${EXPO_AUTH_API_URL}/api/v1/auth/user/${grievance.user_id}`);
+            const userData = await response.json();
+            if (userData && userData.name) {
+              userNamesMap[grievance.user_id] = userData.name;
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+          }
+        }
+      }
+      
+      setUserNames(userNamesMap);
+    };
+    
+    if (grievances.length > 0) {
+      fetchUserNames();
+    }
+  }, [grievances]);
 
   const clearOldCommentCaches = async () => {
     const keys = await AsyncStorage.getAllKeys();
@@ -119,7 +165,7 @@ export default function GrievanceScreen() {
   const postNewGrievance = async () => {
     if (newGrievance.title && newGrievance.description) {
       const payload = {
-        user_id: "user123",
+        user_id: user_id,
         title: newGrievance.title,
         description: newGrievance.description,
       };
@@ -186,19 +232,11 @@ export default function GrievanceScreen() {
   };
   // getTimeAgo function has been moved to the TimeAgo component
 
-  // const handlePostComment = async (c_id: string) => {
-  //   if (newComment.trim()) {
-  //     await postComment(c_id, "user123", newComment);
-  //     setNewComment("");
-  //     const result = await getComment(c_id);
-  //     setComments(result?.comments || null);
-  //   }
-  // };
   const handlePostComment = async (c_id: string) => {
     if (!newComment.trim()) return;
 
     try {
-      await postComment(c_id, "user123", newComment);
+      await postComment(c_id, user_id, newComment);
       setNewComment("");
 
       const result = await getComment(c_id);
@@ -217,6 +255,7 @@ export default function GrievanceScreen() {
   };
 
   const renderGrievanceItem = ({ item }: { item: Grievance }) => {
+    const userName = userNames[item.user_id] || "User";
     return (
       <TouchableOpacity
         className=""
@@ -238,7 +277,7 @@ export default function GrievanceScreen() {
               </View>
             </View>
 
-            <Text className="text-lg font-bold">UserName</Text>
+            <Text className="text-lg font-bold">{userName}</Text>
             <View className="flex-row items-center gap-1">
               <View className="w-1.5 h-1.5 rounded-full bg-gray-400"></View>
               <TimeAgo
@@ -254,7 +293,7 @@ export default function GrievanceScreen() {
           <View className="flex-row justify-left items-center">
             <UpVoteBtn
               c_id={item.c_id}
-              user_id="user123"
+              user_id={user_id}
               upVotes={item.upvotes}
             />
             <View className="flex-row justify-center items-center px-2">
