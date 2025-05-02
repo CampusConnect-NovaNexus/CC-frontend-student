@@ -2,7 +2,7 @@ import {EXPO_BASE_URL_GR} from '@env';
 
 export const fetchGrievances = async () => {
   const BASEURL = EXPO_BASE_URL_GR
-  console.log('BASEURL : ',BASEURL);
+  console.log('BASEURL fetch grievances : ',BASEURL);
   
   try {
     console.log(BASEURL);

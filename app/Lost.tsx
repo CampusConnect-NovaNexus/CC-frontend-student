@@ -87,7 +87,7 @@ const Lost = () => {
   
         try {
           const apiData = await LFData();
-          setLostItems(apiData.reverse());
+          setLostItems(apiData?.reverse());
           await AsyncStorage.setItem("lostItems", JSON.stringify({
             timestamp: now,
             data: apiData

@@ -79,7 +79,7 @@ export default function HomeScreen() {
     </View>
   );
 
-  const formatDate = (dateString: string) => {
+  const  formatDate = (dateString: string) => {
     const [year, month, day] = dateString.split('-');
     const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',

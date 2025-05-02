@@ -31,7 +31,7 @@ export const postLostItem = async (item: LostFoundItemInput) => {
   console.log('in lost post item');
   
   const BASEURL = EXPO_BASE_URL;
-  console.log('BASEURL : ',BASEURL);
+  console.log('BASEURL in post loats item : ',BASEURL);
   const form = new FormData();
 
   form.append('title', item.title);

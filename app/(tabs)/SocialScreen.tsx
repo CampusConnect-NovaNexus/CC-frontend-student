@@ -4,9 +4,11 @@ import {
   FlatList,
   Text,
   TextInput,
+  RefreshControl,
   Pressable,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from "react-native";
 import Modal from "react-native-modal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -54,23 +56,38 @@ const SocialScreen = () => {
   const [newComment, setNewComment] = useState<string>("");
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [user_id, setUserId] = useState<string>("");
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    // Load user_id from AsyncStorage when component mounts
-    const getUserId = async () => {
-      try {
-        const id = await AsyncStorage.getItem('@user_id');
-        if (id) {
-          setUserId(id);
-        }
-      } catch (error) {
-        console.error('Error fetching user id:', error);
+  const getUserId = async () => {
+    try {
+      const id = await AsyncStorage.getItem('@user_id');
+      if (id) {
+        setUserId(id);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching user id:', error);
+    }
+  };
+  // useEffect(() => {
+  //   // Load user_id from AsyncStorage when component mounts
     
-    getUserId();
-  }, []);
-
+    
+  //   getUserId();
+  // }, []);
+  useFocusEffect(
+    useCallback(()=>{
+      getUserId()
+    },[])
+  )
+  const onRefresh = () => {
+    setRefreshing(true);
+    
+    setTimeout(async() => {
+      // Reload data or do something
+      fetchAndCacheData()
+      setRefreshing(false);
+    }, 2000);
+  };
   const [imageFile, setImageFile] = useState<null | {
     uri: string;
     name: string;
@@ -195,9 +212,11 @@ const SocialScreen = () => {
   );
 
   return (
-    <View className="flex-1 bg-[#F3F2EF]">
+    <View className="flex-1 bg-[#F3F2EF]"
+    
+    >
       {/* LinkedIn-style header */}
-      <View className="bg-white px-4 py-2 flex-row items-center justify-between border-b border-gray-200">
+      {/* <View className="bg-white px-4 py-2 flex-row items-center justify-between border-b border-gray-200">
         <View className="flex-row items-center">
           <View className="w-8 h-8 rounded-full bg-blue-600 mr-2 overflow-hidden">
             <Image 
@@ -206,13 +225,13 @@ const SocialScreen = () => {
               resizeMode="cover"
             />
           </View>
-          <View className="flex-1 h-9 bg-[#EEF3F8] rounded-full px-3 flex-row items-center">
+          <View className="flex-1 py-1 bg-[#EEF3F8] rounded-full px-3 flex-row items-center">
             <Ionicons name="search" size={16} color="#666" />
             <Text className="text-gray-500 ml-2 text-sm">Search</Text>
           </View>
         </View>
-        <Ionicons name="chatbubble-ellipses-outline" size={24} color="#666" />
-      </View>
+        
+      </View> */}
 
       {/* Post creation quick access */}
       <View className="bg-white mt-2 px-4 py-3 flex-row items-center border-b border-gray-200">
@@ -232,7 +251,7 @@ const SocialScreen = () => {
       </View>
 
       {/* Post type options */}
-      <View className="bg-white px-2 py-1 flex-row justify-between border-b border-gray-200">
+      {/* <View className="bg-white px-2 py-1 flex-row justify-between border-b border-gray-200">
         <TouchableOpacity className="flex-row items-center p-2">
           <Ionicons name="image" size={18} color="#70B5F9" />
           <Text className="ml-1 text-gray-500 text-xs">Photo</Text>
@@ -249,7 +268,7 @@ const SocialScreen = () => {
           <Ionicons name="document-text" size={18} color="#F5987E" />
           <Text className="ml-1 text-gray-500 text-xs">Article</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Posts feed */}
       <FlatList
@@ -269,6 +288,9 @@ const SocialScreen = () => {
         keyExtractor={(item) => item.post_id}
         className="flex-1"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
 
       {/* Create post modal */}
