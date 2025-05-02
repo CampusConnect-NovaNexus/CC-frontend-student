@@ -1,4 +1,13 @@
 {
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "jwt-decode"
+        ]
+      }
+    }
+  },
   "name": "frontend-student",
   "main": "expo-router/entry",
   "version": "1.0.0",
