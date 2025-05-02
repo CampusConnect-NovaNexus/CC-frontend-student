@@ -98,7 +98,7 @@ export default function LoginScreen() {
         
         <View style={styles.logoContainer}>
           <Image
-            source={require('@/assets/adaptive-icon.png')}
+            source={require('@/assets/images/nit_logo.png')}
             style={styles.logo}
           />
           <Text style={styles.title}>CampusConnect</Text>

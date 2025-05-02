@@ -128,7 +128,7 @@ export default function RegisterScreen() {
         
         <View style={styles.logoContainer}>
           <Image
-            source={require('@/assets/adaptive-icon.png')}
+            source={require('@/assets/images/nit_logo.png')}
             style={styles.logo}
           />
           <Text style={styles.title}>CampusConnect</Text>
@@ -179,7 +179,7 @@ export default function RegisterScreen() {
             <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="Password (min. 8 characters)"
+              placeholder="Password (min 8 chars)"
               placeholderTextColor="#888"
               secureTextEntry={!showPassword}
               value={password}
