@@ -8,19 +8,21 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  RefreshControl,
   Pressable,
   Image,
   Alert,
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { icons } from "@/constants/icons";
 import { getAllCourses } from "@/service/lms/getAllCourses";
 import { Ionicons } from "@expo/vector-icons";
 import { createCourse } from "@/service/lms/createCourse";
 import { enrollStudent } from "@/service/lms/enrollStudent";
 import { getStudentExams } from "@/service/lms/getStudentExams";
-import Modal from 'react-native-modal';
+import Modal from "react-native-modal";
 
 interface Course {
   course_code: string;
@@ -54,21 +56,86 @@ export default function ExamHubScreen() {
   const [joinExistingClassModal, setJoinExistingClassModal] = useState(false);
   const [course_code, setCourse_code] = useState("");
   const [course_name, setCourse_name] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const COURSES_KEY = "cached_courses";
+  const EXAMS_KEY = "cached_exams";
+  const CACHE_EXPIRY = 60 * 60 * 1000; // 1 hour in milliseconds
 
-  const fetchAllCourses = async () => {
-    const res = await getAllCourses();
-    setCourses(res.reverse());
+  const isCacheFresh = (timestamp: number): boolean => {
+    const now = Date.now();
+    return now - timestamp < CACHE_EXPIRY;
   };
 
-  const fetchExams = async () => {
+  const storeInCache = async (key: string, data: any) => {
+    const cacheObject = {
+      timestamp: Date.now(),
+      data,
+    };
+    await AsyncStorage.setItem(key, JSON.stringify(cacheObject));
+  };
+
+  const getFromCache = async (key: string) => {
+    const cacheString = await AsyncStorage.getItem(key);
+    if (!cacheString) return null;
     try {
-      const studentId = 'user123'; 
+      const parsed = JSON.parse(cacheString);
+      if (parsed && isCacheFresh(parsed.timestamp)) {
+        return parsed.data;
+      } else {
+        await AsyncStorage.removeItem(key); // Delete stale cache
+        return null;
+      }
+    } catch {
+      return null;
+    }
+  };
+  const fetchAllCourses = async () => {
+    const cached = await getFromCache(COURSES_KEY);
+    if (cached) {
+      setCourses(cached);
+    }
+
+    const res = await getAllCourses();
+    setCourses(res.reverse());
+    await storeInCache(COURSES_KEY, res.reverse());
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+
+    setTimeout(async () => {
+      // Reload data or do something
+      fetchAllCourses();
+      fetchExams();
+      setRefreshing(false);
+    }, 2000);
+  };
+  // const fetchExams = async () => {
+  //   try {
+  //     const studentId = 'user123';
+  //     const examData = await getStudentExams(studentId);
+  //     if (examData) {
+  //       setExams(examData);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching exams:', error);
+  //   }
+  // };
+  const fetchExams = async () => {
+    const cached = await getFromCache(EXAMS_KEY);
+    if (cached) {
+      setExams(cached);
+    }
+
+    try {
+      const studentId = "user123";
       const examData = await getStudentExams(studentId);
       if (examData) {
         setExams(examData);
+        await storeInCache(EXAMS_KEY, examData);
       }
     } catch (error) {
-      console.error('Error fetching exams:', error);
+      console.error("Error fetching exams:", error);
     }
   };
 
@@ -112,36 +179,51 @@ export default function ExamHubScreen() {
         <View className="bg-[#FFFFF0] m-2 p-4 rounded-xl shadow-md">
           <View className="flex-row justify-between items-center mb-2">
             <View className="bg-teal-500 px-3 py-1 rounded-lg">
-              <Text className="text-white font-bold">{item.course_code.toUpperCase()}</Text>
+              <Text className="text-white font-bold">
+                {item.course_code.toUpperCase()}
+              </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#888" />
           </View>
           <Text className="text-lg font-semibold">{item.course_name}</Text>
-          <Text className="text-gray-500 text-sm mt-1">Created by: {item.created_by || "Instructor"}</Text>
+          <Text className="text-gray-500 text-sm mt-1">
+            Created by: {item.created_by || "Instructor"}
+          </Text>
         </View>
       </Pressable>
     );
   };
 
   return (
-    <View className="flex-1 bg-[#fdfcf9]">
+    <View className="flex-1 relative bg-[#fdfcf9]">
       <View className="flex-row justify-between mb-5 p-4">
         <View className="bg-teal-400 rounded-lg p-5 flex-1 m-1 items-center">
-          <Text className="text-2xl font-bold text-white">{courses?.length || 0}</Text>
+          <Text className="text-2xl font-bold text-white">
+            {courses?.length || 0}
+          </Text>
           <Text className="text-white">Total</Text>
         </View>
         <View className="bg-teal-500 rounded-lg p-5 flex-1 m-1 items-center">
-          <Text className="text-2xl font-bold text-white">{courses?.length || 0}</Text>
+          <Text className="text-2xl font-bold text-white">
+            {courses?.length || 0}
+          </Text>
           <Text className="text-white">Courses</Text>
         </View>
         <View className="bg-teal-600 rounded-lg p-5 flex-1 m-1 items-center">
-          <Text className="text-2xl font-bold text-white">{exams?.length || 0}</Text>
+          <Text className="text-2xl font-bold text-white">
+            {exams?.length || 0}
+          </Text>
           <Text className="text-white">Deadlines</Text>
         </View>
       </View>
 
       <View className="z-10 bg-[#fdfcf9]">
-        <Text style={{ fontFamily: "wastedVindey" }} className="text-3xl p-4 pb-6">My Courses</Text>
+        <Text
+          style={{ fontFamily: "wastedVindey" }}
+          className="text-3xl p-4 pb-6"
+        >
+          My Courses
+        </Text>
       </View>
 
       {!courses ? (
@@ -156,13 +238,21 @@ export default function ExamHubScreen() {
           extraData={courses}
           contentContainerStyle={{ paddingBottom: 100 }}
           className="mt-1"
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       ) : (
-        <View className="flex-col min-h-[200px] bg-[#fdfcf9] items-center justify-center">
+        <ScrollView
+          className="flex-col min-h-[200px] bg-[#fdfcf9] items-center justify-center"
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
           <Text className="text-gray-600 text-xl">
             No courses yet. Add your first course!
           </Text>
-        </View>
+        </ScrollView>
       )}
 
       <TouchableOpacity
@@ -185,7 +275,9 @@ export default function ExamHubScreen() {
         style={styles.modal}
       >
         <View className="bg-white rounded-2xl p-5 m-4">
-          <Text className="text-xl font-bold mb-6 text-center">Add New Course</Text>
+          <Text className="text-xl font-bold mb-6 text-center">
+            Add New Course
+          </Text>
 
           <Pressable
             onPress={() => setAddCourseFormVisible(false)}
@@ -199,9 +291,7 @@ export default function ExamHubScreen() {
             />
           </Pressable>
 
-          <Text className="font-bold mb-3">
-            Course Name
-          </Text>
+          <Text className="font-bold mb-3">Course Name</Text>
           <TextInput
             className="bg-gray-100 rounded-lg p-3 mb-3"
             placeholder="Enter Course Code (e.g. CS212)"
@@ -210,9 +300,7 @@ export default function ExamHubScreen() {
             placeholderTextColor="#6B7280"
           />
 
-          <Text className="font-bold mb-3">
-            Course Code
-          </Text>
+          <Text className="font-bold mb-3">Course Code</Text>
           <TextInput
             className="bg-gray-100 rounded-lg p-3 mb-6"
             placeholder="Enter Course Name"
@@ -265,7 +353,9 @@ export default function ExamHubScreen() {
         style={styles.modal}
       >
         <View className="bg-white rounded-2xl p-5 m-4">
-          <Text className="text-xl font-bold mb-6 text-center">Join a Class</Text>
+          <Text className="text-xl font-bold mb-6 text-center">
+            Join a Class
+          </Text>
 
           <Pressable
             onPress={() => setJoinExistingClassModal(false)}
@@ -278,7 +368,6 @@ export default function ExamHubScreen() {
               resizeMode="contain"
             />
           </Pressable>
-
 
           <TextInput
             className="bg-gray-100 rounded-lg p-3 mb-6"
@@ -298,9 +387,7 @@ export default function ExamHubScreen() {
             className="mb-4 border-[1px] border-gray-300 self-center w-fit p-3 rounded-xl bg-white"
             style={{ elevation: 1 }}
           >
-            <Text className="text-md text-teal-600">
-              + Add Course
-            </Text>
+            <Text className="text-md text-teal-600">+ Add Course</Text>
           </Pressable>
 
           <Pressable
@@ -328,7 +415,7 @@ export default function ExamHubScreen() {
 
 const styles = StyleSheet.create({
   modal: {
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
     margin: 0,
   },
 });

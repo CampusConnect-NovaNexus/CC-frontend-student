@@ -1,5 +1,5 @@
 "use client";
-import { EXPO_AUTH_API_URL } from '@env';
+import { EXPO_AUTH_API_URL } from "@env";
 
 import { useState, useEffect } from "react";
 import { useFocusEffect } from "expo-router";
@@ -11,9 +11,11 @@ import {
   TouchableOpacity,
   TextInput,
   Pressable,
+  RefreshControl,
   Image,
   ActivityIndicator,
   StyleSheet,
+  ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -66,32 +68,44 @@ export default function GrievanceScreen() {
   const [user_id, setUserId] = useState("");
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const router = useRouter();
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     // Load user_id from AsyncStorage when component mounts
     const getUserId = async () => {
       try {
-        const id = await AsyncStorage.getItem('@user_id');
+        const id = await AsyncStorage.getItem("@user_id");
         if (id) {
           setUserId(id);
         }
       } catch (error) {
-        console.error('Error fetching user id:', error);
+        console.error("Error fetching user id:", error);
       }
     };
-    
+
     getUserId();
   }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+
+    setTimeout(() => {
+      loadGrievances();
+      setRefreshing(false);
+    }, 2000);
+  };
 
   // Fetch usernames for all grievances
   useEffect(() => {
     const fetchUserNames = async () => {
       const userNamesMap: Record<string, string> = {};
-      
+
       for (const grievance of grievances) {
         if (!userNamesMap[grievance.user_id]) {
           try {
-            const response = await fetch(`${EXPO_AUTH_API_URL}/api/v1/auth/user/${grievance.user_id}`);
+            const response = await fetch(
+              `${EXPO_AUTH_API_URL}/api/v1/auth/user/${grievance.user_id}`
+            );
             const userData = await response.json();
             if (userData && userData.name) {
               userNamesMap[grievance.user_id] = userData.name;
@@ -101,35 +115,75 @@ export default function GrievanceScreen() {
           }
         }
       }
-      
+
       setUserNames(userNamesMap);
     };
-    
+
     if (grievances.length > 0) {
       fetchUserNames();
     }
   }, [grievances]);
 
   const clearOldCommentCaches = async () => {
-    const keys = await AsyncStorage.getAllKeys();
-    const commentKeys = keys.filter((k) => k.startsWith("comments_"));
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000;
-  
-    for (const key of commentKeys) {
-      const item = await AsyncStorage.getItem(key);
-      if (item) {
-        const parsed = JSON.parse(item);
-        if (!parsed.timestamp || now - parsed.timestamp >= oneHour) {
-          await AsyncStorage.removeItem(key);
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const commentKeys = keys.filter((key) => key.startsWith("comments_"));
+
+      const now = Date.now();
+      const twoHours = 2 * 60 * 60 * 1000;
+
+      const commentItems = await AsyncStorage.multiGet(commentKeys);
+
+      const keysToRemove: string[] = [];
+
+      for (const [key, value] of commentItems) {
+        if (value) {
+          const parsed = JSON.parse(value);
+          if (!parsed.timestamp || now - parsed.timestamp > twoHours) {
+            keysToRemove.push(key);
+          }
         }
       }
+
+      if (keysToRemove.length > 0) {
+        await AsyncStorage.multiRemove(keysToRemove);
+        console.log("Old comment caches cleared:", keysToRemove);
+      }
+    } catch (error) {
+      console.error("Error clearing old comment caches:", error);
     }
   };
   const loadGrievances = async () => {
-    const result = await fetchGrievances();
-    if (result) {
-      setGrievances(result.complaints.reverse());
+    const cacheKey = "cached_grievances";
+    const now = Date.now();
+    const twoHours = 2 * 60 * 60 * 1000;
+
+    try {
+      // Check for existing cache
+      const cached = await AsyncStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.timestamp && now - parsed.timestamp < twoHours) {
+          setGrievances(parsed.data);
+        } else {
+          // Expired, remove cache
+          await AsyncStorage.removeItem(cacheKey);
+        }
+      }
+
+      // Fetch fresh data
+      const result = await fetchGrievances();
+
+      if (result) {
+        const reversed = result.complaints?.reverse();
+        setGrievances(reversed);
+        await AsyncStorage.setItem(
+          cacheKey,
+          JSON.stringify({ timestamp: now, data: reversed })
+        );
+      }
+    } catch (error) {
+      console.error("Failed to load grievances:", error);
     }
   };
 
@@ -318,199 +372,203 @@ export default function GrievanceScreen() {
   };
 
   return (
-    <View className="flex-1 bg-[#fdfcf9]">
-      <View className="flex-row justify-between mb-5 p-4">
-        <View className="bg-amber-400 rounded-lg p-5 flex-1 m-1 items-center">
-          <Text className="text-2xl font-bold text-white">
-            {stats.total_complaints}
-          </Text>
-          <Text className="text-white">Total</Text>
-        </View>
-        <View className="bg-amber-500 rounded-lg p-5 flex-1 m-1 items-center">
-          <Text className="text-2xl font-bold text-white">
-            {stats.unresolved_complaints}
-          </Text>
-          <Text className="text-white">Pending</Text>
-        </View>
-        <View className="bg-amber-600 rounded-lg p-5 flex-1 m-1 items-center">
-          <Text className="text-2xl font-bold text-white">
-            {stats.resolved_complaints}
-          </Text>
-          <Text className="text-white">Resolved</Text>
-        </View>
-      </View>
-      <View className="z-10 bg-[#fdfcf9]">
-        <Text
-          style={{ fontFamily: "wastedVindey" }}
-          className="text-3xl p-4 pb-6"
-        >
-          Recent Issues
-        </Text>
-      </View>
-
-      {grievances.length === 0 ? (
-        <View className="h-40 w-full justify-center">
-          <ActivityIndicator size="large" color="#cb612a" />
-        </View>
-      ) : (
-        <FlatList
-          data={grievances}
-          renderItem={renderGrievanceItem}
-          keyExtractor={(item) => item.c_id}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          className="-mt-4"
-        />
-      )}
-
-      <TouchableOpacity
-        className="absolute bottom-20 right-6 bg-amber-600 rounded-full p-5"
-        onPress={() => setFormVisible(true)}
-      >
-        <Ionicons name="add-circle" size={26} color="#fdfcf9" />
-      </TouchableOpacity>
-
-      {/* New Grievance Modal */}
-      <Modal
-        isVisible={formVisible}
-        animationIn="fadeInUp"
-        animationOut="fadeOutDown"
-        animationInTiming={400}
-        animationOutTiming={400}
-        backdropTransitionInTiming={400}
-        backdropTransitionOutTiming={200}
-        backdropColor="rgba(0,0,0,0.5)"
-        onBackdropPress={() => setFormVisible(false)}
-        style={styles.modal}
-      >
-        <View className="bg-white rounded-2xl p-5 m-4">
-          <Text className="text-xl font-bold mb-6 text-center">
-            Submit New Grievance
-          </Text>
-
-          <Pressable
-            onPress={() => setFormVisible(false)}
-            className="absolute -right-2 -top-2 bg-white p-3 rounded-full"
-            style={{ elevation: 5 }}
-          >
-            <Image
-              source={icons.cross}
-              className="w-6 h-6"
-              resizeMode="contain"
-            />
-          </Pressable>
-
-          <TextInput
-            className="bg-gray-100 rounded-lg p-3 mb-3"
-            placeholder="Enter grievance title"
-            value={newGrievance.title}
-            onChangeText={(text) =>
-              setNewGrievance({ ...newGrievance, title: text })
-            }
-            placeholderTextColor="#6B7280"
-          />
-          <TextInput
-            className="bg-gray-100 rounded-lg p-3 mb-6 h-24"
-            placeholder="Describe your grievance in detail"
-            multiline
-            value={newGrievance.description}
-            onChangeText={(text) =>
-              setNewGrievance({ ...newGrievance, description: text })
-            }
-            placeholderTextColor="#6B7280"
-          />
-          <Pressable
-            onPress={postNewGrievance}
-            className="bg-amber-600 p-4 rounded-xl"
-          >
-            <Text className="text-white text-center font-bold text-lg">
-              Submit Grievance
+    <View className="flex-1 relative bg-[#fdfcf9]">
+      <View className="flex-1 relative bg-[#fdfcf9]">
+        <View className="flex-row justify-between mb-5 p-4">
+          <View className="bg-amber-400 rounded-lg p-5 flex-1 m-1 items-center">
+            <Text className="text-2xl font-bold text-white">
+              {stats.total_complaints}
             </Text>
-          </Pressable>
+            <Text className="text-white">Total</Text>
+          </View>
+          <View className="bg-amber-500 rounded-lg p-5 flex-1 m-1 items-center">
+            <Text className="text-2xl font-bold text-white">
+              {stats.unresolved_complaints}
+            </Text>
+            <Text className="text-white">Pending</Text>
+          </View>
+          <View className="bg-amber-600 rounded-lg p-5 flex-1 m-1 items-center">
+            <Text className="text-2xl font-bold text-white">
+              {stats.resolved_complaints}
+            </Text>
+            <Text className="text-white">Resolved</Text>
+          </View>
         </View>
-      </Modal>
+        <View className="z-10 bg-[#fdfcf9]">
+          <Text
+            style={{ fontFamily: "wastedVindey" }}
+            className="text-3xl p-4 pb-6"
+          >
+            Recent Issues
+          </Text>
+        </View>
 
-      {/* Grievance Detail Modal */}
-      <Modal
-        isVisible={grievanceVisible}
-        animationIn="fadeInUp"
-        animationOut="fadeOutDown"
-        animationInTiming={400}
-        animationOutTiming={400}
-        backdropTransitionInTiming={400}
-        backdropTransitionOutTiming={200}
-        backdropColor="rgba(0,0,0,0.5)"
-        onBackdropPress={() => {
-          setGrievanceItem(null);
-          setGrievanceVisible(false);
-        }}
-        style={styles.detail_modal}
-      >
-        <View className="bg-white rounded-2xl p-5 m-4">
-          <View className="relative">
+        <TouchableOpacity
+          className="absolute w-fit bottom-20 right-6 bg-amber-600 rounded-full p-5 z-10 "
+          onPress={() => setFormVisible(true)}
+        >
+          <Ionicons name="add-circle" size={26} color="#fdfcf9" />
+        </TouchableOpacity>
+
+        {grievances.length === 0 ? (
+          <View className="h-40 w-full justify-center">
+            <ActivityIndicator size="large" color="#cb612a" />
+          </View>
+        ) : (
+          <FlatList
+            data={grievances}
+            renderItem={renderGrievanceItem}
+            keyExtractor={(item) => item.c_id}
+            contentContainerStyle={{ paddingBottom: 100 }}
+            className="-mt-4"
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          />
+        )}
+
+        {/* New Grievance Modal */}
+        <Modal
+          isVisible={formVisible}
+          animationIn="fadeInUp"
+          animationOut="fadeOutDown"
+          animationInTiming={400}
+          animationOutTiming={400}
+          backdropTransitionInTiming={400}
+          backdropTransitionOutTiming={200}
+          backdropColor="rgba(0,0,0,0.5)"
+          onBackdropPress={() => setFormVisible(false)}
+          style={styles.modal}
+        >
+          <View className="bg-white rounded-2xl p-5 m-4">
+            <Text className="text-xl font-bold mb-6 text-center">
+              Submit New Grievance
+            </Text>
+
             <Pressable
-              onPress={() => {
-                setGrievanceVisible(false);
-                setGrievanceItem(null);
-              }}
-              className="absolute -right-8 -top-8 bg-white p-3 rounded-full"
-              style={{ elevation: 7 }}
+              onPress={() => setFormVisible(false)}
+              className="absolute -right-2 -top-2 bg-white p-3 rounded-full"
+              style={{ elevation: 5 }}
             >
               <Image
                 source={icons.cross}
-                className="w-5 h-5"
+                className="w-6 h-6"
                 resizeMode="contain"
               />
             </Pressable>
-          </View>
 
-          <Text className="text-black font-bold text-xl mb-2">
-            {grievanceItem?.title}
-          </Text>
-          <Text className="text-gray-600 mb-4">
-            {grievanceItem?.description}
-          </Text>
-          <Text className="text-gray-500 mb-6">
-            Posted{" "}
-            {grievanceItem ? <TimeAgo date={grievanceItem.created_at} /> : ""}
-          </Text>
-
-          <Text className="text-lg font-bold mb-3">Comments</Text>
-          <FlatList
-            data={comments || []}
-            keyExtractor={(item) => item.comment_id}
-            renderItem={({ item }) => {
-              return (
-                <View className="bg-gray-50 rounded-lg p-3 mb-2">
-                  <Text className="text-gray-800">{item.c_message}</Text>
-                  <TimeAgo
-                    date={item.created_at}
-                    className="text-gray-400 text-xs mt-1"
-                  />
-                </View>
-              );
-            }}
-            className="mb-4 max-h-40"
-          />
-
-          <View className="flex-row items-center gap-2 mt-2">
             <TextInput
-              className="bg-gray-100 rounded-lg flex-1 p-3"
-              placeholder="Your Comment here..."
-              value={newComment}
-              onChangeText={setNewComment}
+              className="bg-gray-100 rounded-lg p-3 mb-3"
+              placeholder="Enter grievance title"
+              value={newGrievance.title}
+              onChangeText={(text) =>
+                setNewGrievance({ ...newGrievance, title: text })
+              }
+              placeholderTextColor="#6B7280"
+            />
+            <TextInput
+              className="bg-gray-100 rounded-lg p-3 mb-6 h-24"
+              placeholder="Describe your grievance in detail"
+              multiline
+              value={newGrievance.description}
+              onChangeText={(text) =>
+                setNewGrievance({ ...newGrievance, description: text })
+              }
               placeholderTextColor="#6B7280"
             />
             <Pressable
-              onPress={() =>
-                grievanceItem && handlePostComment(grievanceItem.c_id)
-              }
-              className="bg-amber-600 p-3 rounded-full"
+              onPress={postNewGrievance}
+              className="  bg-amber-600 p-4 rounded-xl"
             >
-              <Ionicons name="send" size={24} color="white" />
+              <Text className="text-white text-center font-bold text-lg">
+                Submit Grievance
+              </Text>
             </Pressable>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+
+        <Modal
+          isVisible={grievanceVisible}
+          animationIn="fadeInUp"
+          animationOut="fadeOutDown"
+          animationInTiming={400}
+          animationOutTiming={400}
+          backdropTransitionInTiming={400}
+          backdropTransitionOutTiming={200}
+          backdropColor="rgba(0,0,0,0.5)"
+          onBackdropPress={() => {
+            setGrievanceItem(null);
+            setGrievanceVisible(false);
+          }}
+          style={styles.detail_modal}
+        >
+          <View className="bg-white rounded-2xl p-5 m-4">
+            <View className="relative">
+              <Pressable
+                onPress={() => {
+                  setGrievanceVisible(false);
+                  setGrievanceItem(null);
+                }}
+                className="absolute -right-8 -top-8 bg-white p-3 rounded-full"
+                style={{ elevation: 7 }}
+              >
+                <Image
+                  source={icons.cross}
+                  className="w-5 h-5"
+                  resizeMode="contain"
+                />
+              </Pressable>
+            </View>
+
+            <Text className="text-black font-bold text-xl mb-2">
+              {grievanceItem?.title}
+            </Text>
+            <Text className="text-gray-600 mb-4">
+              {grievanceItem?.description}
+            </Text>
+            <Text className="text-gray-500 mb-6">
+              Posted{" "}
+              {grievanceItem ? <TimeAgo date={grievanceItem.created_at} /> : ""}
+            </Text>
+
+            <Text className="text-lg font-bold mb-3">Comments</Text>
+            <FlatList
+              data={comments || []}
+              keyExtractor={(item) => item.comment_id}
+              renderItem={({ item }) => {
+                return (
+                  <View className="bg-gray-50 rounded-lg p-3 mb-2">
+                    <Text className="text-gray-800">{item.c_message}</Text>
+                    <TimeAgo
+                      date={item.created_at}
+                      className="text-gray-400 text-xs mt-1"
+                    />
+                  </View>
+                );
+              }}
+              className="mb-4 max-h-40"
+            />
+
+            <View className="flex-row items-center gap-2 mt-2">
+              <TextInput
+                className="bg-gray-100 rounded-lg flex-1 p-3"
+                placeholder="Your Comment here..."
+                value={newComment}
+                onChangeText={setNewComment}
+                placeholderTextColor="#6B7280"
+              />
+              <Pressable
+                onPress={() =>
+                  grievanceItem && handlePostComment(grievanceItem.c_id)
+                }
+                className="bg-amber-600 p-3 rounded-full"
+              >
+                <Ionicons name="send" size={24} color="white" />
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+      </View>
     </View>
   );
 }

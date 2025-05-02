@@ -20,7 +20,7 @@ export async function getStudentExams(studentId: string): Promise<Exam[] | null>
     const data: Exam[] = await res.json();
     return data;
   } catch (error) {
-    console.error(error);
+    console.error('error in getStudentExams',error);
     return null;
   }
 }

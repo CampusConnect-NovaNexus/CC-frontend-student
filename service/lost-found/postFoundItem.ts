@@ -19,7 +19,7 @@ const getMimeType = (filename: string) => {
 export const postFoundItem = async (item:any) => {
   
   const BASEURL = EXPO_BASE_URL;
-  console.log('BASEURL : ',BASEURL);
+  console.log('BASEURL in post found item api: ',BASEURL);
   const form = new FormData();
 
   form.append('title', item.title);

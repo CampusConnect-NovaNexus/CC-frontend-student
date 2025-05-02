@@ -11,6 +11,8 @@ import {
   Linking,
   Image,
   ScrollView,
+  
+  RefreshControl,
   Pressable,
   ActivityIndicator,
 } from "react-native";
@@ -51,14 +53,23 @@ export default function LostFoundScreen() {
   const [reportedUser, setReportedUser] = useState<User | null>(null);
   const [phoneNumber, setPhoneNumber] = useState<string | null>("1234567890");
   const [loadingModal, setLoadingModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const openLost = () => {
     router.push("../Lost")
   }
 
+
   const openFound = () => {
     router.push("../Found")
   }
-  
+  const onRefresh = () => {
+    setRefreshing(true);
+
+    setTimeout( () => {
+      fetchData()
+      setRefreshing(false);
+    }, 2000);
+  };
   useFocusEffect(
     useCallback(() => {
       fetchData();
@@ -72,7 +83,7 @@ export default function LostFoundScreen() {
     try {
       const now = Date.now();
 
-      // 1. Try loading from cache
+     
       const cachedDataRaw = await AsyncStorage.getItem(CACHE_KEY);
       let finalData: LFItem[] = [];
 
@@ -81,7 +92,7 @@ export default function LostFoundScreen() {
         const freshItems = cached.filter(
           (item: any) => now - item._cachedAt < ONE_HOUR_MS
         );
-        finalData = freshItems.map((item: any) => {
+        finalData = freshItems?.map((item: any) => {
           const { _cachedAt, ...originalData } = item;
           return originalData;
         });
@@ -92,7 +103,9 @@ export default function LostFoundScreen() {
 
       
       const apiData = await LFData();
-      const timestamped = apiData.map((item:any) => ({
+      console.log("API DAta : ", apiData);
+      
+      const timestamped = apiData?.map((item:any) => ({
         ...item,
         _cachedAt: now,
       }));
@@ -268,7 +281,11 @@ export default function LostFoundScreen() {
   );}
 
   return (
-    <ScrollView className="bg-[#fdfcf9] flex-1 mb-[60px]">
+    <ScrollView className="bg-[#fdfcf9] flex-1 mb-[60px]"
+      refreshControl={
+      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+    }
+    >
       <View className="flex-row justify-between mx-5 mt-8 gap-4">
         <Pressable
           onPress={() => router.push("../Lost")}

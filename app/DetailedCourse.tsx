@@ -226,7 +226,11 @@ const DetailedCourse = () => {
         backdropTransitionInTiming={400}
         backdropTransitionOutTiming={200}
         backdropColor="rgba(0,0,0,0.5)"
-        onBackdropPress={() => setModalVisible(false)}
+        onBackdropPress={() =>{ 
+          setModalVisible(false)
+          handleCancel();
+        }
+      }
         style={styles.modal}
       >
         <View className="bg-white rounded-2xl p-5 m-4">

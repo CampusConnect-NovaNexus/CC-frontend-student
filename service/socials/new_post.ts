@@ -53,7 +53,7 @@ export const createPost = async (item:postItemInput) => {
     } as any);
   }
   console.log('new post  data : ', form);
-  
+  console.log('new post baseurl in api ', EXPO_BASE_URL_SS)
   try {
     const res = await fetch(`${EXPO_BASE_URL_SS}/api/forum/new_post`, {
       method: 'POST',
