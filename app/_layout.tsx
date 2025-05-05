@@ -13,7 +13,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { setBackgroundColorAsync } from 'expo-system-ui';
 import { Slot, useSegments, usePathname } from 'expo-router';
-
+import Toast from 'react-native-toast-message';
 // This component handles authentication routing
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -165,6 +165,7 @@ export default function RootLayout() {
           </AuthGuard>
         </ThemeProvider>
       </AuthProvider>
+      <Toast />
     </SafeAreaProvider>
   );
 }

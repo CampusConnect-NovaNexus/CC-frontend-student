@@ -383,7 +383,10 @@ const SocialScreen = () => {
       {/* Post detail modal */}
       <Modal
         isVisible={detailPostVisible}
-        onBackdropPress={() => setDetailPostVisible(false)}
+        onBackdropPress={() => {setDetailPostVisible(false)
+          setComments(null)
+          setNewComment('')
+        }}
         animationIn="slideInUp"
         animationOut="slideOutDown"
         style={{ margin: 0, justifyContent: 'flex-end' }}
@@ -480,3 +483,10 @@ const SocialScreen = () => {
 };
 
 export default SocialScreen;
+
+
+// Toast.show({
+//   type: 'success',
+//   text1: 'Hello',
+//   text2: 'This is some something 👋'
+// });

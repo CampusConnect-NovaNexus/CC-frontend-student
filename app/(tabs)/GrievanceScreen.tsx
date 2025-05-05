@@ -1,7 +1,9 @@
 "use client";
 import { EXPO_AUTH_API_URL } from "@env";
-
+import Toast from "react-native-toast-message";
 import { useState, useEffect } from "react";
+
+import { useAuth } from "@/context/AuthContext";
 import { useFocusEffect } from "expo-router";
 import { useCallback } from "react";
 import {
@@ -55,6 +57,7 @@ export default function GrievanceScreen() {
   const [newGrievance, setNewGrievance] = useState({
     title: "",
     description: "",
+    selectedCategory:""
   });
   const [grievanceItem, setGrievanceItem] = useState<Grievance | null>(null);
   const [grievanceVisible, setGrievanceVisible] = useState(false);
@@ -67,8 +70,11 @@ export default function GrievanceScreen() {
   const [newComment, setNewComment] = useState("");
   const [user_id, setUserId] = useState("");
   const [userNames, setUserNames] = useState<Record<string, string>>({});
+  const { logout, user } = useAuth();
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
+  // const [selectedCategory, setSelectedCategory] = useState("");
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   useEffect(() => {
     // Load user_id from AsyncStorage when component mounts
@@ -183,7 +189,11 @@ export default function GrievanceScreen() {
         );
       }
     } catch (error) {
-      console.error("Failed to load grievances:", error);
+      Toast.show({
+        type: "error",
+        text1: "Network Error !",
+        text2: "Can not fetch grievances at the moment",
+      });
     }
   };
 
@@ -191,6 +201,12 @@ export default function GrievanceScreen() {
     const result = await getStats();
     if (result) {
       setStats(result);
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "Stats not refreshed",
+        text2: "Stats, could not be loaded ",
+      });
     }
   };
 
@@ -205,7 +221,6 @@ export default function GrievanceScreen() {
   // }, [grievanceItem]);
   useEffect(() => {
     if (grievanceItem) {
-      console.log("grievanceItem updated:", grievanceItem);
       loadComments();
     }
   }, [grievanceItem]);
@@ -217,20 +232,31 @@ export default function GrievanceScreen() {
     }, [])
   );
   const postNewGrievance = async () => {
-    if (newGrievance.title && newGrievance.description) {
+    if (newGrievance.title && newGrievance.description ) {
       const payload = {
         user_id: user_id,
         title: newGrievance.title,
         description: newGrievance.description,
+        category: newGrievance.selectedCategory
       };
       const response = await postGrievance(payload);
       if (response?.c_id) {
-        setNewGrievance({ title: "", description: "" });
+        Toast.show({
+          type:'success',
+          text1: ' Uploaded Successfully',
+          text2: 'Your problem will be resolved at the earliest '
+        });
         setFormVisible(false);
+        setNewGrievance({ title: "", description: "", selectedCategory:"" });
         loadStats();
         loadGrievances();
       }
     }
+    Toast.show({
+      type:'info',
+      text1: 'Insufficient Info',
+      text2: 'Kindly fill all the fields'
+    });
   };
   // const loadComments = async () => {
   //   if (grievanceItem) {
@@ -476,6 +502,46 @@ export default function GrievanceScreen() {
               }
               placeholderTextColor="#6B7280"
             />
+            <View className="mb-4">
+              <TouchableOpacity
+                onPress={() => setDropdownVisible(!dropdownVisible)}
+                className="bg-gray-100 rounded-lg p-3"
+              >
+                <Text className="text-gray-700">
+                  {newGrievance.selectedCategory
+                    ? newGrievance.selectedCategory
+                    : "Select grievance category"}
+                </Text>
+              </TouchableOpacity>
+
+              {dropdownVisible && (
+                <View className="bg-white border rounded-lg mt-2 max-h-64">
+                  {[
+                    "Infrastructure",
+                    "Academic",
+                    "Mess",
+                    "Hostel",
+                    "Wifi",
+                    "Library",
+                    "Administration",
+                    "Sports",
+                    "Others",
+                  ].map((option, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => {
+                        setNewGrievance({...newGrievance, selectedCategory: option})
+                        setDropdownVisible(false);
+                      }}
+                      className="p-3 border-b border-gray-200"
+                    >
+                      <Text className="text-gray-800">{option}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+
             <Pressable
               onPress={postNewGrievance}
               className="  bg-amber-600 p-4 rounded-xl"

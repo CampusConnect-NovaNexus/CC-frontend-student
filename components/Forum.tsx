@@ -20,6 +20,7 @@ interface ForumItem {
 const Forum = ({ item }: { item: ForumItem }) => {
   const [userName, setUserName] = useState("User");
   const [userPosition, setUserPosition] = useState("Student");
+  
 
   useEffect(() => {
     // You could fetch user details here if needed
@@ -105,20 +106,6 @@ const Forum = ({ item }: { item: ForumItem }) => {
           </View>
         )}
         
-        {/* Reactions summary */}
-        <View className="flex-row justify-between items-center py-2 border-t border-b border-gray-200 mt-1">
-          <View className="flex-row items-center">
-            <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
-              <Ionicons name="thumbs-up" size={12} color="white" />
-            </View>
-            <Text className="text-xs text-gray-500 ml-1">{item.upvotes.length}</Text>
-          </View>
-          
-          <View className="flex-row items-center">
-            <Text className="text-xs text-gray-500">{item.comment_count} comments</Text>
-          </View>
-        </View>
-        
         {/* Action buttons */}
         <View className="flex-row justify-between items-center pt-1">
           <Likes
@@ -130,16 +117,7 @@ const Forum = ({ item }: { item: ForumItem }) => {
           <TouchableOpacity className="flex-1 flex-row items-center justify-center py-2">
             <Ionicons name="chatbubble-outline" size={18} color="#666" />
             <Text className="text-gray-500 ml-1 text-sm">Comment</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity className="flex-1 flex-row items-center justify-center py-2">
-            <Ionicons name="arrow-redo-outline" size={18} color="#666" />
-            <Text className="text-gray-500 ml-1 text-sm">Share</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity className="flex-1 flex-row items-center justify-center py-2">
-            <Ionicons name="paper-plane-outline" size={18} color="#666" />
-            <Text className="text-gray-500 ml-1 text-sm">Send</Text>
+            <View className='border-l border-gray-600 ml-2 pl-2 ' ><Text>{item.comment_count}</Text></View>
           </TouchableOpacity>
         </View>
       </View>

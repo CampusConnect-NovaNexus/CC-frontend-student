@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from '@react-navigation/native';
-
+import Toast from 'react-native-toast-message';
 import {
   View,
   Text,
@@ -129,8 +129,12 @@ const Lost = () => {
 
   const handleAddLostItem = async () => {
     if (!objectName || !description || !contact || !imageFile) {
-      Alert.alert("Error", "Please fill all fields and select an image.");
-      return;
+      Toast.show({
+        type:'info',
+        text1: 'Missing Details',
+        text2: 'Kindly Fillup All the required details'
+      });
+      return
     }
 
     setLoading(true);
@@ -146,20 +150,32 @@ const Lost = () => {
       });
 
       if (response?.status === "Item created successfully") {
-        Alert.alert("Upload Successful", "Thanks for your kindness ❤️");
         const result = await LFData();
         setLostItems(result.reverse());
         setModalVisible(false);
+        Toast.show({
+          type:'success',
+          text1: ' Uploaded Successfully',
+          text2: 'Thanks for your kindness ❤️'
+        });
         setObjectName("");
         setDescription("");
         setContact("");
         setImageFile(null);
       } else {
-        Alert.alert("Upload failed", "Please try again later.");
+        Toast.show({
+          type:'error',
+          text1: 'Upload Failed',
+          text2: 'Sorry for the trouble 🙇‍♂️, please try again 🫂'
+        });
       }
     } catch (error) {
       console.error("Upload error:", error);
-      Alert.alert('Error', 'Something went wrong.');
+      Toast.show({
+        type:'error',
+        text1: ' Upload Failed ',
+        text2: 'PLease try again after some-time'
+      });
     } finally {
       setLoading(false);
     }
