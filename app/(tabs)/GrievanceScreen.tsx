@@ -78,6 +78,8 @@ export default function GrievanceScreen() {
   const [dropdownVisible, setDropdownVisible] = useState(false);//fow category while filling the form 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);//for filter
   const options = ['Administration ', 'Mess', 'Hostel', 'Sports', 'Infrastructure','Wifi'];
+  
+  
   const handleOptionSelect = (option:string) => {
     if (viewSelectedCategory === option) {
       setViewSelectedCategory('');
@@ -107,6 +109,7 @@ export default function GrievanceScreen() {
 
     setTimeout(() => {
       loadGrievances();
+      loadStats()
       setRefreshing(false);
     }, 2000);
   };
@@ -382,8 +385,8 @@ export default function GrievanceScreen() {
           {/* Rest of the component remains the same */}
           <Text className="text-lg font-semibold mb-2">{item.title}</Text>
           <Text className="text-gray-600 mb-3">{item.description}</Text>
-          <View className="bg-red-400 flex justify-center items-center  max-w-fit rounded-full  " >
-            <Text className="text-gray-600 mb-3" >{item.category} </Text>
+          <View className="bg-red-400 flex-col  w-fit rounded-full items-center justify-center " >
+            <Text className="text-gray-600 mb-3 bg-green-400  " >{item.category} </Text>
           </View>
           <View className="flex-row justify-left items-center">
             <UpVoteBtn
@@ -600,6 +603,7 @@ export default function GrievanceScreen() {
           backdropColor="rgba(0,0,0,0.5)"
           onBackdropPress={() => {
             setGrievanceItem(null);
+            setComments(null)
             setGrievanceVisible(false);
           }}
           style={styles.detail_modal}

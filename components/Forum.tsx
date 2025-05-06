@@ -5,6 +5,7 @@ import Likes from './Likes'
 import { fetchUser } from '@/service/lost-found/fetchUser'
 import { TimeAgo } from '@/components/TimeAgo'
 import { Ionicons } from "@expo/vector-icons";
+import { getComment } from '@/service/grievance/getComment'
 
 interface ForumItem {
   post_id: string,
@@ -17,10 +18,26 @@ interface ForumItem {
   user_id: string,
 }
 
-const Forum = ({ item }: { item: ForumItem }) => {
+const Forum = ({
+  item,
+  setSelectedPost,
+  setDetailPostVisible,
+  getComment
+}: {
+  item: ForumItem;
+  setSelectedPost: React.Dispatch<React.SetStateAction<ForumItem|null>>;
+  setDetailPostVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  getComment: (postId: string, forceRefresh?: boolean) => Promise<void>;
+})=> {
   const [userName, setUserName] = useState("User");
   const [userPosition, setUserPosition] = useState("Student");
-  
+  const handlePress =async () => {
+    console.log('handle peresss called ');
+    
+    setSelectedPost(item);
+    setDetailPostVisible(true);
+    await getComment(item.post_id)
+  };
 
   useEffect(() => {
     // You could fetch user details here if needed
@@ -114,7 +131,9 @@ const Forum = ({ item }: { item: ForumItem }) => {
             upVotes={item.upvotes}
           />
           
-          <TouchableOpacity className="flex-1 flex-row items-center justify-center py-2">
+          <TouchableOpacity className="flex-1 flex-row items-center bg-red-300 justify-center py-2"
+          onPress={handlePress}
+          >
             <Ionicons name="chatbubble-outline" size={18} color="#666" />
             <Text className="text-gray-500 ml-1 text-sm">Comment</Text>
             <View className='border-l border-gray-600 ml-2 pl-2 ' ><Text>{item.comment_count}</Text></View>

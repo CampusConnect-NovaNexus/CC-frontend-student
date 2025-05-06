@@ -21,6 +21,7 @@ import { addCommentToPost } from "@/service/socials/addComment";
 import { createPost } from "@/service/socials/new_post";
 import Forum from "@/components/Forum";
 import { icons } from "@/constants/icons";
+import { useAuth } from "@/context/AuthContext";
 
 const CACHE_KEY = "SOCIAL_POSTS_CACHE";
 const CACHE_TIMESTAMP_KEY = "SOCIAL_POSTS_TIMESTAMP";
@@ -57,7 +58,7 @@ const SocialScreen = () => {
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [user_id, setUserId] = useState<string>("");
   const [refreshing, setRefreshing] = useState(false);
-
+  const { logout, user } = useAuth();
   const getUserId = async () => {
     try {
       const id = await AsyncStorage.getItem('@user_id');
@@ -122,6 +123,8 @@ const SocialScreen = () => {
   };
 
   const getComments = async (postId: string, forceRefresh = false) => {
+    console.log('getcomments called');
+    
     try {
       const timestampKey = COMMENT_TIMESTAMP_KEY(postId);
       const cacheKey = COMMENT_CACHE_KEY(postId);
@@ -213,26 +216,7 @@ const SocialScreen = () => {
 
   return (
     <View className="flex-1 bg-[#F3F2EF]"
-    
     >
-      {/* LinkedIn-style header */}
-      {/* <View className="bg-white px-4 py-2 flex-row items-center justify-between border-b border-gray-200">
-        <View className="flex-row items-center">
-          <View className="w-8 h-8 rounded-full bg-blue-600 mr-2 overflow-hidden">
-            <Image 
-              source={icons.profile} 
-              className="w-full h-full" 
-              resizeMode="cover"
-            />
-          </View>
-          <View className="flex-1 py-1 bg-[#EEF3F8] rounded-full px-3 flex-row items-center">
-            <Ionicons name="search" size={16} color="#666" />
-            <Text className="text-gray-500 ml-2 text-sm">Search</Text>
-          </View>
-        </View>
-        
-      </View> */}
-
       {/* Post creation quick access */}
       <View className="bg-white mt-2 px-4 py-3 flex-row items-center border-b border-gray-200">
         <View className="w-10 h-10 rounded-full overflow-hidden mr-3">
@@ -249,27 +233,6 @@ const SocialScreen = () => {
           <Text className="text-gray-500">Start a post</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Post type options */}
-      {/* <View className="bg-white px-2 py-1 flex-row justify-between border-b border-gray-200">
-        <TouchableOpacity className="flex-row items-center p-2">
-          <Ionicons name="image" size={18} color="#70B5F9" />
-          <Text className="ml-1 text-gray-500 text-xs">Photo</Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="flex-row items-center p-2">
-          <Ionicons name="videocam" size={18} color="#7FC15E" />
-          <Text className="ml-1 text-gray-500 text-xs">Video</Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="flex-row items-center p-2">
-          <Ionicons name="calendar" size={18} color="#E7A33E" />
-          <Text className="ml-1 text-gray-500 text-xs">Event</Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="flex-row items-center p-2">
-          <Ionicons name="document-text" size={18} color="#F5987E" />
-          <Text className="ml-1 text-gray-500 text-xs">Article</Text>
-        </TouchableOpacity>
-      </View> */}
-
       {/* Posts feed */}
       <FlatList
         data={data}
@@ -282,7 +245,7 @@ const SocialScreen = () => {
             }}
             className="bg-white my-2 shadow-sm"
           >
-            <Forum item={item} />
+            <Forum item={item} setSelectedPost={setSelectedPost} setDetailPostVisible={setDetailPostVisible} getComment={getComments} />
           </Pressable>
         )}
         keyExtractor={(item) => item.post_id}
@@ -319,12 +282,12 @@ const SocialScreen = () => {
               />
             </View>
             <View>
-              <Text className="font-bold">Your Name</Text>
-              <TouchableOpacity className="flex-row items-center mt-1">
+              <Text className="font-bold">{user?.name}</Text>
+              {/* <TouchableOpacity className="flex-row items-center mt-1">
                 <Ionicons name="globe-outline" size={14} color="#666" />
                 <Text className="text-xs text-gray-500 ml-1">Anyone</Text>
                 <Ionicons name="chevron-down" size={14} color="#666" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
 
@@ -383,9 +346,13 @@ const SocialScreen = () => {
       {/* Post detail modal */}
       <Modal
         isVisible={detailPostVisible}
-        onBackdropPress={() => {setDetailPostVisible(false)
+        onBackdropPress={() => {
+          setDetailPostVisible(false)
           setComments(null)
           setNewComment('')
+          setSelectedPost(null)
+          console.log('im closed and comments are set to null');
+          
         }}
         animationIn="slideInUp"
         animationOut="slideOutDown"
@@ -430,10 +397,10 @@ const SocialScreen = () => {
                           <Text className="font-bold text-sm">User</Text>
                           <Text className="text-sm mt-1">{item.comment}</Text>
                         </View>
-                        <View className="flex-row items-center mt-1 ml-2">
+                        {/* <View className="flex-row items-center mt-1 ml-2">
                           <Text className="text-xs text-gray-500 mr-4">Like</Text>
                           <Text className="text-xs text-gray-500">Reply</Text>
-                        </View>
+                        </View> */}
                       </View>
                     </View>
                   )}
@@ -484,9 +451,3 @@ const SocialScreen = () => {
 
 export default SocialScreen;
 
-
-// Toast.show({
-//   type: 'success',
-//   text1: 'Hello',
-//   text2: 'This is some something 👋'
-// });
