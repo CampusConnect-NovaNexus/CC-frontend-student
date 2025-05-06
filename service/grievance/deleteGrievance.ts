@@ -5,7 +5,7 @@ export const deleteGrievance = async (c_id: string) => {
     const BASEURL=EXPO_BASE_URL_GR
     console.log('BASEURL : ',BASEURL);
     try {
-        const response = await fetch(`${BASEURL}/delete_complaint/${c_id}`{
+        const response = await fetch(`${BASEURL}/delete_complaint/${c_id}`,{
           method: 'DELETE',
         });
         const data=response.json();

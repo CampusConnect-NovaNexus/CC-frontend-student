@@ -49,10 +49,7 @@ const PostsOfUser = () => {
 
     try {
       if (category === "GR") {
-        console.log("finding grievance of user ");
-
         const result = await getGrievanceOfUser(user_id);
-
         if (!result?.complaint) {
           Toast.show({
             type: "error",
@@ -60,33 +57,50 @@ const PostsOfUser = () => {
             position: "top",
           });
         }
-
         await setData(result?.complaint);
 
         await setDataType("GR");
-        console.log("data in GR : ", data, " dataType: ", dataType);
       }
-      if (category === "IS") {
-        console.log("finding posts ");
+      else if (category === "IS") {
+        console.log("finding grievapostsnce of user ");
+
         const result = await getUsersPost(user_id);
-        console.log("result from IS : ", result);
-        if (result?.message === "Post not found") {
-          Toast.show({
-            type: "success",
-            text1: "You have no posts",
-            position: "top",
-          });
-          console.log("setting data in IS");
 
-          setData(result.post);
-          setDataType("IS");
+        // if (!result?.complaint) {
+        //   Toast.show({
+        //     type: "error",
+        //     text1: "No grievances found",
+        //     position: "top",
+        //   });
+        // }
+        console.log('result in IS : ', result);
+        
+        await setData(result?.post);
 
-          return;
-        }
-        setData(result.post);
-        setDataType("IS");
+        await setDataType("IS");
         console.log("data in IS : ", data, " dataType: ", dataType);
       }
+      // if (category === "IS") {
+      //   console.log("finding posts of user");
+      //   const result = await getUsersPost(user_id);
+      //   console.log("result from IS : ", result);
+      //   if (result?.message === "Post not found") {
+      //     Toast.show({
+      //       type: "success",
+      //       text1: "You have no posts",
+      //       position: "top",
+      //     });
+      //     console.log("setting data in IS result :  ", result);
+
+      //     await setData(result.post);
+      //     await setDataType("IS");
+
+      //     return;
+      //   }
+      //   await setData(result.post);
+      //   await setDataType("IS");
+      //   console.log("data in IS : ", data, " dataType: ", dataType);
+      // }
 
       // Add LF and IS fetch logic here if available
     } catch (error) {
@@ -123,7 +137,9 @@ const PostsOfUser = () => {
         <View className="p-4 bg-gray-500 rounded-lg shadow m-2">
           <Text className="text-lg font-bold">{item.title}</Text>
           <Text className="text-gray-700 mt-1">{item.description}</Text>
-          {item.post_image_url && <Image source={{ uri: item.item_image }} />}
+          <Text className="text-sm text-gray-500 mt-2">
+            Upvotes: {item.upvotes} | Category: {item.category}
+          </Text>
           <Pressable
             onPress={async()=>{
               await deleteMyGrievance(item.c_id)
@@ -139,9 +155,8 @@ const PostsOfUser = () => {
         <View className="p-4 bg-white rounded-lg shadow m-2">
           <Text className="text-lg font-bold">{item.title}</Text>
           <Text className="text-gray-700 mt-1">{item.description}</Text>
-          <Text className="text-sm text-gray-500 mt-2">
-            Upvotes: {item.upvotes} | Category: {item.category}
-          </Text>
+          {item.post_image_url && <Image source={{ uri: item.item_image }} />}
+          
           <Pressable
             onPress={async()=>{
               await deleteMyPost(item.post_id)
