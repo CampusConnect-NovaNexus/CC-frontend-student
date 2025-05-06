@@ -49,6 +49,7 @@ interface Grievance {
   title: string;
   upvotes: string[];
   resolver: string[];
+  category:string
 }
 
 export default function GrievanceScreen() {
@@ -73,9 +74,18 @@ export default function GrievanceScreen() {
   const { logout, user } = useAuth();
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
-  // const [selectedCategory, setSelectedCategory] = useState("");
-  const [dropdownVisible, setDropdownVisible] = useState(false);
-
+  const [viewSelectedCategory, setViewSelectedCategory] = useState("");
+  const [dropdownVisible, setDropdownVisible] = useState(false);//fow category while filling the form 
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);//for filter
+  const options = ['Administration ', 'Mess', 'Hostel', 'Sports', 'Infrastructure','Wifi'];
+  const handleOptionSelect = (option:string) => {
+    if (viewSelectedCategory === option) {
+      setViewSelectedCategory('');
+    } else {
+      setViewSelectedCategory(option);
+    }
+    setDropdownVisible(false);
+  };
   useEffect(() => {
     // Load user_id from AsyncStorage when component mounts
     const getUserId = async () => {
@@ -125,7 +135,7 @@ export default function GrievanceScreen() {
       setUserNames(userNamesMap);
     };
 
-    if (grievances.length > 0) {
+    if (grievances?.length > 0) {
       fetchUserNames();
     }
   }, [grievances]);
@@ -239,6 +249,7 @@ export default function GrievanceScreen() {
         description: newGrievance.description,
         category: newGrievance.selectedCategory
       };
+      console.log(payload);
       const response = await postGrievance(payload);
       if (response?.c_id) {
         Toast.show({
@@ -252,11 +263,13 @@ export default function GrievanceScreen() {
         loadGrievances();
       }
     }
-    Toast.show({
-      type:'info',
-      text1: 'Insufficient Info',
-      text2: 'Kindly fill all the fields'
-    });
+    else{
+      Toast.show({
+        type:'info',
+        text1: 'Insufficient Info',
+        text2: 'Kindly fill all the fields'
+      });
+    }
   };
   // const loadComments = async () => {
   //   if (grievanceItem) {
@@ -369,7 +382,9 @@ export default function GrievanceScreen() {
           {/* Rest of the component remains the same */}
           <Text className="text-lg font-semibold mb-2">{item.title}</Text>
           <Text className="text-gray-600 mb-3">{item.description}</Text>
-
+          <View className="bg-red-400 flex justify-center items-center  max-w-fit rounded-full  " >
+            <Text className="text-gray-600 mb-3" >{item.category} </Text>
+          </View>
           <View className="flex-row justify-left items-center">
             <UpVoteBtn
               c_id={item.c_id}
@@ -427,6 +442,27 @@ export default function GrievanceScreen() {
           >
             Recent Issues
           </Text>
+          <TouchableOpacity onPress={() => setIsDropdownVisible(prev => !prev)}
+            className="bg-gray-500 rounded-full  flex-row max-w-fit w-fit justify-center items-center shadow-lg shadow-slate-400"  
+          >
+        <Text className="text-lg font-bold">
+          Filter 
+        </Text>
+      </TouchableOpacity>
+      <Text>{viewSelectedCategory ? `Viewing Issues related to : ${viewSelectedCategory}` : ''}</Text>
+      {isDropdownVisible && (
+        <View className="absolute bg-white rounded shadow top-32 p-2 mt-2 z-10">
+          {options.map((option, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => handleOptionSelect(option)}
+              className={`p-2 ${viewSelectedCategory === option ? 'bg-gray-200' : ''}`}
+            >
+              <Text>{option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
         </View>
 
         <TouchableOpacity
@@ -436,13 +472,13 @@ export default function GrievanceScreen() {
           <Ionicons name="add-circle" size={26} color="#fdfcf9" />
         </TouchableOpacity>
 
-        {grievances.length === 0 ? (
+        {grievances?.length === 0 ? (
           <View className="h-40 w-full justify-center">
             <ActivityIndicator size="large" color="#cb612a" />
           </View>
         ) : (
           <FlatList
-            data={grievances}
+            data={viewSelectedCategory ? grievances.filter((grievance) => grievance.category === viewSelectedCategory) : grievances}
             renderItem={renderGrievanceItem}
             keyExtractor={(item) => item.c_id}
             contentContainerStyle={{ paddingBottom: 100 }}

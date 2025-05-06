@@ -70,9 +70,6 @@ const DetailedCourse = () => {
     }
 
     try {
-      console.log('Submitting exam with type:', examType);
-      console.log('Exam date:', examDate.toISOString());
-      console.log('Course code:', course_code);
       
       // Call API to create new exam
       const result = await createExam(course_code, {

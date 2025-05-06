@@ -12,7 +12,7 @@ export const postGrievance = async ({user_id,title,description,category}:{user_i
       body: JSON.stringify({
         user_id,
         complaint_title:title,
-        complaint_description:description, 
+        complaint_message:description, 
         category,
         }),
      

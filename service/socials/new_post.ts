@@ -45,7 +45,7 @@ export const createPost = async (item:postItemInput) => {
   try {
     const res = await fetch(`${EXPO_BASE_URL_SS}/api/forum/new_post`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'form' },
       body: form
     });
     return await res.json();
