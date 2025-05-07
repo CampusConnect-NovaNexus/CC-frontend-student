@@ -49,7 +49,7 @@ interface Grievance {
   title: string;
   upvotes: string[];
   resolver: string[];
-  category:string
+  category: string
 }
 
 export default function GrievanceScreen() {
@@ -58,7 +58,7 @@ export default function GrievanceScreen() {
   const [newGrievance, setNewGrievance] = useState({
     title: "",
     description: "",
-    selectedCategory:""
+    selectedCategory: ""
   });
   const [grievanceItem, setGrievanceItem] = useState<Grievance | null>(null);
   const [grievanceVisible, setGrievanceVisible] = useState(false);
@@ -77,10 +77,18 @@ export default function GrievanceScreen() {
   const [viewSelectedCategory, setViewSelectedCategory] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);//fow category while filling the form 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);//for filter
-  const options = ['Administration ', 'Mess', 'Hostel', 'Sports', 'Infrastructure','Wifi'];
-  
-  
-  const handleOptionSelect = (option:string) => {
+  const options = ["Infrastructure",
+    "Academic",
+    "Mess",
+    "Hostel",
+    "Wifi",
+    "Library",
+    "Administration",
+    "Sports",
+    "Others",];
+
+
+  const handleOptionSelect = (option: string) => {
     if (viewSelectedCategory === option) {
       setViewSelectedCategory('');
     } else {
@@ -245,7 +253,7 @@ export default function GrievanceScreen() {
     }, [])
   );
   const postNewGrievance = async () => {
-    if (newGrievance.title && newGrievance.description ) {
+    if (newGrievance.title && newGrievance.description) {
       const payload = {
         user_id: user_id,
         title: newGrievance.title,
@@ -256,19 +264,19 @@ export default function GrievanceScreen() {
       const response = await postGrievance(payload);
       if (response?.c_id) {
         Toast.show({
-          type:'success',
+          type: 'success',
           text1: ' Uploaded Successfully',
           text2: 'Your problem will be resolved at the earliest '
         });
         setFormVisible(false);
-        setNewGrievance({ title: "", description: "", selectedCategory:"" });
+        setNewGrievance({ title: "", description: "", selectedCategory: "" });
         loadStats();
         loadGrievances();
       }
     }
-    else{
+    else {
       Toast.show({
-        type:'info',
+        type: 'info',
         text1: 'Insufficient Info',
         text2: 'Kindly fill all the fields'
       });
@@ -385,9 +393,24 @@ export default function GrievanceScreen() {
           {/* Rest of the component remains the same */}
           <Text className="text-lg font-semibold mb-2">{item.title}</Text>
           <Text className="text-gray-600 mb-3">{item.description}</Text>
-          <View className="bg-red-400 flex-col  w-fit rounded-full items-center justify-center " >
-            <Text className="text-gray-600 mb-3 bg-green-400  " >{item.category} </Text>
-          </View>
+          {item.category && (
+            <View style={{
+              backgroundColor: '#FEF3C7', // amber-100
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 20,
+              alignSelf: 'flex-start',
+              marginBottom: 10,
+              borderWidth: 1,
+              borderColor: '#FCD34D', // amber-300
+            }}>
+              <Text style={{
+                color: '#92400E', // amber-800
+                fontWeight: '500',
+                fontSize: 12,
+              }}>{item.category}</Text>
+            </View>
+          )}
           <View className="flex-row justify-left items-center">
             <UpVoteBtn
               c_id={item.c_id}
@@ -439,33 +462,109 @@ export default function GrievanceScreen() {
           </View>
         </View>
         <View className="z-10 bg-[#fdfcf9]">
-          <Text
-            style={{ fontFamily: "wastedVindey" }}
-            className="text-3xl p-4 pb-6"
-          >
-            Recent Issues
-          </Text>
-          <TouchableOpacity onPress={() => setIsDropdownVisible(prev => !prev)}
-            className="bg-gray-500 rounded-full  flex-row max-w-fit w-fit justify-center items-center shadow-lg shadow-slate-400"  
-          >
-        <Text className="text-lg font-bold">
-          Filter 
-        </Text>
-      </TouchableOpacity>
-      <Text>{viewSelectedCategory ? `Viewing Issues related to : ${viewSelectedCategory}` : ''}</Text>
-      {isDropdownVisible && (
-        <View className="absolute bg-white rounded shadow top-32 p-2 mt-2 z-10">
-          {options.map((option, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => handleOptionSelect(option)}
-              className={`p-2 ${viewSelectedCategory === option ? 'bg-gray-200' : ''}`}
+          <View className="flex-row justify-between items-center px-4 pb-2">
+            <Text
+              style={{ fontFamily: "wastedVindey" }}
+              className="text-3xl"
             >
-              <Text>{option}</Text>
+              Recent Issues
+            </Text>
+            <TouchableOpacity
+              onPress={() => setIsDropdownVisible(prev => !prev)}
+              style={{
+                backgroundColor: '#F59E0B', // amber-500
+                paddingVertical: 8,
+                paddingHorizontal: 16,
+                borderRadius: 20,
+                flexDirection: 'row',
+                alignItems: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 3,
+                elevation: 2,
+              }}
+            >
+              <Ionicons name="filter" size={18} color="white" style={{ marginRight: 6 }} />
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>
+                Filter
+              </Text>
             </TouchableOpacity>
-          ))}
-        </View>
-      )}
+          </View>
+
+          {viewSelectedCategory ? (
+            <View style={{
+              backgroundColor: '#FEF3C7', // amber-100
+              marginHorizontal: 16,
+              marginBottom: 12,
+              padding: 10,
+              borderRadius: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <Text style={{ color: '#92400E', fontWeight: '500' }}>
+                Viewing: {viewSelectedCategory}
+              </Text>
+              <TouchableOpacity onPress={() => setViewSelectedCategory('')}>
+                <Ionicons name="close-circle" size={20} color="#92400E" />
+              </TouchableOpacity>
+            </View>
+          ) : null}
+          {/* Filter Modal */}
+          <Modal
+            isVisible={isDropdownVisible}
+            onBackdropPress={() => setIsDropdownVisible(false)}
+            animationIn="fadeInDown"
+            animationOut="slideOutUp"
+            animationInTiming={400}
+            animationOutTiming={400}
+            backdropTransitionInTiming={400}
+            backdropTransitionOutTiming={400}
+            backdropColor="rgba(0,0,0,0.5)"
+            style={{ margin: 0, justifyContent: 'flex-start', alignItems: 'flex-end' }}
+          >
+            <View
+              style={{
+                position: 'absolute',
+                top: 100,
+                right: 16,
+                backgroundColor: 'white',
+                borderRadius: 12,
+                padding: 8,
+                width: 180,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.2,
+                shadowRadius: 5,
+                elevation: 5,
+              }}
+            >
+              {options.map((option, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => {
+                    handleOptionSelect(option);
+                    setIsDropdownVisible(false);
+                  }}
+                  style={{
+                    padding: 12,
+                    borderBottomWidth: index === options.length - 1 ? 0 : 1,
+                    borderBottomColor: '#F3F4F6',
+                    backgroundColor: viewSelectedCategory === option ? '#FEF3C7' : 'transparent',
+                    borderRadius: 6,
+                  }}
+                >
+                  <Text style={{
+                    color: viewSelectedCategory === option ? '#92400E' : '#4B5563',
+                    fontWeight: viewSelectedCategory === option ? '600' : 'normal'
+                  }}>
+                    {option}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </Modal>
         </View>
 
         <TouchableOpacity
@@ -505,87 +604,218 @@ export default function GrievanceScreen() {
           onBackdropPress={() => setFormVisible(false)}
           style={styles.modal}
         >
-          <View className="bg-white rounded-2xl p-5 m-4">
-            <Text className="text-xl font-bold mb-6 text-center">
+          <View style={{
+            backgroundColor: 'white',
+            borderRadius: 16,
+            padding: 24,
+            margin: 16,
+            width: '90%',
+            alignSelf: 'center',
+            maxHeight: '80%',
+          }}>
+            <Text style={{
+              fontSize: 22,
+              fontWeight: 'bold',
+              marginBottom: 20,
+              textAlign: 'center',
+              color: '#1F2937',
+            }}>
               Submit New Grievance
             </Text>
 
             <Pressable
               onPress={() => setFormVisible(false)}
-              className="absolute -right-2 -top-2 bg-white p-3 rounded-full"
-              style={{ elevation: 5 }}
+              style={{
+                position: 'absolute',
+                right: -10,
+                top: -10,
+                backgroundColor: 'white',
+                padding: 10,
+                borderRadius: 999,
+                elevation: 5,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 3,
+              }}
             >
               <Image
                 source={icons.cross}
-                className="w-6 h-6"
+                style={{ width: 20, height: 20 }}
                 resizeMode="contain"
               />
             </Pressable>
 
+            <Text style={{ color: '#4B5563', fontWeight: '500', marginBottom: 6, marginLeft: 4 }}>
+              Title
+            </Text>
             <TextInput
-              className="bg-gray-100 rounded-lg p-3 mb-3"
+              style={{
+                backgroundColor: '#F3F4F6',
+                borderRadius: 10,
+                padding: 14,
+                marginBottom: 16,
+                color: '#1F2937',
+                fontSize: 16,
+              }}
               placeholder="Enter grievance title"
               value={newGrievance.title}
               onChangeText={(text) =>
                 setNewGrievance({ ...newGrievance, title: text })
               }
-              placeholderTextColor="#6B7280"
+              placeholderTextColor="#9CA3AF"
             />
+
+            <Text style={{ color: '#4B5563', fontWeight: '500', marginBottom: 6, marginLeft: 4 }}>
+              Description
+            </Text>
             <TextInput
-              className="bg-gray-100 rounded-lg p-3 mb-6 h-24"
+              style={{
+                backgroundColor: '#F3F4F6',
+                borderRadius: 10,
+                padding: 14,
+                marginBottom: 16,
+                height: 100,
+                textAlignVertical: 'top',
+                color: '#1F2937',
+                fontSize: 16,
+              }}
               placeholder="Describe your grievance in detail"
               multiline
               value={newGrievance.description}
               onChangeText={(text) =>
                 setNewGrievance({ ...newGrievance, description: text })
               }
-              placeholderTextColor="#6B7280"
+              placeholderTextColor="#9CA3AF"
             />
-            <View className="mb-4">
+            <View style={{ marginBottom: 16 }}>
+              <Text style={{ color: '#4B5563', fontWeight: '500', marginBottom: 6, marginLeft: 4 }}>
+                Category
+              </Text>
               <TouchableOpacity
                 onPress={() => setDropdownVisible(!dropdownVisible)}
-                className="bg-gray-100 rounded-lg p-3"
+                style={{
+                  backgroundColor: '#F3F4F6',
+                  borderRadius: 10,
+                  padding: 14,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderWidth: 1,
+                  borderColor: newGrievance.selectedCategory ? '#F59E0B' : '#E5E7EB',
+                }}
               >
-                <Text className="text-gray-700">
+                <Text style={{
+                  color: newGrievance.selectedCategory ? '#92400E' : '#6B7280',
+                  fontWeight: newGrievance.selectedCategory ? '500' : 'normal',
+                  fontSize: 16,
+                }}>
                   {newGrievance.selectedCategory
                     ? newGrievance.selectedCategory
                     : "Select grievance category"}
                 </Text>
+                <Ionicons
+                  name={dropdownVisible ? "chevron-up" : "chevron-down"}
+                  size={18}
+                  color="#6B7280"
+                />
               </TouchableOpacity>
 
-              {dropdownVisible && (
-                <View className="bg-white border rounded-lg mt-2 max-h-64">
-                  {[
-                    "Infrastructure",
-                    "Academic",
-                    "Mess",
-                    "Hostel",
-                    "Wifi",
-                    "Library",
-                    "Administration",
-                    "Sports",
-                    "Others",
-                  ].map((option, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        setNewGrievance({...newGrievance, selectedCategory: option})
-                        setDropdownVisible(false);
-                      }}
-                      className="p-3 border-b border-gray-200"
-                    >
-                      <Text className="text-gray-800">{option}</Text>
+              <Modal
+                isVisible={dropdownVisible}
+                onBackdropPress={() => setDropdownVisible(false)}
+                backdropOpacity={0.1}
+                animationIn="fadeIn"
+                animationOut="fadeOut"
+                animationInTiming={200}
+                animationOutTiming={200}
+                backdropTransitionInTiming={200}
+                backdropTransitionOutTiming={200}
+                style={{ margin: 0, justifyContent: 'center', alignItems: 'center' }}
+              >
+                <View style={{
+                  backgroundColor: 'white',
+                  borderRadius: 10,
+                  width: '85%',
+                  maxHeight: 300,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 3,
+                  elevation: 3,
+                  borderWidth: 1,
+                  borderColor: '#F3F4F6',
+                }}>
+                  <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: '#F3F4F6',
+                    padding: 14,
+                  }}>
+                    <Text style={{ fontWeight: 'bold', color: '#1F2937', fontSize: 16 }}>
+                      Select Category
+                    </Text>
+                    <TouchableOpacity onPress={() => setDropdownVisible(false)}>
+                      <Ionicons name="close" size={22} color="#6B7280" />
                     </TouchableOpacity>
-                  ))}
+                  </View>
+
+                  <ScrollView style={{ maxHeight: 250 }}>
+                    {options.map((option, index, array) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => {
+                          setNewGrievance({ ...newGrievance, selectedCategory: option })
+                          setDropdownVisible(false);
+                        }}
+                        style={{
+                          padding: 14,
+                          borderBottomWidth: index === array.length - 1 ? 0 : 1,
+                          borderBottomColor: '#F3F4F6',
+                          backgroundColor: newGrievance.selectedCategory === option ? '#FEF3C7' : 'white',
+                        }}
+                      >
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          {newGrievance.selectedCategory === option && (
+                            <Ionicons name="checkmark-circle" size={18} color="#F59E0B" style={{ marginRight: 8 }} />
+                          )}
+                          <Text style={{
+                            color: newGrievance.selectedCategory === option ? '#92400E' : '#4B5563',
+                            fontWeight: newGrievance.selectedCategory === option ? '500' : 'normal',
+                            fontSize: 16,
+                          }}>
+                            {option}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
                 </View>
-              )}
+              </Modal>
             </View>
 
             <Pressable
               onPress={postNewGrievance}
-              className="  bg-amber-600 p-4 rounded-xl"
+              style={{
+                backgroundColor: '#D97706', // amber-600
+                padding: 16,
+                borderRadius: 12,
+                marginTop: 8,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 3,
+                elevation: 2,
+              }}
             >
-              <Text className="text-white text-center font-bold text-lg">
+              <Text style={{
+                color: 'white',
+                textAlign: 'center',
+                fontWeight: 'bold',
+                fontSize: 18,
+              }}>
                 Submit Grievance
               </Text>
             </Pressable>

@@ -96,9 +96,9 @@ const Forum = ({
                 </View>
               </View>
               
-              {/* More options */}
-              <TouchableOpacity>
-                <Ionicons name="ellipsis-horizontal" size={20} color="#666" />
+              {/* Follow button */}
+              <TouchableOpacity className="py-1 bg-blue-100 p-2 border border-gray-400 text-white rounded-md">
+                <Text>+ Follow</Text>
               </TouchableOpacity>
             </View>
           </View>

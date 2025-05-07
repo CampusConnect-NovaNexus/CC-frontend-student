@@ -283,11 +283,7 @@ const SocialScreen = () => {
             </View>
             <View>
               <Text className="font-bold">{user?.name}</Text>
-              {/* <TouchableOpacity className="flex-row items-center mt-1">
-                <Ionicons name="globe-outline" size={14} color="#666" />
-                <Text className="text-xs text-gray-500 ml-1">Anyone</Text>
-                <Ionicons name="chevron-down" size={14} color="#666" />
-              </TouchableOpacity> */}
+              
             </View>
           </View>
 
@@ -324,12 +320,6 @@ const SocialScreen = () => {
               className="flex-row items-center mr-4"
             >
               <Ionicons name="image-outline" size={24} color="#0a66c2" />
-            </TouchableOpacity>
-            <TouchableOpacity className="flex-row items-center mr-4">
-              <Ionicons name="videocam-outline" size={24} color="#0a66c2" />
-            </TouchableOpacity>
-            <TouchableOpacity className="flex-row items-center mr-4">
-              <Ionicons name="document-outline" size={24} color="#0a66c2" />
             </TouchableOpacity>
             <View className="flex-1" />
             <TouchableOpacity 
@@ -376,9 +366,7 @@ const SocialScreen = () => {
               <View className="px-4 pb-6">
                 <View className="flex-row justify-between items-center mb-3">
                   <Text className="font-semibold text-base">Comments</Text>
-                  <TouchableOpacity>
-                    <Text className="text-sm text-[#0a66c2]">Most relevant ▼</Text>
-                  </TouchableOpacity>
+                  
                 </View>
                 
                 <FlatList
