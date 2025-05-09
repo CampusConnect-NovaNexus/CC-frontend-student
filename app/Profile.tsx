@@ -26,6 +26,7 @@ import { useRouter } from "expo-router";
 const ProfileScreen = () => {
   const { logout, user } = useAuth();
   const [addSocialsVisible, setAddSocialsVisible] = useState(false);
+  const [editAboutVisible, setEditAboutVisible] = useState(false);
   const [address, setAddress] = useState<String>(
     "Bhadohi, Uttar Pradesh, India"
   );
@@ -41,6 +42,7 @@ const ProfileScreen = () => {
   const [about, setAbout] = useState<String>(
     "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, autem fuga quos sit quasi modi. Passionate about technology and innovation, I'm currently pursuing my degree in Computer Science. I enjoy solving complex problems and building applications that make a difference."
   );
+  const [editedAbout, setEditedAbout] = useState<String>("");
   const [isLoading, setIsLoading] = useState(false);
   const router=useRouter()
 
@@ -64,6 +66,9 @@ const ProfileScreen = () => {
 
         const savedYoutube = await AsyncStorage.getItem("@user_youtube");
         if (savedYoutube) setYoutubeLink(savedYoutube);
+        
+        const savedAbout = await AsyncStorage.getItem("@user_about");
+        if (savedAbout) setAbout(savedAbout);
       } catch (error) {
         console.error("Error loading profile data:", error);
       }
@@ -107,6 +112,18 @@ const ProfileScreen = () => {
     } catch (error) {
       console.error("Error saving profile data:", error);
       Alert.alert("Error", "Failed to save your profile information.");
+    }
+  };
+  
+  const saveAbout = async () => {
+    try {
+      await AsyncStorage.setItem("@user_about", editedAbout.toString());
+      setAbout(editedAbout);
+      setEditAboutVisible(false);
+      Alert.alert("Success", "Your about information has been updated.");
+    } catch (error) {
+      console.error("Error saving about data:", error);
+      Alert.alert("Error", "Failed to save your about information.");
     }
   };
 
@@ -353,7 +370,13 @@ const ProfileScreen = () => {
             <Text style={{ fontSize: 18, fontWeight: "600", color: "#374151" }}>
               About Me
             </Text>
-            <TouchableOpacity style={{ padding: 4 }}>
+            <TouchableOpacity 
+              style={{ padding: 4 }}
+              onPress={() => {
+                setEditedAbout(about);
+                setEditAboutVisible(true);
+              }}
+            >
               <Ionicons name="pencil" size={20} color="#d97706" />
             </TouchableOpacity>
           </View>
@@ -673,6 +696,126 @@ const ProfileScreen = () => {
                 </Text>
               </TouchableOpacity>
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Edit About Me Modal */}
+      <Modal
+        visible={editAboutVisible}
+        animationType="slide"
+        transparent={true}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "flex-end",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "white",
+              borderTopLeftRadius: 30,
+              borderTopRightRadius: 30,
+              paddingBottom: 30,
+              maxHeight: "80%",
+            }}
+          >
+            <View
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                paddingTop: 12,
+                marginBottom: 8,
+              }}
+            >
+              <View
+                style={{
+                  width: "33%",
+                  height: 5,
+                  backgroundColor: "#d1d5db",
+                  borderRadius: 9999,
+                }}
+              />
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                paddingHorizontal: 20,
+                marginBottom: 16,
+              }}
+            >
+              <Text
+                style={{ fontSize: 20, fontWeight: "700", color: "#1f2937" }}
+              >
+                Edit About Me
+              </Text>
+              <TouchableOpacity
+                onPress={() => setEditAboutVisible(false)}
+                style={{ padding: 8 }}
+              >
+                <Ionicons name="close" size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ paddingHorizontal: 20, flex: 1 }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "600",
+                  color: "#374151",
+                  marginBottom: 8,
+                }}
+              >
+                About Me
+              </Text>
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#d1d5db",
+                  borderRadius: 12,
+                  paddingHorizontal: 12,
+                  marginBottom: 16,
+                }}
+              >
+                <TextInput
+                  value={editedAbout.toString()}
+                  onChangeText={setEditedAbout}
+                  placeholder="Tell us about yourself"
+                  multiline={true}
+                  numberOfLines={8}
+                  textAlignVertical="top"
+                  style={{
+                    paddingVertical: 12,
+                    fontSize: 16,
+                    color: "#4b5563",
+                    minHeight: 150,
+                  }}
+                />
+              </View>
+
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#d97706",
+                  paddingVertical: 14,
+                  borderRadius: 12,
+                  alignItems: "center",
+                  marginTop: 16,
+                }}
+                onPress={saveAbout}
+              >
+                <Text
+                  style={{ color: "white", fontWeight: "700", fontSize: 16 }}
+                >
+                  Save Changes
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>

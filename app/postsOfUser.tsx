@@ -142,7 +142,7 @@ const PostsOfUser = () => {
   const deleteMyGrievance = async (c_id: string) => {
     try {
       setLoading(true);
-      await deleteGrievance(c_id);
+      awaitawait deleteGrievance(c_id);
       
       // Update local state immediately
       setData(prevData => prevData.filter(item => item.c_id !== c_id));
