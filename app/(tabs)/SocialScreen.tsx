@@ -128,7 +128,7 @@ const SocialScreen = () => {
         <Ionicons name="add-circle" size={26} color="#fdfcf9" />
       </TouchableOpacity>
       <Modal
-        visible={addPostVisible}
+        isVisible={addPostVisible}
         onBackdropPress={() => setAddPostVisible(false)}
         animationIn="fadeInUp"
         animationOut="fadeOutDown"
@@ -141,7 +141,9 @@ const SocialScreen = () => {
       >
         <View className="bg-black/35 h-screen w-full  flex-col items-center justify-center">
           <View className="bg-white rounded-xl px-3  ">
-            <Pressable className="absolute -top-4 -right-4 bg-white rounded-full p-1  ">
+            <Pressable className="absolute -top-4 -right-4 bg-white rounded-full p-1  "
+              onPress={()=>setAddPostVisible(false)}
+            >
               <Image source={icons.cross} className="size-6 " />
             </Pressable>
             <View>
