@@ -21,6 +21,7 @@ import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
 import Modal from 'react-native-modal';
 import { Ionicons } from "@expo/vector-icons";
+import { LostItems } from "@/service/lost-found/getLostItem";
 interface LostItem {
   id: string;
   item_title: string;
@@ -86,7 +87,7 @@ const Lost = () => {
         }
   
         try {
-          const apiData = await LFData();
+          const apiData = await LostItems();
           setLostItems(apiData?.reverse());
           await AsyncStorage.setItem("lostItems", JSON.stringify({
             timestamp: now,
@@ -150,7 +151,7 @@ const Lost = () => {
       });
 
       if (response?.status === "Item created successfully") {
-        const result = await LFData();
+        const result = await LostItems();
         setLostItems(result.reverse());
         setModalVisible(false);
         Toast.show({

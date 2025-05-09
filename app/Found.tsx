@@ -15,7 +15,7 @@ import {
   ActivityIndicator
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { LFData } from "@/service/lost-found/LFAPI";
+import { FoundItems } from "@/service/lost-found/getFoundItem";
 import { postFoundItem } from "@/service/lost-found/postFoundItem";
 import { images } from '@/constants/images'
 import { icons } from '@/constants/icons'
@@ -86,9 +86,9 @@ const Found = () => {
         }
   
         try {
-          const apiData = await LFData();
+          const apiData = await FoundItems();
           setFoundItems(apiData.reverse());
-          await AsyncStorage.setItem("lostItems", JSON.stringify({
+          await AsyncStorage.setItem("foundItems", JSON.stringify({
             timestamp: now,
             data: apiData
           }));
@@ -154,7 +154,7 @@ const Found = () => {
 
       if (response?.status === "Item created successfully") {
         
-        const result = await LFData();
+        const result = await FoundItems();
         setFoundItems(result.reverse());
         setModalVisible(false);
         Toast.show({

@@ -51,9 +51,16 @@ const Likes = ({
         name={isUpvoted ? "thumbs-up" : "thumbs-up-outline"}
         size={18}
         color={isUpvoted ? "#0a66c2" : "#666"}
-      />
+      /><Text
+          className={`text-sm ml-2   ${
+            isUpvoted ? "text-[#0a66c2] font-medium" : "text-gray-500"
+          }`}
+        >
+          Like{isUpvoted ? "d" : ""}
+        </Text>
+
       
-      <View className="border-l-2 border-gray-300 pl-2 h-full">
+      <View className="border-l-2  pl-2 h-full ">
         <Text
           className={`text-sm ml-2   ${
             isUpvoted ? "text-[#0a66c2] font-medium" : "text-gray-500"

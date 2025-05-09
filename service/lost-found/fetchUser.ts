@@ -1,7 +1,7 @@
 import { EXPO_BASE_URL } from '@env';
 export const fetchUser =async(  id: string )=>{
     const BASEURL = EXPO_BASE_URL;
-    console.log('BASEURL infetchUser : ',BASEURL);
+    console.log('BASEURL in : ',BASEURL);
     // const { id } = params;
     try{
         console.log("user.id : ",id)

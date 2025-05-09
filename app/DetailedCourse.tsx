@@ -8,6 +8,7 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import Modal from 'react-native-modal';
+import { useAuth } from '@/context/AuthContext';
 import { icons } from "@/constants/icons";
 
 interface Exam {
@@ -20,6 +21,7 @@ interface Exam {
 
 const DetailedCourse = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const [allExams, setAllExams] = useState<Exam[]>();
   const [activeExams, setActiveExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +77,7 @@ const DetailedCourse = () => {
       const result = await createExam(course_code, {
         exam_type: examType,
         exam_date: examDate.toISOString(),
-        user_id: "user123"
+        user_id: user.id
       });
       
       console.log('Exam created successfully:', result);
@@ -253,10 +255,10 @@ const DetailedCourse = () => {
               style={{ height: 55 }}
             >
               <Picker.Item label="Select Exam Type" value="" enabled={false} />
-              <Picker.Item label="Mid Term" value="mt" />
-              <Picker.Item label="End Term" value="et" />
-              <Picker.Item label="Class Test 1" value="ct1" />
-              <Picker.Item label="Class Test 2" value="ct2" />
+              <Picker.Item label="Mid Term" value="Mid Term" />
+              <Picker.Item label="End Term" value="End Term " />
+              <Picker.Item label="Class Test 1" value="Class Test I" />
+              <Picker.Item label="Class Test 2" value="Class Test II" />
             </Picker>
           </View>
 

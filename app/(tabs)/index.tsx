@@ -3,6 +3,7 @@ import { images } from "@/constants/images";
 import { useRef, useState, useEffect } from 'react';
 import { getStudentExams } from '@/service/lms/getStudentExams';
 
+import { useAuth } from "@/context/AuthContext";
 interface UpdatesCardProps {
   title: string;
   link: string;
@@ -26,13 +27,17 @@ export default function HomeScreen() {
   const scrollY = useRef(new Animated.Value(0)).current;
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
+  const { logout, user } = useAuth();
   
   // Fetch upcoming exams when component mounts
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const studentId = 'user123'; 
-        const examData = await getStudentExams(studentId);
+        console.log('user in home screen : ',user);
+        
+        const examData = await getStudentExams(user.id);
+        console.log('examData in home screen : ',examData);
+        
         if (examData) {
           setExams(examData);
         }

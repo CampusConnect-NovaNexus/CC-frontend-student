@@ -86,6 +86,8 @@ const ExamDetail = () => {
 
   useEffect(() => {
     getSylItem();
+    
+    
   }, []);
 
   return (

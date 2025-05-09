@@ -35,7 +35,7 @@ interface ForumItem {
   created_at: string;
   description: string;
   title: string;
-  image: string;
+  post_image_url: string;
   upvotes: string[];
   user_id: string;
 }

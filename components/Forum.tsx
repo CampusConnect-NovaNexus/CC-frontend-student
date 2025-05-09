@@ -2,10 +2,10 @@ import { View, Text, Image, TouchableOpacity, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { icons } from '@/constants/icons'
 import Likes from './Likes'
-import { fetchUser } from '@/service/lost-found/fetchUser'
 import { TimeAgo } from '@/components/TimeAgo'
 import { Ionicons } from "@expo/vector-icons";
 import { getComment } from '@/service/grievance/getComment'
+import { fetchUser } from '@/service/fetchUserById'
 
 interface ForumItem {
   post_id: string,
@@ -30,7 +30,7 @@ const Forum = ({
   getComment: (postId: string, forceRefresh?: boolean) => Promise<void>;
 })=> {
   const [userName, setUserName] = useState("User");
-  const [userPosition, setUserPosition] = useState("Student");
+  const [userPosition, setUserPosition] = useState("");
   const handlePress =async () => {
     
     
@@ -38,11 +38,20 @@ const Forum = ({
     setDetailPostVisible(true);
     await getComment(item.post_id)
   };
+  const fetchUserOfPost = async (userId: string) => {
+    try {
+      const response = await fetchUser(userId);
+      if (response) {
+        setUserName(response.name);
+        setUserPosition(response.roles[0]);
+      }
+    } catch (error) {
+      console.error('Error fetching user:', error);
+    }
+  }
 
   useEffect(() => {
-    // You could fetch user details here if needed
-    r
-    
+    fetchUserOfPost(item.user_id)
   }, [])
 
   // Format date for LinkedIn style
@@ -133,7 +142,7 @@ const Forum = ({
             upVotes={item.upvotes}
           />
           
-          <TouchableOpacity className="flex-1 flex-row items-center bg-red-300 justify-center py-2"
+          <TouchableOpacity className="flex-1 flex-row items-center justify-center py-2"
           onPress={handlePress}
           >
             <Ionicons name="chatbubble-outline" size={18} color="#666" />
