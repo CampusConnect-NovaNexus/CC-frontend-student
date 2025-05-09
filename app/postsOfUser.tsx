@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   FlatList,
   ActivityIndicator,
   Image,
+  Alert,
+  StyleSheet,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { getGrievanceOfUser } from "@/service/grievance/getGrievanceByUserId";
@@ -15,6 +17,8 @@ import { getUsersPost } from "@/service/socials/getPostsByUserId";
 import { useLocalSearchParams } from "expo-router";
 import { deleteGrievance } from "@/service/grievance/deleteGrievance";
 import { deletePost } from "@/service/socials/deletePost";
+import { Ionicons } from "@expo/vector-icons";
+
 const categories = [
   { key: "LF", label: "Lost-Found" },
   { key: "GR", label: "Grievances" },
@@ -22,7 +26,7 @@ const categories = [
 ];
 
 const PostsOfUser = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("LF"); // Default to Lost-Found
   const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState<any[]>([]);
   const [dataType, setDataType] = useState<string>("");
@@ -30,9 +34,14 @@ const PostsOfUser = () => {
 
   const { user_id } = useLocalSearchParams<{ user_id: string }>();
 
-  const onRefresh = () => {
+  // Load Lost-Found data on initial render
+  React.useEffect(() => {
+    fetchData("LF");
+  }, []);
+
+  const onRefresh = useCallback(() => {
     if (selectedCategory) fetchData(selectedCategory, true);
-  };
+  }, [selectedCategory]);
 
   const fetchData = async (category: string, isRefresh = false) => {
     if (!category) {
@@ -50,127 +59,223 @@ const PostsOfUser = () => {
     try {
       if (category === "GR") {
         const result = await getGrievanceOfUser(user_id);
-        if (!result?.complaint) {
+        if (!result?.complaint || result.complaint.length === 0) {
+          setData([]);
           Toast.show({
-            type: "error",
+            type: "info",
             text1: "No grievances found",
+            position: "bottom",
+          });
+        } else {
+          setData(result.complaint);
+        }
+        setDataType("GR");
+      }
+      else if (category === "IS") {
+        const result = await getUsersPost(user_id);
+        if (!result?.post || result.post.length === 0) {
+          setData([]);
+          Toast.show({
+            type: "info",
+            text1: "No posts found",
+            position: 'bottom',
+          });
+        } else {
+          setData(result.post);
+        }
+        setDataType("IS");
+      } else if (category === "LF") {
+        // Set the data type first to ensure UI updates immediately
+        setDataType("LF");
+        
+        try {
+          // You can replace this with actual API call when available
+          // For now, just show a placeholder
+          setData([
+            {
+              id: 'lf-placeholder',
+              title: 'Lost & Found',
+              description: 'This section will display your lost and found items.',
+              status: 'placeholder'
+            }
+          ]);
+        } catch (error) {
+          setData([]);
+          Toast.show({
+            type: "info",
+            text1: "Lost-Found items will appear here",
             position: "top",
           });
         }
-        await setData(result?.complaint);
-
-        await setDataType("GR");
       }
-      else if (category === "IS") {
-        console.log("finding grievapostsnce of user ");
-
-        const result = await getUsersPost(user_id);
-
-        // if (!result?.complaint) {
-        //   Toast.show({
-        //     type: "error",
-        //     text1: "No grievances found",
-        //     position: "top",
-        //   });
-        // }
-        console.log('result in IS : ', result);
-        
-        await setData(result?.post);
-
-        await setDataType("IS");
-        console.log("data in IS : ", data, " dataType: ", dataType);
-      }
-      // if (category === "IS") {
-      //   console.log("finding posts of user");
-      //   const result = await getUsersPost(user_id);
-      //   console.log("result from IS : ", result);
-      //   if (result?.message === "Post not found") {
-      //     Toast.show({
-      //       type: "success",
-      //       text1: "You have no posts",
-      //       position: "top",
-      //     });
-      //     console.log("setting data in IS result :  ", result);
-
-      //     await setData(result.post);
-      //     await setDataType("IS");
-
-      //     return;
-      //   }
-      //   await setData(result.post);
-      //   await setDataType("IS");
-      //   console.log("data in IS : ", data, " dataType: ", dataType);
-      // }
-
-      // Add LF and IS fetch logic here if available
     } catch (error) {
       Toast.show({
         type: "error",
         text1: "Error fetching data",
         position: "top",
       });
+      setData([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
-  const deleteMyGrievance = async (c_id: string) => {
-    const response =await deleteGrievance(c_id);
-    Toast.show({
-      type: "success",
-      text1: "Grievance Deleted",
-      position:'top'
-    });
+
+  const confirmDelete = (itemId: string, itemType: string, deleteFunction: (id: string) => Promise<void>) => {
+    Alert.alert(
+      "Confirm Delete",
+      `Are you sure you want to delete this ${itemType}?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          onPress: () => deleteFunction(itemId),
+          style: "destructive"
+        }
+      ]
+    );
   };
+
+  const deleteMyGrievance = async (c_id: string) => {
+    try {
+      setLoading(true);
+      awaitawait deleteGrievance(c_id);
+      
+      // Update local state immediately
+      setData(prevData => prevData.filter(item => item.c_id !== c_id));
+      
+      Toast.show({
+        type: "success",
+        text1: "Grievance Deleted",
+        position: 'top'
+      });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to delete grievance",
+        position: 'top'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const deleteMyPost = async (post_id: string) => {
-    const response =await deletePost(post_id);
-    Toast.show({
-      type: "success",
-      text1: "Post Deleted",
-      position:'top'
-    });
+    try {
+      setLoading(true);
+      await deletePost(post_id);
+      
+      // Update local state immediately
+      setData(prevData => prevData.filter(item => item.post_id !== post_id));
+      
+      Toast.show({
+        type: "success",
+        text1: "Post Deleted",
+        position: 'top'
+      });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to delete post",
+        position: 'top'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
   const renderPosts = ({ item }: any) => {
-    console.log("item : ", item);
     if (dataType === "GR") {
       return (
-        <View className="p-4 bg-gray-500 rounded-lg shadow m-2">
-          <Text className="text-lg font-bold">{item.title}</Text>
-          <Text className="text-gray-700 mt-1">{item.description}</Text>
-          <Text className="text-sm text-gray-500 mt-2">
-            Upvotes: {item.upvotes} | Category: {item.category}
-          </Text>
-          <Pressable
-            onPress={async()=>{
-              await deleteMyGrievance(item.c_id)
-              fetchData('GR')
-            }}
-          >
-            <Text>Delete</Text>
-          </Pressable>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>{item.title}</Text>
+            <Pressable
+              style={styles.deleteButton}
+              onPress={() => confirmDelete(item.c_id, "grievance", deleteMyGrievance)}
+            >
+              <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+            </Pressable>
+          </View>
+          <Text style={styles.cardDescription}>{item.description}</Text>
+          <View style={styles.cardFooter}>
+            <Text style={styles.cardMeta}>
+              <Ionicons name="thumbs-up-outline" size={14} color="#007AFF" /> {item.upvotes.length || 0}
+            </Text>
+            <Text style={styles.cardMeta}>
+              <Ionicons name="pricetag-outline" size={14} color="#007AFF" /> {item.category}
+            </Text>
+          </View>
         </View>
       );
     } else if (dataType === "IS") {
       return (
-        <View className="p-4 bg-white rounded-lg shadow m-2">
-          <Text className="text-lg font-bold">{item.title}</Text>
-          <Text className="text-gray-700 mt-1">{item.description}</Text>
-          {item.post_image_url && <Image source={{ uri: item.item_image }} />}
-          
-          <Pressable
-            onPress={async()=>{
-              await deleteMyPost(item.post_id)
-              fetchData('IS')
-            }}
-          >
-            <Text>Delete</Text>
-          </Pressable>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>{item.title}</Text>
+            <Pressable
+              style={styles.deleteButton}
+              onPress={() => confirmDelete(item.post_id, "post", deleteMyPost)}
+            >
+              <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+            </Pressable>
+          </View>
+          <Text style={styles.cardDescription}>{item.description}</Text>
+          {item.post_image_url && (
+            <Image 
+              source={{ uri: item.post_image_url }} 
+              style={styles.postImage}
+              resizeMode="cover"
+            />
+          )}
+          {item.item_image && (
+            <Image 
+              source={{ uri: item.item_image }} 
+              style={styles.postImage}
+              resizeMode="cover"
+            />
+          )}
+          <View style={styles.cardFooter}>
+            <Text style={styles.cardMeta}>
+              <Ionicons name="time-outline" size={14} color="#007AFF" /> {new Date(item.created_at).toLocaleDateString()}
+            </Text>
+          </View>
         </View>
       );
-    }else if (dataType === "LF") {
+    } else if (dataType === "LF") {
       return (
-        <View className="p-4 bg-white rounded-lg shadow m-2">
-          
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>{item.title || "Lost & Found Item"}</Text>
+            {item.status !== 'placeholder' && (
+              <Pressable
+                style={styles.deleteButton}
+                onPress={() => confirmDelete(item.id, "lost-found item", () => {})}
+              >
+                <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+              </Pressable>
+            )}
+          </View>
+          <Text style={styles.cardDescription}>{item.description || "No description available"}</Text>
+          {item.image_url && (
+            <Image 
+              source={{ uri: item.image_url }} 
+              style={styles.postImage}
+              resizeMode="cover"
+            />
+          )}
+          <View style={styles.cardFooter}>
+            <Text style={styles.cardMeta}>
+              <Ionicons name="information-circle-outline" size={14} color="#007AFF" /> {item.status || "Status: Unknown"}
+            </Text>
+            {item.date && (
+              <Text style={styles.cardMeta}>
+                <Ionicons name="calendar-outline" size={14} color="#007AFF" /> {item.date}
+              </Text>
+            )}
+          </View>
         </View>
       );
     }
@@ -178,29 +283,31 @@ const PostsOfUser = () => {
     return null;
   };
 
-  const handleCategoryPress = async (key: string) => {
+  const handleCategoryPress = useCallback((key: string) => {
     if (key === selectedCategory) return;
     setSelectedCategory(key);
     fetchData(key);
-  };
+  }, [selectedCategory]);
 
   return (
-    <View className="flex-1 bg-gray-100 p-4">
-      <Text className="text-2xl font-bold mb-4">Your Posts</Text>
+    <View style={styles.container}>
+      <Text style={styles.pageTitle}>Your Posts</Text>
 
-      <View className="flex-row justify-between mb-4">
+      <View style={styles.categoryContainer}>
         {categories.map((cat) => (
           <Pressable
             key={cat.key}
             onPress={() => handleCategoryPress(cat.key)}
-            className={`px-4 py-2 rounded-full ${
-              selectedCategory === cat.key ? "bg-blue-600" : "bg-gray-300"
-            }`}
+            style={[
+              styles.categoryButton,
+              selectedCategory === cat.key && styles.categoryButtonActive
+            ]}
           >
             <Text
-              className={`text-sm font-semibold ${
-                selectedCategory === cat.key ? "text-white" : "text-gray-800"
-              }`}
+              style={[
+                styles.categoryButtonText,
+                selectedCategory === cat.key && styles.categoryButtonTextActive
+              ]}
             >
               {cat.label}
             </Text>
@@ -209,28 +316,133 @@ const PostsOfUser = () => {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#4B5563" className="mt-10" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
       ) : (
-        selectedCategory === dataType && (
+        selectedCategory && (
           <FlatList
             data={data}
-            keyExtractor={(item) => item.post_id}
+            keyExtractor={(item) => item.post_id || item.c_id || item.id || String(Math.random())}
             renderItem={renderPosts}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={styles.listContainer}
             ListEmptyComponent={
-              <View>
-                <Text>Nothing found</Text>
+              <View style={styles.emptyContainer}>
+                <Ionicons name="document-text-outline" size={50} color="#CCCCCC" />
+                <Text style={styles.emptyText}>No items found</Text>
               </View>
             }
-            extraData={data}
+            extraData={[data, dataType]}
           />
         )
       )}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    padding: 16,
+    paddingTop: 48,
+  },
+  pageTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: '#1C1C1E',
+  },
+  categoryContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  categoryButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: '#E9ECEF',
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  categoryButtonActive: {
+    backgroundColor: '#007AFF',
+  },
+  categoryButtonText: {
+    fontWeight: '600',
+    color: '#4A4A4A',
+  },
+  categoryButtonTextActive: {
+    color: 'white',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  listContainer: {
+    paddingBottom: 100,
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1C1C1E',
+    flex: 1,
+  },
+  cardDescription: {
+    fontSize: 16,
+    color: '#3A3A3C',
+    marginBottom: 12,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  cardMeta: {
+    fontSize: 14,
+    color: '#8E8E93',
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  postImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginVertical: 8,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+  },
+  emptyText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#8E8E93',
+  },
+});
 
 export default PostsOfUser;

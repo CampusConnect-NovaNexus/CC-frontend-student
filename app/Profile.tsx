@@ -459,25 +459,42 @@ const ProfileScreen = () => {
             </View>
           </View>
         </View>
-        <View style={{ marginHorizontal: 20, marginTop: 24 }}
-            className="flex-row  items-center "
-        >
-          <Text
-           
-          >
-            Your Posts
-          </Text>
-          <Pressable
+        <View style={{ marginHorizontal: 20, marginTop: 24 }}>
+          <TouchableOpacity
             onPress={()=>router.push({
               pathname: '/postsOfUser',
               params: {
                 user_id:user?.id
               },
             })}
-            className=""
+            style={{
+              backgroundColor: "white",
+              padding: 16,
+              borderRadius: 16,
+              shadowColor: "#d1d5db",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              elevation: 2,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
           >
-            <Ionicons name="chevron-forward" size={24} className=" p-2" />
-          </Pressable>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Ionicons name="document-text" size={24} color="#d97706" style={{ marginRight: 12 }} />
+              <Text style={{ fontSize: 18, fontWeight: "600", color: "#374151" }}>
+                Your Posts
+              </Text>
+            </View>
+            <View style={{ 
+              backgroundColor: "#f3f4f6", 
+              borderRadius: 999,
+              padding: 8,
+            }}>
+              <Ionicons name="chevron-forward" size={20} color="#6b7280" />
+            </View>
+          </TouchableOpacity>
         </View>
         {/* Logout button */}
         <View style={{ marginHorizontal: 20, marginTop: 24 }}>
