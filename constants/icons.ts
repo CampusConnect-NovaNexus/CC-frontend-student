@@ -31,6 +31,8 @@ import twitter from '@/assets/icons/twitter.png'
 import github from '@/assets/icons/github-sign.png'
 import phone from '@/assets/icons/phone.png'
 import email from '@/assets/icons/email.png'
+
+
 export const icons = {
   home,
   search,

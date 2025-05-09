@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from '@react-navigation/native';
-
+import Toast from 'react-native-toast-message';
 import {
   View,
   Text,
@@ -41,12 +41,29 @@ const Lost = () => {
   const [contact, setContact] = useState("");
   const [loading, setLoading] = useState(false);
   const [lostItems, setLostItems] = useState<LostItem[]>([]);
+  const [user_id, setUserId] = useState<string>("");
   const [imageFile, setImageFile] = useState<null | {
     uri: string;
     name: string;
     type: string;
   }>(null);
   const [phoneNumber, setPhoneNumber] = useState<string | null>("1234567890");
+  
+  useEffect(() => {
+    // Load user_id from AsyncStorage when component mounts
+    const getUserId = async () => {
+      try {
+        const id = await AsyncStorage.getItem('@user_id');
+        if (id) {
+          setUserId(id);
+        }
+      } catch (error) {
+        console.error('Error fetching user id:', error);
+      }
+    };
+    
+    getUserId();
+  }, []);
   
   useFocusEffect(
     useCallback(() => {
@@ -70,7 +87,7 @@ const Lost = () => {
   
         try {
           const apiData = await LFData();
-          setLostItems(apiData.reverse());
+          setLostItems(apiData?.reverse());
           await AsyncStorage.setItem("lostItems", JSON.stringify({
             timestamp: now,
             data: apiData
@@ -112,15 +129,19 @@ const Lost = () => {
 
   const handleAddLostItem = async () => {
     if (!objectName || !description || !contact || !imageFile) {
-      Alert.alert("Error", "Please fill all fields and select an image.");
-      return;
+      Toast.show({
+        type:'info',
+        text1: 'Missing Details',
+        text2: 'Kindly Fillup All the required details'
+      });
+      return
     }
 
     setLoading(true);
 
     try {
       const response = await postLostItem({
-        user_id: "f1254d1f-6a62-495f-99fa-88740d4bb662",
+        user_id: user_id,
         title: objectName,
         description: description,
         contact: contact,
@@ -129,20 +150,32 @@ const Lost = () => {
       });
 
       if (response?.status === "Item created successfully") {
-        Alert.alert("Upload Successful", "Thanks for your kindness ❤️");
         const result = await LFData();
         setLostItems(result.reverse());
         setModalVisible(false);
+        Toast.show({
+          type:'success',
+          text1: ' Uploaded Successfully',
+          text2: 'Thanks for your kindness ❤️'
+        });
         setObjectName("");
         setDescription("");
         setContact("");
         setImageFile(null);
       } else {
-        Alert.alert("Upload failed", "Please try again later.");
+        Toast.show({
+          type:'error',
+          text1: 'Upload Failed',
+          text2: 'Sorry for the trouble 🙇‍♂️, please try again 🫂'
+        });
       }
     } catch (error) {
       console.error("Upload error:", error);
-      Alert.alert('Error', 'Something went wrong.');
+      Toast.show({
+        type:'error',
+        text1: ' Upload Failed ',
+        text2: 'PLease try again after some-time'
+      });
     } finally {
       setLoading(false);
     }

@@ -1,58 +1,69 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useFocusEffect } from 'expo-router';
-import { Pressable, Image, Text, View } from 'react-native';
-import { icons } from '@/constants/icons';
+import React, { useState, useEffect } from "react";
+import { Pressable, Image, Text, View } from "react-native";
+import { icons } from "@/constants/icons";
+import { Ionicons } from "@expo/vector-icons";
+import { upvotePost } from "@/service/socials/upVotePost";
+import { downvotePost } from "@/service/socials/downVotePost";
 
-import { upvotePost } from '@/service/socials/upVotePost';
-import { downvotePost } from '@/service/socials/downVotePost';
+const Likes = ({
+  post_id,
+  user_id,
+  upVotes,
+}: {
+  user_id: string;
+  post_id: string;
+  upVotes: string[];
+}) => {
+  const [isUpvoted, setIsUpvoted] = useState(
+    upVotes?.includes(user_id) || false
+  );
+  const [likes, setLikes] = useState(upVotes.length);
 
-const Likes = ({ post_id,user_id,upVotes }: { user_id: string; post_id: string; upVotes: string[] }) => {
-  console.log(upVotes);
-  
+  useEffect(() => {
+    if (upVotes?.includes(user_id)) {
+      setIsUpvoted(true);
+    }
+  }, []);
 
-  const [isUpvoted, setIsUpvoted] = useState(upVotes?.includes(user_id) || false);
-   const [likes, setLikes] =useState(upVotes.length);
-  useEffect(()=>{
-   if (upVotes?.includes(user_id)){
-    setIsUpvoted(true);
-   }
-  },[])
-  
   const handlePress = async () => {
     if (isUpvoted) {
-      setLikes(likes => likes - 1)
-      setIsUpvoted(false);``
+      setLikes((likes) => likes - 1);
+      setIsUpvoted(false);
       const response = await downvotePost(post_id, user_id);
       console.log(response);
-      
     } else {
       setIsUpvoted(true);
-      setLikes(prev => prev + 1)
+      setLikes((prev) => prev + 1);
       const response = await upvotePost(post_id, user_id);
       console.log(response);
     }
-    console.log('pressed');
-    
   };
 
   return (
-    <View className="flex-row justify-center items-center">
-      <Pressable
-        className="flex-row gap-2 items-center border border-gray-300 bg-white p-2 rounded-full ml-1 mt-1"
-        onPressIn={handlePress}
-        style = {{elevation : 1}}
-      >
-        <Image
-          source={icons.upvote}
-          className="size-5"
-          style={{ tintColor: isUpvoted ? 'green' : 'red' }}
-        />
-        <Text className='text-md text-gray-600 font-bold'>Vote</Text>
-        <View className='h-[20px] w-[2px] bg-gray-400'></View>
-        <Text className='text-md text-gray-600 font-bold px-1.5'>{likes}</Text>
-      </Pressable>
-    </View>
+    <Pressable
+      className={`flex-row items-center justify-center py-2 ${
+        isUpvoted ? "opacity-100" : "opacity-80"
+      }`}
+      onPress={handlePress}
+      style={{ flex: 1 }}
+    >
+      <Ionicons
+        name={isUpvoted ? "thumbs-up" : "thumbs-up-outline"}
+        size={18}
+        color={isUpvoted ? "#0a66c2" : "#666"}
+      />
+      
+      <View className="border-l-2 border-gray-300 pl-2 h-full">
+        <Text
+          className={`text-sm ml-2   ${
+            isUpvoted ? "text-[#0a66c2] font-medium" : "text-gray-500"
+          }`}
+        >
+          {likes}
+        </Text>
+      </View>
+    </Pressable>
   );
 };
 
-export default Likes
+export default Likes;

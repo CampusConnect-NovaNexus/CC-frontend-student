@@ -13,7 +13,7 @@ interface CreateExamRequest {
   
   export async function createExam(courseCode: string, data: CreateExamRequest): Promise<CreateExamResponse> {
     const BASEURL=EXPO_BASE_URL_LMS
-    console.log('BASEURL : ',BASEURL);
+    console.log('BASEURL in create Exam : ',BASEURL);
     const response = await fetch(`${BASEURL}/api/exam/courses/${courseCode.toLowerCase()}/exams`, {
       method: 'POST',
       headers: {
@@ -27,6 +27,8 @@ interface CreateExamRequest {
     }
   
     const responseData: CreateExamResponse = await response.json();
+    console.log('response data : ', responseData);
+    
     return responseData;
   }
   

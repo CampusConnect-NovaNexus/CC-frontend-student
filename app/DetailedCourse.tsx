@@ -21,6 +21,7 @@ interface Exam {
 const DetailedCourse = () => {
   const router = useRouter();
   const [allExams, setAllExams] = useState<Exam[]>();
+  const [activeExams, setActiveExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
   const { course_code, course_name } = useLocalSearchParams<{ course_code: string; course_name: string }>();
 
@@ -29,11 +30,22 @@ const DetailedCourse = () => {
   const [examDate, setExamDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  const isExamActive = (examDate: string): boolean => {
+    const today = new Date();
+    const examDay = new Date(examDate);
+    return examDay >= today;
+  };
+
+  const filterActiveExams = (exams: Exam[]) => {
+    return exams.filter(exam => isExamActive(exam.exam_date));
+  };
+
   const getAllExams = async () => {
     setLoading(true);
     try {
       const res = await getCourseExams(course_code);
       setAllExams(res);
+      setActiveExams(filterActiveExams(res));
     } catch (error) {
       console.error("Error fetching exams:", error);
     } finally {
@@ -42,19 +54,46 @@ const DetailedCourse = () => {
   };
 
   const handleSubmit = async () => {
+    // Validate exam type
     if (!examType) {
       alert('Please select an Exam Type');
       return;
     }
+    
+    // Validate that the exam date is not in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to beginning of day for fair comparison
+    
+    if (examDate < today) {
+      alert('Please select a future date for the exam');
+      return;
+    }
 
-    // Call your API to create new exam
-    await createExam(course_code, {
-      exam_type: examType,
-      exam_date: examDate.toISOString(),
-      user_id: "user123"
-    });
-
-    getAllExams(); // refresh list
+    try {
+      
+      // Call API to create new exam
+      const result = await createExam(course_code, {
+        exam_type: examType,
+        exam_date: examDate.toISOString(),
+        user_id: "user123"
+      });
+      
+      console.log('Exam created successfully:', result);
+      
+      // Reset form and close modal on success
+      setExamType('');
+      setExamDate(new Date());
+      setModalVisible(false);
+      
+      // Refresh the exam list
+      getAllExams();
+      
+      // Show success message
+      alert('Exam created successfully!');
+    } catch (error) {
+      console.error("Error creating exam:", error);
+      alert(`Failed to create exam: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   const handleCancel = () => {
@@ -139,8 +178,8 @@ const DetailedCourse = () => {
           <Text className="text-white">Course Code</Text>
         </View>
         <View className="bg-teal-500 rounded-lg p-5 flex-1 m-1 items-center">
-          <Text className="text-2xl font-bold text-white">{allExams?.length || 0}</Text>
-          <Text className="text-white">Deadlines</Text>
+          <Text className="text-2xl font-bold text-white">{activeExams?.length || 0}</Text>
+          <Text className="text-white">Active Deadlines</Text>
         </View>
       </View>
 
@@ -184,7 +223,11 @@ const DetailedCourse = () => {
         backdropTransitionInTiming={400}
         backdropTransitionOutTiming={200}
         backdropColor="rgba(0,0,0,0.5)"
-        onBackdropPress={() => setModalVisible(false)}
+        onBackdropPress={() =>{ 
+          setModalVisible(false)
+          handleCancel();
+        }
+      }
         style={styles.modal}
       >
         <View className="bg-white rounded-2xl p-5 m-4">
@@ -209,7 +252,7 @@ const DetailedCourse = () => {
               onValueChange={(itemValue) => setExamType(itemValue)}
               style={{ height: 55 }}
             >
-              <Picker.Item label="Select Exam Type" value="" />
+              <Picker.Item label="Select Exam Type" value="" enabled={false} />
               <Picker.Item label="Mid Term" value="mt" />
               <Picker.Item label="End Term" value="et" />
               <Picker.Item label="Class Test 1" value="ct1" />
@@ -241,17 +284,8 @@ const DetailedCourse = () => {
 
           <TouchableOpacity
             className="bg-teal-600 p-4 rounded-xl mt-4"
-            onPress={() => {
-              if (examType && examDate) {
-                alert('Please fill the fields');
-                return;
-              }
-              handleSubmit();
-              setExamType('');
-              setExamDate(new Date());
-              setModalVisible(false);
-            }}
-          >
+            onPress={handleSubmit}
+          >   
             <Text className="text-white text-center font-bold text-lg">Create Exam</Text>
           </TouchableOpacity>
         </View>
