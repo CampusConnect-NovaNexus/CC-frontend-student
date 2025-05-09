@@ -115,7 +115,7 @@ const PostsOfUser = () => {
     }
   };
   const deleteMyGrievance = async (c_id: string) => {
-    const response = deleteGrievance(c_id);
+    const response =await deleteGrievance(c_id);
     Toast.show({
       type: "success",
       text1: "Grievance Deleted",
@@ -123,7 +123,7 @@ const PostsOfUser = () => {
     });
   };
   const deleteMyPost = async (post_id: string) => {
-    const response = deletePost(post_id);
+    const response =await deletePost(post_id);
     Toast.show({
       type: "success",
       text1: "Post Deleted",

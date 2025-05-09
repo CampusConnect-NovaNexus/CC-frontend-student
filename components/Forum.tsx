@@ -13,7 +13,7 @@ interface ForumItem {
   created_at: string,
   description: string,
   title: string,
-  image: string,
+  post_image_url: string,
   upvotes: string[],
   user_id: string,
 }
@@ -32,7 +32,7 @@ const Forum = ({
   const [userName, setUserName] = useState("User");
   const [userPosition, setUserPosition] = useState("Student");
   const handlePress =async () => {
-    console.log('handle peresss called ');
+    
     
     setSelectedPost(item);
     setDetailPostVisible(true);
@@ -41,6 +41,8 @@ const Forum = ({
 
   useEffect(() => {
     // You could fetch user details here if needed
+    r
+    
   }, [])
 
   // Format date for LinkedIn style
@@ -113,10 +115,10 @@ const Forum = ({
         </View>
         
         {/* Post image */}
-        {item.image && (
+        {item.post_image_url && (
           <View className="mt-1 mb-2 -mx-4">
             <Image
-              source={{ uri: item.image }}
+              source={{ uri: item.post_image_url }}
               className="w-full h-64"
               resizeMode="cover"
             />
