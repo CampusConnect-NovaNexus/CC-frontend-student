@@ -52,11 +52,11 @@ const Likes = ({
         size={18}
         color={isUpvoted ? "#0a66c2" : "#666"}
       /><Text
-          className={`text-sm ml-2   ${
+          className={`text-sm ml-2 pr-2  ${
             isUpvoted ? "text-[#0a66c2] font-medium" : "text-gray-500"
           }`}
         >
-          Like{isUpvoted ? "d" : ""}
+          Like {isUpvoted ? "d" : ""}
         </Text>
 
       

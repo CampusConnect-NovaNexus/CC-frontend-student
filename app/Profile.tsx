@@ -40,7 +40,7 @@ const ProfileScreen = () => {
   const [codeForcesLink, setCodeForcesLink] = useState<String>("http://");
   const [phoneNumber, setPhoneNumber] = useState<String>("+91 9237947387");
   const [about, setAbout] = useState<String>(
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, autem fuga quos sit quasi modi. Passionate about technology and innovation, I'm currently pursuing my degree in Computer Science. I enjoy solving complex problems and building applications that make a difference."
+    "Curious and driven Computer Science student at NIT Meghalaya, passionate about coding, problem-solving, and exploring emerging tech. Enthusiastic team player, always eager to learn and contribute to impactful projects."
   );
   const [editedAbout, setEditedAbout] = useState<String>("");
   const [isLoading, setIsLoading] = useState(false);
@@ -137,6 +137,18 @@ const ProfileScreen = () => {
 
       {/* Header Image and Profile */}
       <View style={{ height: 220, marginTop: 10 }}>
+      <View className="absolute flex-row justify-center gap-2 -right-16 z-20 border-2 bg-white border-amber-600 w-hit h-fit m-10 mx-20 p-2"
+        style={{
+          elevation:5,
+          borderRadius : 30
+        }}>
+        <Image
+          source={icons.coin}
+          className="h-7 w-7 object-cover rounded-full"
+        />
+        {/* Fetch user points here */}
+        <Text className="text-black text-lg font-semibold self-end">20</Text>
+      </View>
         <ImageBackground
           source={images.banner}
           style={{ width: "100%", height: 300 }}
