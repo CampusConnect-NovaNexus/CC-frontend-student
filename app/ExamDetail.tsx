@@ -86,8 +86,8 @@ const ExamDetail = () => {
 
   useEffect(() => {
     getSylItem();
-    
-    
+
+
   }, []);
 
   return (
@@ -96,18 +96,34 @@ const ExamDetail = () => {
       <StatusBar style="dark" backgroundColor="#f3f3f1" />
       <View className="bg-[#F8F8FF] rounded-2xl p-6 shadow-md flex-1">
         <Text className="text-2xl font-bold text-gray-800 mb-6 text-center border-b border-gray-300 pb-2">Exam Details</Text>
-        <View>
-          <View className="flex-row justify-between mb-5 p-4">
-            <View className="bg-teal-400 rounded-lg p-5 flex-1 m-1 items-center">
-              <Text className="text-2xl font-bold text-white">{exam_course_code?.toUpperCase()}</Text>
+        <View className="h-fit p-4">
+          {/* Header Row */}
+          <View className="flex-row justify-between mb-5">
+            {/* Course Code Box */}
+            <View className="bg-teal-400 rounded-lg p-5 flex-1 m-1 items-center justify-center">
+              <Text className="text-2xl font-bold text-white">
+                {exam_course_code?.toUpperCase()}
+              </Text>
               <Text className="text-white">Course Code</Text>
             </View>
-            <View className="bg-teal-500 rounded-lg p-5 flex-1 m-1 items-center">
-              <Text className="text-2xl font-bold text-white">{exam_type.toUpperCase()}</Text>
-              <Text className="text-white">Event </Text>
+
+            {/* Exam Type Box */}
+            <View className="bg-teal-500 rounded-lg p-5 flex-1 m-1 items-center justify-center">
+              <Text className="text-2xl font-bold text-white">
+                {exam_type?.toUpperCase()}
+              </Text>
+              <Text className="text-white">Event</Text>
             </View>
           </View>
-        </View>
+
+          {/* Title Box open a modal and then either view pdf or download it or upload one */}
+          <View className="bg-teal-600 rounded-lg p-5 m-1 items-center justify-center h-fit mx-1">
+            <Text className="text-xl font-bold text-white">
+              Past Year Question Papers
+            </Text>
+          </View>
+        </View> 
+
         <View className="self-start w-full">
 
           <View className="mb-4">
