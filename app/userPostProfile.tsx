@@ -14,118 +14,24 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { useTheme } from "@/context/ThemeContext";
+
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
-import Forum from "@/components/Forum";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "expo-router";
+import { fetchUser } from "@/service/fetchUserById";
 
-const ProfileScreen = () => {
-  const { logout, user } = useAuth();
-  const [addSocialsVisible, setAddSocialsVisible] = useState(false);
-  const [editAboutVisible, setEditAboutVisible] = useState(false);
-  const [address, setAddress] = useState<String>(
-    "Bhadohi, Uttar Pradesh, India"
-  );
-  const [email, setEmail] = useState<String>("b23cs019@gmail.com");
-  const [instagramLink, setInstagramLink] = useState<String>("http://");
-  const [linkedinLink, setLinkedinLink] = useState<String>("");
-  const [youtubeLink, setYoutubeLink] = useState<String>("http://");
-  const [githubLink, setGithubLink] = useState<String>("http://");
-  const [twitterLink, setTwitterLink] = useState<String>("http://");
-  const [leetCodeLink, setLeetCodeLink] = useState<String>("http://");
-  const [codeForcesLink, setCodeForcesLink] = useState<String>("http://");
-  const [phoneNumber, setPhoneNumber] = useState<String>("+91 9237947387");
-  const [about, setAbout] = useState<String>(
-    "Curious and driven Computer Science student at NIT Meghalaya, passionate about coding, problem-solving, and exploring emerging tech. Enthusiastic team player, always eager to learn and contribute to impactful projects."
-  );
-  const [editedAbout, setEditedAbout] = useState<String>("");
-  const [isLoading, setIsLoading] = useState(false);
-  const router=useRouter()
+const fetchUserProfile=async(user_id:string)=>{
+    const response=fetchUser(user_id);
+    console.log('response in user profile screen',response);
+    
+}
+const userProfileScreen = (user_id: string) => {
+  useEffect(()=>{
+    fetchUserProfile(user_id);
+  },[])
 
-  useEffect(() => {
-    // If the user is authenticated, set the email from user object
-    if (user?.email) {
-      setEmail(user.email);
-    }
+    
 
-    // Load any previously saved profile data from AsyncStorage
-    const loadUserData = async () => {
-      try {
-        const savedAddress = await AsyncStorage.getItem("@user_address");
-        if (savedAddress) setAddress(savedAddress);
-
-        const savedInstagram = await AsyncStorage.getItem("@user_instagram");
-        if (savedInstagram) setInstagramLink(savedInstagram);
-
-        const savedLinkedin = await AsyncStorage.getItem("@user_linkedin");
-        if (savedLinkedin) setLinkedinLink(savedLinkedin);
-
-        const savedYoutube = await AsyncStorage.getItem("@user_youtube");
-        if (savedYoutube) setYoutubeLink(savedYoutube);
-        
-        const savedAbout = await AsyncStorage.getItem("@user_about");
-        if (savedAbout) setAbout(savedAbout);
-      } catch (error) {
-        console.error("Error loading profile data:", error);
-      }
-    };
-
-    loadUserData();
-  }, [user]);
-
-  const handleLogout = async () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          setIsLoading(true);
-          try {
-            await logout();
-            // Router redirect is handled by the AuthGuard in _layout.tsx
-          } catch (error) {
-            Alert.alert("Error", "Failed to logout. Please try again.");
-            setIsLoading(false);
-          }
-        },
-      },
-    ]);
-  };
-
-  const saveSocials = async () => {
-    try {
-      await AsyncStorage.setItem("@user_address", address.toString());
-      await AsyncStorage.setItem("@user_instagram", instagramLink.toString());
-      await AsyncStorage.setItem("@user_linkedin", linkedinLink.toString());
-      await AsyncStorage.setItem("@user_youtube", youtubeLink.toString());
-
-      setAddSocialsVisible(false);
-      Alert.alert("Success", "Your profile information has been updated.");
-    } catch (error) {
-      console.error("Error saving profile data:", error);
-      Alert.alert("Error", "Failed to save your profile information.");
-    }
-  };
-  
-  const saveAbout = async () => {
-    try {
-      await AsyncStorage.setItem("@user_about", editedAbout.toString());
-      setAbout(editedAbout);
-      setEditAboutVisible(false);
-      Alert.alert("Success", "Your about information has been updated.");
-    } catch (error) {
-      console.error("Error saving about data:", error);
-      Alert.alert("Error", "Failed to save your about information.");
-    }
-  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fcf9" }}>
@@ -137,18 +43,6 @@ const ProfileScreen = () => {
 
       {/* Header Image and Profile */}
       <View style={{ height: 220, marginTop: 10 }}>
-      <View className="absolute flex-row justify-center gap-2 -right-16 z-20 border-2 bg-white border-amber-600 w-hit h-fit m-10 mx-20 p-2"
-        style={{
-          elevation:5,
-          borderRadius : 30
-        }}>
-        <Image
-          source={icons.coin}
-          className="h-7 w-7 object-cover rounded-full"
-        />
-        {/* Fetch user points here */}
-        <Text className="text-black text-lg font-semibold self-end">20</Text>
-      </View>
         <ImageBackground
           source={images.banner}
           style={{ width: "100%", height: 300 }}
@@ -253,7 +147,7 @@ const ProfileScreen = () => {
               My Socials
             </Text>
             <TouchableOpacity
-              onPress={() => setAddSocialsVisible(true)}
+              
               style={{
                 backgroundColor: "#d97706",
                 paddingVertical: 8,
@@ -261,7 +155,7 @@ const ProfileScreen = () => {
                 borderRadius: 999,
               }}
             >
-              <Text style={{ color: "white", fontWeight: "600" }}>Add</Text>
+              
             </TouchableOpacity>
           </View>
 
@@ -384,12 +278,8 @@ const ProfileScreen = () => {
             </Text>
             <TouchableOpacity 
               style={{ padding: 4 }}
-              onPress={() => {
-                setEditedAbout(about);
-                setEditAboutVisible(true);
-              }}
+              
             >
-              <Ionicons name="pencil" size={20} color="#d97706" />
             </TouchableOpacity>
           </View>
 
@@ -508,209 +398,10 @@ const ProfileScreen = () => {
             </View>
           </TouchableOpacity>
         </View>
-        {/* Logout button */}
-        <View style={{ marginHorizontal: 20, marginTop: 24 }}>
-          <TouchableOpacity
-            onPress={handleLogout}
-            style={{
-              backgroundColor: "#ef4444",
-              padding: 16,
-              borderRadius: 16,
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              shadowColor: "#ef4444",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.2,
-              shadowRadius: 4,
-              elevation: 3,
-            }}
-          >
-            <Ionicons
-              name="log-out-outline"
-              size={24}
-              color="white"
-              style={{ marginRight: 8 }}
-            />
-            <Text style={{ color: "white", fontSize: 18, fontWeight: "600" }}>
-              Logout
-            </Text>
-          </TouchableOpacity>
-        </View>
+        
       </ScrollView>
 
-      {/* Modal */}
-      <Modal
-        visible={addSocialsVisible}
-        animationType="slide"
-        transparent={true}
-      >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            justifyContent: "flex-end",
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "white",
-              borderTopLeftRadius: 30,
-              borderTopRightRadius: 30,
-              paddingBottom: 30,
-              maxHeight: "80%",
-            }}
-          >
-            <View
-              style={{
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                paddingTop: 12,
-                marginBottom: 8,
-              }}
-            >
-              <View
-                style={{
-                  width: "33%",
-                  height: 5,
-                  backgroundColor: "#d1d5db",
-                  borderRadius: 9999,
-                }}
-              />
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                paddingHorizontal: 20,
-                marginBottom: 16,
-              }}
-            >
-              <Text
-                style={{ fontSize: 20, fontWeight: "700", color: "#1f2937" }}
-              >
-                Add Social Links
-              </Text>
-              <TouchableOpacity
-                onPress={() => setAddSocialsVisible(false)}
-                style={{ padding: 8 }}
-              >
-                <Ionicons name="close" size={24} color="#6b7280" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={{ paddingHorizontal: 20 }}>
-              {/* Input fields */}
-              {[
-                {
-                  label: "Instagram",
-                  value: instagramLink,
-                  setter: setInstagramLink,
-                  icon: "logo-instagram",
-                },
-                {
-                  label: "LinkedIn",
-                  value: linkedinLink,
-                  setter: setLinkedinLink,
-                  icon: "logo-linkedin",
-                },
-                {
-                  label: "YouTube",
-                  value: youtubeLink,
-                  setter: setYoutubeLink,
-                  icon: "logo-youtube",
-                },
-                {
-                  label: "GitHub",
-                  value: githubLink,
-                  setter: setGithubLink,
-                  icon: "logo-github",
-                },
-                {
-                  label: "Twitter",
-                  value: twitterLink,
-                  setter: setTwitterLink,
-                  icon: "logo-twitter",
-                },
-                {
-                  label: "LeetCode",
-                  value: leetCodeLink,
-                  setter: setLeetCodeLink,
-                  icon: "code-slash",
-                },
-                {
-                  label: "Codeforces",
-                  value: codeForcesLink,
-                  setter: setCodeForcesLink,
-                  icon: "code",
-                },
-              ].map((field, idx) => (
-                <View key={idx} style={{ marginBottom: 16 }}>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "600",
-                      color: "#374151",
-                      marginBottom: 8,
-                    }}
-                  >
-                    {field.label}
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      borderWidth: 1,
-                      borderColor: "#d1d5db",
-                      borderRadius: 12,
-                      paddingHorizontal: 12,
-                    }}
-                  >
-                    <Ionicons
-                      name={field.icon}
-                      size={20}
-                      color="#6b7280"
-                      style={{ marginRight: 8 }}
-                    />
-                    <TextInput
-                      value={field.value.toString()}
-                      onChangeText={field.setter}
-                      placeholder={`Enter ${field.label} link`}
-                      style={{
-                        flex: 1,
-                        paddingVertical: 12,
-                        fontSize: 16,
-                        color: "#4b5563",
-                      }}
-                    />
-                  </View>
-                </View>
-              ))}
-
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#d97706",
-                  paddingVertical: 14,
-                  borderRadius: 12,
-                  alignItems: "center",
-                  marginTop: 16,
-                  marginBottom: 24,
-                }}
-                onPress={saveSocials}
-              >
-                <Text
-                  style={{ color: "white", fontWeight: "700", fontSize: 16 }}
-                >
-                  Save Changes
-                </Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+     
 
       
     </View>
@@ -731,4 +422,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default userProfileScreen;
