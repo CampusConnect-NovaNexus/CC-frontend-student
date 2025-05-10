@@ -31,7 +31,8 @@ import twitter from '@/assets/icons/twitter.png'
 import github from '@/assets/icons/github-sign.png'
 import phone from '@/assets/icons/phone.png'
 import email from '@/assets/icons/email.png'
-
+import coin from '@/assets/icons/coin.gif'
+import leaderboard from '@/assets/icons/leaderboard.jpg'
 
 export const icons = {
   home,
@@ -67,4 +68,6 @@ export const icons = {
   github,
   phone,
   email,
+  coin,
+  leaderboard,
 };

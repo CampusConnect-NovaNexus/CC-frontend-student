@@ -244,7 +244,8 @@ export default function ExamHubScreen() {
         />
       ) : (
         <ScrollView
-          className="flex-col min-h-[200px] bg-[#fdfcf9] items-center justify-center"
+          className="flex-col min-h-[200px] bg-[#fdfcf9]"
+          contentContainerStyle={styles.scrollContainer}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -418,4 +419,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     margin: 0,
   },
+  scrollContainer: {
+    justifyContent : "center",
+    alignItems : "center"
+  }
 });

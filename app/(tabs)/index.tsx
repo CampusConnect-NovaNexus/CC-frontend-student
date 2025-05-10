@@ -79,7 +79,7 @@ export default function HomeScreen() {
       setNoticeLoading(true);
       const noticeData = await getStoredNoticeUpdates();
       if (noticeData) {
-        const sortedNotices = [...noticeData].sort((a, b) => a.sequence - b.sequence).reverse();
+        const sortedNotices = [...noticeData].sort((a, b) => a.sequence - b.sequence);
         setNoticeUpdates(sortedNotices);
       }
     } catch (error) {
@@ -124,7 +124,7 @@ export default function HomeScreen() {
 
   const refreshNotices = async () => {
     try {
-      const url = 'https://www.nitm.ac.in/students_notice';
+      const url = 'https://www.nitm.ac.in/';
       const newNotices = await fetchNewNoticeUpdates(url);
       if (newNotices) {
         const sortedNotices = [...newNotices].sort((a, b) => a.sequence - b.sequence);

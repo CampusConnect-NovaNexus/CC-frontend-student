@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Platform,
+  KeyboardAvoidingView
 } from "react-native";
 import Modal from "react-native-modal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -71,19 +73,19 @@ const SocialScreen = () => {
   };
   // useEffect(() => {
   //   // Load user_id from AsyncStorage when component mounts
-    
-    
+
+
   //   getUserId();
   // }, []);
   useFocusEffect(
-    useCallback(()=>{
+    useCallback(() => {
       getUserId()
-    },[])
+    }, [])
   )
   const onRefresh = () => {
     setRefreshing(true);
-    
-    setTimeout(async() => {
+
+    setTimeout(async () => {
       // Reload data or do something
       fetchAndCacheData()
       setRefreshing(false);
@@ -124,7 +126,7 @@ const SocialScreen = () => {
 
   const getComments = async (postId: string, forceRefresh = false) => {
     console.log('getcomments called');
-    
+
     try {
       const timestampKey = COMMENT_TIMESTAMP_KEY(postId);
       const cacheKey = COMMENT_CACHE_KEY(postId);
@@ -220,13 +222,13 @@ const SocialScreen = () => {
       {/* Post creation quick access */}
       <View className="bg-white mt-2 px-4 py-3 flex-row items-center border-b border-gray-200">
         <View className="w-10 h-10 rounded-full overflow-hidden mr-3">
-          <Image 
-            source={icons.profile} 
-            className="w-full h-full" 
+          <Image
+            source={icons.profile}
+            className="w-full h-full"
             resizeMode="cover"
           />
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           className="flex-1 h-10 border border-gray-300 rounded-full px-4 justify-center"
           onPress={() => setAddPostVisible(true)}
         >
@@ -257,8 +259,8 @@ const SocialScreen = () => {
       />
 
       {/* Create post modal */}
-      <Modal 
-        isVisible={addPostVisible} 
+      <Modal
+        isVisible={addPostVisible}
         onBackdropPress={() => setAddPostVisible(false)}
         animationIn="slideInUp"
         animationOut="slideOutDown"
@@ -275,15 +277,15 @@ const SocialScreen = () => {
 
           <View className="flex-row items-center mb-4">
             <View className="w-12 h-12 rounded-full overflow-hidden mr-3">
-              <Image 
-                source={icons.profile} 
-                className="w-full h-full" 
+              <Image
+                source={icons.profile}
+                className="w-full h-full"
                 resizeMode="cover"
               />
             </View>
             <View>
               <Text className="font-bold">{user?.name}</Text>
-              
+
             </View>
           </View>
 
@@ -305,7 +307,7 @@ const SocialScreen = () => {
           {imageFile && (
             <View className="mb-4 relative">
               <Image source={{ uri: imageFile.uri }} className="w-full h-48 rounded-lg" />
-              <TouchableOpacity 
+              <TouchableOpacity
                 className="absolute top-2 right-2 bg-black bg-opacity-50 rounded-full p-1"
                 onPress={() => setImageFile(null)}
               >
@@ -315,14 +317,14 @@ const SocialScreen = () => {
           )}
 
           <View className="flex-row border-t border-gray-200 pt-3">
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={pickImage}
               className="flex-row items-center mr-4"
             >
               <Ionicons name="image-outline" size={24} color="#0a66c2" />
             </TouchableOpacity>
             <View className="flex-1" />
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={newPost}
               className={`px-4 py-2 rounded-full ${title.trim() && description.trim() ? 'bg-[#0a66c2]' : 'bg-gray-300'}`}
               disabled={!title.trim() || !description.trim()}
@@ -337,100 +339,99 @@ const SocialScreen = () => {
       <Modal
         isVisible={detailPostVisible}
         onBackdropPress={() => {
-          setDetailPostVisible(false)
-          setComments(null)
-          setNewComment('')
-          setSelectedPost(null)
-          console.log('im closed and comments are set to null');
-          
+          setDetailPostVisible(false);
+          setComments(null);
+          setNewComment('');
+          setSelectedPost(null);
         }}
         animationIn="slideInUp"
         animationOut="slideOutDown"
         style={{ margin: 0, justifyContent: 'flex-end' }}
       >
-        <View className="bg-white rounded-t-xl max-h-[90%]">
-          {selectedPost && (
-            <View>
-              <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
-                <View className="w-10" />
-                <Text className="font-semibold">Post</Text>
-                <Pressable onPress={() => setDetailPostVisible(false)}>
-                  <Ionicons name="close" size={22} color="#666" />
-                </Pressable>
-              </View>
-              
-              <View>
-                <Forum item={selectedPost} />
-              </View>
-              
+        <View className="flex-1 bg-white rounded-t-3xl max-h-[90vh]">
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            className="flex-1"
+          >
+            {/* Header */}
+            <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+              <View className="w-10" />
+              <Text className="font-semibold">Post</Text>
+              <Pressable onPress={() => setDetailPostVisible(false)}>
+                <Ionicons name="close" size={22} color="#666" />
+              </Pressable>
+            </View>
+
+            {/* Scrollable Content */}
+            <ScrollView
+              className="flex-1"
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 100 }}
+            >
+              {selectedPost && <Forum item={selectedPost} />}
+
               <View className="px-4 pb-6">
                 <View className="flex-row justify-between items-center mb-3">
                   <Text className="font-semibold text-base">Comments</Text>
-                  
                 </View>
-                
-                <FlatList
-                  data={comments}
-                  renderItem={({ item }) => (
-                    <View className="flex-row mb-4">
-                      <View className="w-10 h-10 rounded-full overflow-hidden mr-3">
-                        <Image 
-                          source={icons.profile} 
-                          className="w-full h-full" 
-                          resizeMode="cover"
-                        />
-                      </View>
-                      <View className="flex-1">
-                        <View className="bg-[#F2F2F2] p-3 rounded-xl">
-                          <Text className="font-bold text-sm">User</Text>
-                          <Text className="text-sm mt-1">{item.comment}</Text>
-                        </View>
-                        {/* <View className="flex-row items-center mt-1 ml-2">
-                          <Text className="text-xs text-gray-500 mr-4">Like</Text>
-                          <Text className="text-xs text-gray-500">Reply</Text>
-                        </View> */}
+
+                {comments?.map((item) => (
+                  <View key={item.comment_id} className="flex-row mb-4">
+                    <View className="w-10 h-10 rounded-full overflow-hidden mr-3">
+                      <Image
+                        source={icons.profile}
+                        className="w-full h-full"
+                        resizeMode="cover"
+                      />
+                    </View>
+                    <View className="flex-1">
+                      <View className="bg-[#F2F2F2] p-3 rounded-xl">
+                        <Text className="font-bold text-sm">User</Text>
+                        <Text className="text-sm mt-1">{item.comment}</Text>
                       </View>
                     </View>
-                  )}
-                  keyExtractor={(item) => item.comment_id}
-                  ListEmptyComponent={
-                    <View className="py-6 items-center">
-                      <Ionicons name="chatbubble-ellipses-outline" size={40} color="#ccc" />
-                      <Text className="text-gray-400 mt-2 text-center">No comments yet</Text>
-                      <Text className="text-gray-400 text-center">Be the first to comment</Text>
-                    </View>
-                  }
-                  style={{ maxHeight: 300 }}
-                />
-                
-                <View className="flex-row items-center mt-3 bg-[#F2F2F2] rounded-full px-4 py-2">
-                  <View className="w-8 h-8 rounded-full overflow-hidden mr-2">
-                    <Image 
-                      source={icons.profile} 
-                      className="w-full h-full" 
-                      resizeMode="cover"
-                    />
                   </View>
-                  <TextInput
-                    value={newComment}
-                    onChangeText={setNewComment}
-                    placeholder="Add a comment..."
-                    className="flex-1 text-sm"
+                ))}
+
+                {!comments?.length && (
+                  <View className="py-6 items-center">
+                    <Ionicons name="chatbubble-ellipses-outline" size={40} color="#ccc" />
+                    <Text className="text-gray-400 mt-2 text-center">No comments yet</Text>
+                    <Text className="text-gray-400 text-center">Be the first to comment</Text>
+                  </View>
+                )}
+              </View>
+            </ScrollView>
+
+            {/* Fixed Comment Input */}
+            <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3">
+              <View className="flex-row items-center bg-[#F2F2F2] rounded-full px-4 py-2">
+                <View className="w-8 h-8 rounded-full overflow-hidden mr-2">
+                  <Image
+                    source={icons.profile}
+                    className="w-full h-full"
+                    resizeMode="cover"
                   />
-                  <TouchableOpacity 
-                    onPress={() => postComment(selectedPost.post_id)}
-                    disabled={!newComment.trim()}
-                  >
-                    <Ionicons 
-                      name="send" 
-                      size={20} 
-                      color={newComment.trim() ? "#0a66c2" : "#ccc"} 
-                    />
-                  </TouchableOpacity>
                 </View>
+                <TextInput
+                  value={newComment}
+                  onChangeText={setNewComment}
+                  placeholder="Add a comment..."
+                  className="flex-1 text-sm"
+                />
+                <TouchableOpacity
+                  onPress={() => selectedPost && postComment(selectedPost.post_id)}
+                  disabled={!newComment.trim()}
+                >
+                  <Ionicons
+                    name="send"
+                    size={20}
+                    color={newComment.trim() ? "#0a66c2" : "#ccc"}
+                  />
+                </TouchableOpacity>
               </View>
             </View>
-          )}
+          </KeyboardAvoidingView>
         </View>
       </Modal>
     </View>

@@ -103,6 +103,13 @@ export default function RootLayout() {
                           />
                         </Pressable>
 
+                        <Pressable className='p-2 pb-6 ' onPress={() => router.push("/LeaderBoard")}  >
+                          <Image
+                            source={icons.leaderboard}
+                            className='size-8 rounded-md'
+                          />
+                        </Pressable>
+
                         <Pressable className='p-2 pb-6 ' onPress={() => router.push("/Profile")}  >
                           <Image
                             source={icons.profile}

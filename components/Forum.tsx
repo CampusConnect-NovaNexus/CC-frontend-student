@@ -108,8 +108,8 @@ const Forum = ({
               </View>
               
               {/* Follow button */}
-              <TouchableOpacity className="py-1 bg-blue-100 p-2 border border-gray-400 text-white rounded-md">
-                <Text>+ Follow</Text>
+              <TouchableOpacity className="py-1 bg-amber-100 p-2 border border-amber-700 text-white rounded-md">
+                <Text className='text-amber-800 font-bold'>+ Follow</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -147,7 +147,7 @@ const Forum = ({
           >
             <Ionicons name="chatbubble-outline" size={18} color="#666" />
             <Text className="text-gray-500 ml-1 text-sm">Comment</Text>
-            <View className='border-l border-gray-600 ml-2 pl-2 ' ><Text>{item.comment_count}</Text></View>
+            <View className='border-l-2 border-gray-600 ml-2 pl-2 ' ><Text>{item.comment_count}</Text></View>
           </TouchableOpacity>
         </View>
       </View>
