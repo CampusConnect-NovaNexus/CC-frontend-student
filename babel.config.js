@@ -1,35 +1,3 @@
-// // module.exports = function (api) {
-// //     api.cache(true);
-// //     return {
-// //       presets: [
-// //         ["babel-preset-expo", { jsxImportSource: "nativewind" }],
-// //         "nativewind/babel",
-// //       ],
-// //       plugins: [
-// //         // Other plugins if you have any
-// //         "react-native-reanimated/plugin", 
-// //       ],
-// //     };
-// //   };
-// module.exports = function (api) {
-//   api.cache(true);
-//   return {
-//     presets: [
-//       ["babel-preset-expo", { jsxImportSource: "nativewind" }],
-//       "nativewind/babel",
-//     ],
-//     plugins: [
-//       [
-//         "babel-plugin-dotenv-import",
-//         {
-//           moduleName: "@env",
-//           path: ".env",
-//         },
-//       ],
-//       "react-native-reanimated/plugin",
-//     ],
-//   };
-// };
 module.exports = function (api) {
   api.cache(true);
   return {

@@ -33,6 +33,7 @@
       "package": "com.anonymous.frontendstudent"
     },
     "web": {
+      "bundler": "metro",
       "favicon": "./assets/logo.png"
     },
     "plugins": [
