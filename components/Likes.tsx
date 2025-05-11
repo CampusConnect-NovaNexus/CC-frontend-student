@@ -56,7 +56,7 @@ const Likes = ({
             isUpvoted ? "text-[#0a66c2] font-medium" : "text-gray-500"
           }`}
         >
-          Like {isUpvoted ? "d" : ""}
+          {isUpvoted ? "Liked" : "Like"}
         </Text>
 
       
