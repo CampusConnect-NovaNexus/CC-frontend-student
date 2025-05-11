@@ -29,6 +29,7 @@ interface Course {
   course_code: string;
   course_name: string;
   created_by: string;
+  created_by_name: string;
 }
 interface CreateCourseRequest {
   course_code: string;
@@ -188,7 +189,7 @@ export default function ExamHubScreen() {
           </View>
           <Text className="text-lg font-semibold">{item.course_name}</Text>
           <Text className="text-gray-500 text-sm mt-1">
-            Created by: {item.created_by || "Instructor"}
+            Created by: {item.created_by_name || "Instructor"}
           </Text>
         </View>
       </Pressable>

@@ -1,10 +1,12 @@
 import {EXPO_BASE_URL_LMS} from '@env'
+import { fetchUser } from '../fetchUserById';
 interface Exam {
     exam_id: string;
     course_code: string;
     exam_type: string;
     exam_date: string;
     created_by: string;
+    created_by_name: string;
   }
   
   export async function getCourseExams(courseCode: string): Promise<Exam[]> {
@@ -23,7 +25,25 @@ interface Exam {
     
     const responseData: Exam[] = await response.json();
     console.log('response Data in get Course Exam : ', responseData);
+
+    const resWithName = await Promise.all(
+      responseData.map(async (exam:Exam) => {
+        try {
+          const user = await fetchUser(exam.created_by);
+          return {
+            ...exam,
+            created_by_name: user.name,
+          };``
+        } catch (err) {
+          console.error(`Failed to fetch user ${exam.created_by}`, err);
+          return {
+            ...exam,
+            created_by_name: "Unknown",
+          };
+        }
+      })
+    ); 
     
-    return responseData;
+    return resWithName;
   }
   
