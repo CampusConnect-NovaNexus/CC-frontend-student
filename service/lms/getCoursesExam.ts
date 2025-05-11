@@ -24,7 +24,6 @@ interface Exam {
     }
     
     const responseData: Exam[] = await response.json();
-    console.log('response Data in get Course Exam : ', responseData);
 
     const resWithName = await Promise.all(
       responseData.map(async (exam:Exam) => {
@@ -43,6 +42,8 @@ interface Exam {
         }
       })
     ); 
+
+    console.log('response Data in get Course Exam : ', resWithName);
     
     return resWithName;
   }

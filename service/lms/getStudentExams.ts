@@ -11,11 +11,11 @@ interface Exam {
 
 export async function getStudentExams(studentId: string): Promise<Exam[] | null> {
   const BASEURL=EXPO_BASE_URL_LMS
-  console.log('getStudentExams called with studentId:', studentId);
+  // console.log('getStudentExams called with studentId:', studentId);
   
   try {
     const res = await fetch(`${BASEURL}/api/exam/students/${studentId}/upcoming-exams`);
-    console.log('Response :', res);
+    // console.log('Response :', res);
     if (!res.ok) throw new Error('Failed to fetch exams');
     
     const data: Exam[] = await res.json();

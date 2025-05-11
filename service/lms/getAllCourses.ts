@@ -1,6 +1,8 @@
 // services/getAllCourses.ts
 import {EXPO_BASE_URL_LMS} from '@env'
 import { fetchUser } from '../fetchUserById';
+import userProfileScreen from '@/app/userPostProfile';
+import { useAuth } from '@/context/AuthContext';
 interface Course {
     course_code: string;
     course_name: string;
@@ -8,15 +10,17 @@ interface Course {
     created_by_name: string;
   }
   
-  export async function getAllCourses(): Promise<Course[]> {
-    console.log('getAllCourses Called');
+  export async function getAllCourses(user): Promise<Course[]> {
+    try {  
+      console.log('getAllCourses Called');
+      
+      const BASEURL= EXPO_BASE_URL_LMS
+      console.log('BASEURL : ',BASEURL);
+      let response:any;
     
-    const BASEURL= EXPO_BASE_URL_LMS
-    console.log('BASEURL : ',BASEURL);
-    let response:any;
-    try {
-      response = await fetch(`${BASEURL}/api/exam/courses`)
+      response = await fetch(`${BASEURL}/api/exam/students/${user?.id}/enrollments`)
       const responseData = await response.json();
+      console.log("enrollmentsdata = "+responseData)
       const resWithName = await Promise.all(
         responseData.map(async (exam: Course)=> {
           const user = await fetchUser(exam.created_by); 

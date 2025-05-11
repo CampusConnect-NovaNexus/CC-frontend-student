@@ -92,14 +92,18 @@ export default function ExamHubScreen() {
     }
   };
   const fetchAllCourses = async () => {
-    const cached = await getFromCache(COURSES_KEY);
+    try {
+      const cached = await getFromCache(COURSES_KEY);
     if (cached) {
       setCourses(cached);
     }
 
-    const res = await getAllCourses();
+    const res = await getAllCourses(user)
     setCourses(res.reverse());
     await storeInCache(COURSES_KEY, res.reverse());
+    } catch (error) {
+      console.log("enrolment"+error)
+    }
   };
 
   const onRefresh = () => {
@@ -168,8 +172,7 @@ export default function ExamHubScreen() {
   };
   const handleEnrollClassPress = async (course_code: string) => {
     const body: EnrollStudentRequest = {
-      user_id: user?.id,
-      roll_no: "b23cs019",
+      user_id: user?.id
     };
     const res = await enrollStudent(course_code, body);
     fetchAllCourses();
