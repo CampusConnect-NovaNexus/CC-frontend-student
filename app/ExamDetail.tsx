@@ -1,6 +1,6 @@
 import { View, Text, FlatList, TextInput, Pressable, Image, Alert, Button, Linking, Modal } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { icons } from '@/constants/icons';
 import { addSyllabusItem } from '@/service/lms/addSyllabusItem';
 import { getSyllabusItems } from '@/service/lms/getSyllabusItem';
@@ -11,6 +11,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import sendPdf, { PdfFile } from '@/service/lms/sendPdfFile';
 import { getPdf } from '@/service/lms/getPdf';
 import Toast from 'react-native-toast-message';
+import { getItem, setItem, syllabusToDescriptionMap, updateItem } from '@/service/lms/storage';
+import React from 'react';
 
 interface AddSyllabusRequest {
   description: string;
@@ -70,26 +72,56 @@ const ExamDetail = () => {
     const res = await getSyllabusItems(exam_id);
     if (res && res.length > 0) {
       setSyllabus(res.reverse());
+      const prevState = await getItem('checklistState'); 
+      if (!prevState){
+        const checklistState = syllabusToDescriptionMap(res, false); 
+        await setItem('checklistState', checklistState); 
+      }
+      console.log(await getItem('checklistState'))
     }
   };
 
   const RenderSyllabusItem = ({ item }: { item: SyllabusItem }) => {
-    const [checked, setChecked] = useState(false);
-    const toggleCheckbox = () => setChecked(!checked);
+  const [checked, setChecked] = useState(false);
 
-    return (
-      <Pressable
-        disabled={checked}
-        onPress={toggleCheckbox}
-        className="flex-row items-center my-2"
-      >
-        <View
-          className={`w-6 h-6 rounded-full border-2 ${checked ? 'bg-green-500 border-green-500' : 'border-gray-400'} mr-3`}
-        />
-        <Text className="text-lg text-gray-800">{item.description}</Text>
-      </Pressable>
-    );
-  };
+  useEffect(() => {
+    const fetchChecklistState = async () => {
+      const checklistState = await getItem('checklistState');
+      if (!checklistState) {
+        console.log("Checklist state not in local storage, default values false");
+        return;
+      }
+      const isMarkedAsDone = checklistState[item.description] ?? false;
+      setChecked(isMarkedAsDone);
+    };
+
+    fetchChecklistState();
+  }, []);
+
+  const toggleCheckbox = useCallback(async () => {
+    console.log(await getItem('checklistState'))
+    setChecked(prev => {
+      const newValue = !prev;
+      updateItem('checklistState', item.description, newValue);
+      
+      return newValue;
+    });
+  }, [item.description]);
+
+  return (
+    <Pressable
+      onPress={toggleCheckbox}
+      className="flex-row items-center my-2"
+    >
+      <View
+        className={`w-6 h-6 rounded-full border-2 ${
+          checked ? 'bg-green-500 border-green-500' : 'border-gray-400'
+        } mr-3`}
+      />
+      <Text className="text-lg text-gray-800">{item.description}</Text>
+    </Pressable>
+  );
+};
 
   const pickPdf = async () => {
     try {
