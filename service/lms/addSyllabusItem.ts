@@ -12,7 +12,7 @@ interface AddSyllabusResponse {
 
 export async function addSyllabusItem(body: AddSyllabusRequest,exam_id:string): Promise<AddSyllabusResponse | null> {
   const BASEURL=EXPO_BASE_URL_LMS
-  console.log('BASEURL : ',BASEURL);
+  console.log('BASEURL in add syllabus item : ',BASEURL);
   
   try {
     const res = await fetch(`${BASEURL}/api/exam/exams/${exam_id}/syllabus`, {

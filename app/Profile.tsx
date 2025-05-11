@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Modal,
@@ -16,13 +16,15 @@ import {
 } from "react-native";
 import { useTheme } from "@/context/ThemeContext";
 import { icons } from "@/constants/icons";
+import { useFocusEffect } from "expo-router";
+
 import { images } from "@/constants/images";
 import Forum from "@/components/Forum";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
-
+import { getUserPoints } from "@/service/auth/GetUserPoints";
 const ProfileScreen = () => {
   const { logout, user } = useAuth();
   const [addSocialsVisible, setAddSocialsVisible] = useState(false);
@@ -44,38 +46,44 @@ const ProfileScreen = () => {
   );
   const [editedAbout, setEditedAbout] = useState<String>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [points, setPoints] = useState(0);
   const router=useRouter()
+  const userPoints=async()=>{
+    const data=await getUserPoints(user?.id)
+    console.log("User Points in profile",data)
+    setPoints(data.points)
+  }
+  // useEffect(() => {
+  //   // If the user is authenticated, set the email from user object
+  //   if (user?.email) {
+  //     setEmail(user.email);
+  //   }
 
-  useEffect(() => {
-    // If the user is authenticated, set the email from user object
-    if (user?.email) {
-      setEmail(user.email);
-    }
+  //   // Load any previously saved profile data from AsyncStorage
+  //   const loadUserData = async () => {
+  //     try {
+  //       const savedAddress = await AsyncStorage.getItem("@user_address");
+  //       if (savedAddress) setAddress(savedAddress);
 
-    // Load any previously saved profile data from AsyncStorage
-    const loadUserData = async () => {
-      try {
-        const savedAddress = await AsyncStorage.getItem("@user_address");
-        if (savedAddress) setAddress(savedAddress);
+  //       const savedInstagram = await AsyncStorage.getItem("@user_instagram");
+  //       if (savedInstagram) setInstagramLink(savedInstagram);
 
-        const savedInstagram = await AsyncStorage.getItem("@user_instagram");
-        if (savedInstagram) setInstagramLink(savedInstagram);
+  //       const savedLinkedin = await AsyncStorage.getItem("@user_linkedin");
+  //       if (savedLinkedin) setLinkedinLink(savedLinkedin);
 
-        const savedLinkedin = await AsyncStorage.getItem("@user_linkedin");
-        if (savedLinkedin) setLinkedinLink(savedLinkedin);
-
-        const savedYoutube = await AsyncStorage.getItem("@user_youtube");
-        if (savedYoutube) setYoutubeLink(savedYoutube);
+  //       const savedYoutube = await AsyncStorage.getItem("@user_youtube");
+  //       if (savedYoutube) setYoutubeLink(savedYoutube);
         
-        const savedAbout = await AsyncStorage.getItem("@user_about");
-        if (savedAbout) setAbout(savedAbout);
-      } catch (error) {
-        console.error("Error loading profile data:", error);
-      }
-    };
+  //       const savedAbout = await AsyncStorage.getItem("@user_about");
+  //       if (savedAbout) setAbout(savedAbout);
+  //     } catch (error) {
+  //       console.error("Error loading profile data:", error);
+  //     }
+  //   };
+  //   userPoints()
 
-    loadUserData();
-  }, [user]);
+  //   loadUserData();
+  // }, [user]);
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -126,6 +134,19 @@ const ProfileScreen = () => {
       Alert.alert("Error", "Failed to save your about information.");
     }
   };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUserPoints = async () => {
+        try {
+          userPoints()
+        } catch (error) {
+          console.error("Error fetching user points:", error);
+        }
+      };
+
+      fetchUserPoints();
+    }, [user])
+  );  
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fcf9" }}>
@@ -147,7 +168,7 @@ const ProfileScreen = () => {
           className="h-7 w-7 object-cover rounded-full"
         />
         {/* Fetch user points here */}
-        <Text className="text-black text-lg font-semibold self-end">20</Text>
+        <Text className="text-black text-lg font-semibold self-end">{points}</Text>
       </View>
         <ImageBackground
           source={images.banner}

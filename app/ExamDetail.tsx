@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TextInput, Pressable, Image } from 'react-native';
+import { View, Text, FlatList, TextInput, Pressable, Image, Alert, Button, Linking } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { icons } from '@/constants/icons';
@@ -6,7 +6,11 @@ import { addSyllabusItem } from '@/service/lms/addSyllabusItem';
 import { getSyllabusItems } from '@/service/lms/getSyllabusItem';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from "@expo/vector-icons";
-
+import { useAuth } from "@/context/AuthContext";
+import * as DocumentPicker from 'expo-document-picker';
+import sendPdf, { PdfFile } from '@/service/lms/sendPdfFile';
+import { getPdf } from '@/service/lms/getPdf';
+import Toast from 'react-native-toast-message';
 interface AddSyllabusRequest {
   description: string;
   parent_item_id: string | null;
@@ -30,7 +34,9 @@ const ExamDetail = () => {
 
   const [syllabusItem, setSyllabusItem] = useState("");
   const [syllabus, setSyllabus] = useState<SyllabusItem[] | null>(null);
-
+  const [pdfFile, setPdfFile] = useState<PdfFile | null>(null);
+  const { user } = useAuth();
+  const [resPdf, setResPdf] = useState(null);
   // Function to calculate remaining days
   const getRemainingDays = (dateString: string) => {
     const today = new Date();
@@ -48,7 +54,7 @@ const ExamDetail = () => {
     const body: AddSyllabusRequest = {
       description: syllabusItem,
       parent_item_id: null,
-      user_id: 'user123',
+      user_id: user?.id || "" ,
     };
     const res = await addSyllabusItem(body, exam_id);
     if (res && res.item_id) {
@@ -90,6 +96,61 @@ const ExamDetail = () => {
     
   }, []);
 
+
+  const pickPdf = async () => {
+  try {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'application/pdf',
+      copyToCacheDirectory: true,
+    });
+
+    if (result.canceled || !result.assets?.length) return;
+
+    const file = result.assets[0];
+
+ 
+    const pdfFile = {
+      uri: file.uri,
+      name: file.name,
+      mimeType: file.mimeType,
+    };
+
+    setPdfFile(pdfFile); 
+  } catch (error) {
+    Alert.alert('Error', 'Failed to pick PDF');
+  }
+};
+
+const uploadPdf = async () => {
+  if (!pdfFile) {
+    Alert.alert('No file selected', 'Please select a PDF first.');
+    return;
+  }
+
+  console.log('pdfFile in uploadPdf:', pdfFile);
+
+  try {
+    const response = await sendPdf(pdfFile, exam_id);
+    if(response.message=== "PYQ added successfully"){
+      setPdfFile(null);
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'PDF uploaded successfully!',
+      });
+    }
+  } catch (err: any) {
+    Alert.alert('Upload Error', err?.message || 'Something went wrong');
+  }
+};
+const getPdfFile = async () => {
+  const res= await getPdf(exam_id);
+  console.log('getPdfFile response:', res);
+  if(res && res.pyq_pdf){
+    setResPdf(res.pyq_pdf);
+  }
+}
+
   return (
 
     <View className="flex-1 bg-gray-100 p-4 mt-10">
@@ -114,11 +175,27 @@ const ExamDetail = () => {
             <Text className="text-base text-gray-600">Exam Date:</Text>
             <Text className="text-xl font-semibold text-gray-900">{new Date(exam_date).toDateString()}</Text>
           </View>
-
+          <View className="p-4">
+      <Button title="Select PDF" onPress={pickPdf} />
+      {pdfFile && (
+  <>
+    <Text className="mt-2">Selected: {pdfFile.name}</Text>
+    <Button title="Upload PDF" onPress={uploadPdf} className="mt-4" />
+  </>
+)}
+      <Button title="Get PDF" onPress={getPdfFile} className="mt-4" />
+    </View>
           <View className="mb-6">
             <Text className="text-base text-gray-600">Time Remaining:</Text>
             <Text className="text-xl font-semibold text-purple-600">{getRemainingDays(exam_date)}</Text>
           </View>
+          {resPdf && (
+            <Button title="View PDF" onPress={()=>{
+              console.log('resPdf : ',resPdf);
+              const url = resPdf;
+              Linking.openURL(url)
+            }} className="mt-4" />
+          )}
 
           <Text className="text-xl font-semibold text-gray-700 mb-3">Syllabus:</Text>
 

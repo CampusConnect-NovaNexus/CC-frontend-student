@@ -77,7 +77,7 @@ const DetailedCourse = () => {
       const result = await createExam(course_code, {
         exam_type: examType,
         exam_date: examDate.toISOString(),
-        user_id: user.id
+        user_id: user?.id
       });
       
       console.log('Exam created successfully:', result);

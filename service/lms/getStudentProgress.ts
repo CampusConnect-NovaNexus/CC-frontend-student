@@ -2,7 +2,7 @@ import {EXPO_BASE_URL_LMS} from '@env'
 
 interface StudentProgress {
   progress_id: string;
-  student_id: string;
+  user_id: string;
   item_id: string;
   is_completed: boolean;
 }

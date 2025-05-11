@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-
+import { useFocusEffect } from '@react-navigation/native';
+import { top10 } from '@/service/auth/top10';
 // Define the student type for leaderboard
 interface LeaderboardStudent {
   id: string;
@@ -16,10 +17,20 @@ export default function LeaderBoard() {
   const [loading, setLoading] = useState(true);
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardStudent[]>([]);
 
-  useEffect(() => {
-    // In a real app, this would be an API call to fetch leaderboard data
-    fetchLeaderboardData();
-  }, []);
+  // useEffect(() => {
+  //   // In a real app, this would be an API call to fetch leaderboard data
+  //   fetchLeaderboardData();
+  // }, []);
+  const leaderBoardData=async()=>{
+    const data = await top10();
+    console.log('data in leaderboard : ', data);
+  }
+  useFocusEffect(
+    useCallback(() => {
+      // Fetch leaderboard data when the screen is focused
+      leaderBoardData();
+    }, [])
+  );
 
   const fetchLeaderboardData = async () => {
     try {

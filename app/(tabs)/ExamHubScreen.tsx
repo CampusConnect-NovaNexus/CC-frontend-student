@@ -23,7 +23,8 @@ import { createCourse } from "@/service/lms/createCourse";
 import { enrollStudent } from "@/service/lms/enrollStudent";
 import { getStudentExams } from "@/service/lms/getStudentExams";
 import Modal from "react-native-modal";
-
+import { useAuth } from "@/context/AuthContext";
+ 
 interface Course {
   course_code: string;
   course_name: string;
@@ -35,7 +36,7 @@ interface CreateCourseRequest {
   user_id: string;
 }
 interface EnrollStudentRequest {
-  student_id: string;
+  user_id: string;
   roll_no: string;
 }
 interface Exam {
@@ -49,7 +50,7 @@ interface Exam {
 
 export default function ExamHubScreen() {
   const router = useRouter();
-
+  const {user} = useAuth();
   const [courses, setCourses] = useState<Course[]>();
   const [exams, setExams] = useState<Exam[]>([]);
   const [addCourseFormVisible, setAddCourseFormVisible] = useState(false);
@@ -128,8 +129,8 @@ export default function ExamHubScreen() {
     }
 
     try {
-      const studentId = "user123";
-      const examData = await getStudentExams(studentId);
+      const user_id = user?.id || "";
+      const examData = await getStudentExams(user_id);
       if (examData) {
         setExams(examData);
         await storeInCache(EXAMS_KEY, examData);
@@ -159,14 +160,14 @@ export default function ExamHubScreen() {
     const body: CreateCourseRequest = {
       course_code: course_code.toLowerCase(),
       course_name,
-      user_id: "user123",
+      user_id: user?.id,
     };
     const res = await createCourse(body);
     fetchAllCourses();
   };
   const handleEnrollClassPress = async (course_code: string) => {
     const body: EnrollStudentRequest = {
-      student_id: "user123",
+      user_id: user?.id,
       roll_no: "b23cs019",
     };
     const res = await enrollStudent(course_code, body);

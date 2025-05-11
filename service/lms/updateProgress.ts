@@ -1,6 +1,6 @@
 import {EXPO_BASE_URL_LMS} from '@env'
 interface UpdateProgressRequest {
-  student_id: string;
+  user_id: string;
   completed: boolean;
 }
 
