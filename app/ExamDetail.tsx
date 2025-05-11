@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TextInput, Pressable, Image, Alert, Button, Linking } from 'react-native';
+import { View, Text, FlatList, TextInput, Pressable, Image, Alert, Button, Linking, Modal } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { icons } from '@/constants/icons';
@@ -11,11 +11,13 @@ import * as DocumentPicker from 'expo-document-picker';
 import sendPdf, { PdfFile } from '@/service/lms/sendPdfFile';
 import { getPdf } from '@/service/lms/getPdf';
 import Toast from 'react-native-toast-message';
+
 interface AddSyllabusRequest {
   description: string;
   parent_item_id: string | null;
   user_id: string;
 }
+
 interface SyllabusItem {
   item_id: string;
   exam_id: string;
@@ -36,8 +38,9 @@ const ExamDetail = () => {
   const [syllabus, setSyllabus] = useState<SyllabusItem[] | null>(null);
   const [pdfFile, setPdfFile] = useState<PdfFile | null>(null);
   const { user } = useAuth();
-  const [resPdf, setResPdf] = useState(null);
-  // Function to calculate remaining days
+  const [resPdf, setResPdf] = useState<string | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
   const getRemainingDays = (dateString: string) => {
     const today = new Date();
     const examDay = new Date(dateString);
@@ -54,13 +57,13 @@ const ExamDetail = () => {
     const body: AddSyllabusRequest = {
       description: syllabusItem,
       parent_item_id: null,
-      user_id: user?.id || "" ,
+      user_id: user?.id || "",
     };
     const res = await addSyllabusItem(body, exam_id);
     if (res && res.item_id) {
       getSylItem();
     }
-    console.log('response from adding syllabus item : ', res);
+    setSyllabusItem("");
   };
 
   const getSylItem = async () => {
@@ -72,9 +75,7 @@ const ExamDetail = () => {
 
   const RenderSyllabusItem = ({ item }: { item: SyllabusItem }) => {
     const [checked, setChecked] = useState(false);
-    const toggleCheckbox = () => {
-      setChecked(!checked);
-    };
+    const toggleCheckbox = () => setChecked(!checked);
 
     return (
       <Pressable
@@ -90,77 +91,86 @@ const ExamDetail = () => {
     );
   };
 
+  const pickPdf = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+        copyToCacheDirectory: true,
+      });
+
+      if (result.canceled || !result.assets?.length) return;
+
+      const file = result.assets[0];
+      setPdfFile({
+        uri: file.uri,
+        name: file.name,
+        mimeType: file.mimeType,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Failed to pick PDF');
+    }
+  };
+
+  const uploadPdf = async () => {
+    if (!pdfFile) {
+      Alert.alert('No file selected', 'Please select a PDF first.');
+      return;
+    }
+
+    try {
+      const response = await sendPdf(pdfFile, exam_id);
+      if (response.message === "PYQ added successfully") {
+        setPdfFile(null);
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'PDF uploaded successfully!',
+        });
+      }
+    } catch (err: any) {
+      Alert.alert('Upload Error', err?.message || 'Something went wrong');
+    }
+  };
+
+  const getPdfFile = async () => {
+    try {
+      const res = await getPdf(exam_id);
+      if (res && res.pyq_pdf) {
+        setResPdf(res.pyq_pdf);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch PDF');
+    }
+  };
+
+  const handleViewPdf = () => {
+    if (!resPdf) {
+      Alert.alert('No PDF', 'No previous year paper available');
+      return;
+    }
+    Linking.openURL(resPdf);
+  };
+
   useEffect(() => {
     getSylItem();
-
-
   }, []);
 
-
-  const pickPdf = async () => {
-  try {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: 'application/pdf',
-      copyToCacheDirectory: true,
-    });
-
-    if (result.canceled || !result.assets?.length) return;
-
-    const file = result.assets[0];
-
- 
-    const pdfFile = {
-      uri: file.uri,
-      name: file.name,
-      mimeType: file.mimeType,
-    };
-
-    setPdfFile(pdfFile); 
-  } catch (error) {
-    Alert.alert('Error', 'Failed to pick PDF');
-  }
-};
-
-const uploadPdf = async () => {
-  if (!pdfFile) {
-    Alert.alert('No file selected', 'Please select a PDF first.');
-    return;
-  }
-
-  console.log('pdfFile in uploadPdf:', pdfFile);
-
-  try {
-    const response = await sendPdf(pdfFile, exam_id);
-    if(response.message=== "PYQ added successfully"){
-      setPdfFile(null);
-      Toast.show({
-        type: 'success',
-        text1: 'Success',
-        text2: 'PDF uploaded successfully!',
-      });
+  useEffect(() => {
+    if (isModalVisible) {
+      getPdfFile();
     }
-  } catch (err: any) {
-    Alert.alert('Upload Error', err?.message || 'Something went wrong');
-  }
-};
-const getPdfFile = async () => {
-  const res= await getPdf(exam_id);
-  console.log('getPdfFile response:', res);
-  if(res && res.pyq_pdf){
-    setResPdf(res.pyq_pdf);
-  }
-}
+  }, [isModalVisible]);
 
   return (
-
     <View className="flex-1 bg-gray-100 p-4 mt-10">
       <StatusBar style="dark" backgroundColor="#f3f3f1" />
       <View className="bg-[#F8F8FF] rounded-2xl p-6 shadow-md flex-1">
-        <Text className="text-2xl font-bold text-gray-800 mb-6 text-center border-b border-gray-300 pb-2">Exam Details</Text>
+        <Text className="text-2xl font-bold text-gray-800 mb-6 text-center border-b border-gray-300 pb-2">
+          Exam Details
+        </Text>
+
         <View className="h-fit p-4">
-          {/* Header Row */}
           <View className="flex-row justify-between mb-5">
-            {/* Course Code Box */}
             <View className="bg-teal-400 rounded-lg p-5 flex-1 m-1 items-center justify-center">
               <Text className="text-2xl font-bold text-white">
                 {exam_course_code?.toUpperCase()}
@@ -168,7 +178,6 @@ const getPdfFile = async () => {
               <Text className="text-white">Course Code</Text>
             </View>
 
-            {/* Exam Type Box */}
             <View className="bg-teal-500 rounded-lg p-5 flex-1 m-1 items-center justify-center">
               <Text className="text-2xl font-bold text-white">
                 {exam_type?.toUpperCase()}
@@ -177,41 +186,28 @@ const getPdfFile = async () => {
             </View>
           </View>
 
-          {/* Title Box open a modal and then either view pdf or download it or upload one */}
-          <View className="bg-teal-600 rounded-lg p-5 m-1 items-center justify-center h-fit mx-1">
+          <Pressable
+            onPress={() => setIsModalVisible(true)}
+            className="bg-teal-600 rounded-lg p-5 m-1 items-center justify-center"
+          >
             <Text className="text-xl font-bold text-white">
               Past Year Question Papers
             </Text>
-          </View>
-        </View> 
+          </Pressable>
 
-        <View className="self-start w-full">
-
-          <View className="mb-4">
+          <View className="mb-4 mt-4">
             <Text className="text-base text-gray-600">Exam Date:</Text>
-            <Text className="text-xl font-semibold text-gray-900">{new Date(exam_date).toDateString()}</Text>
+            <Text className="text-xl font-semibold text-gray-900">
+              {new Date(exam_date).toDateString()}
+            </Text>
           </View>
-          <View className="p-4">
-      <Button title="Select PDF" onPress={pickPdf} />
-      {pdfFile && (
-  <>
-    <Text className="mt-2">Selected: {pdfFile.name}</Text>
-    <Button title="Upload PDF" onPress={uploadPdf} className="mt-4" />
-  </>
-)}
-      <Button title="Get PDF" onPress={getPdfFile} className="mt-4" />
-    </View>
+
           <View className="mb-6">
             <Text className="text-base text-gray-600">Time Remaining:</Text>
-            <Text className="text-xl font-semibold text-purple-600">{getRemainingDays(exam_date)}</Text>
+            <Text className="text-xl font-semibold text-red-600">
+              {getRemainingDays(exam_date)}
+            </Text>
           </View>
-          {resPdf && (
-            <Button title="View PDF" onPress={()=>{
-              console.log('resPdf : ',resPdf);
-              const url = resPdf;
-              Linking.openURL(url)
-            }} className="mt-4" />
-          )}
 
           <Text className="text-xl font-semibold text-gray-700 mb-3">Syllabus:</Text>
 
@@ -228,7 +224,73 @@ const getPdfFile = async () => {
           )}
         </View>
 
-        {/* Input Field to Add New Syllabus */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={() => setIsModalVisible(false)}
+        >
+          <View className="flex-1 justify-center items-center bg-[#00000080]">
+            <View className="bg-[#F8F8FF] rounded-2xl p-6 m-4 w-11/12">
+              <View className="flex-row justify-between mb-4">
+                <Text className="text-xl font-bold text-gray-800">PYQ Papers</Text>
+                <Pressable onPress={() => setIsModalVisible(false)}>
+                  <Ionicons name="close" size={24} color="gray" />
+                </Pressable>
+              </View>
+
+              <View className="space-y-6">
+                {resPdf ? (
+                  <View className="bg-green-50 p-4 rounded-xl border border-green-200">
+                    <View className="flex-row items-center mb-3">
+                      <Ionicons name="document-text" size={24} color="#059669" />
+                      <Text className="text-green-700 ml-2 font-semibold">PDF Available</Text>
+                    </View>
+                    <Pressable
+                      onPress={handleViewPdf}
+                      className="flex-row items-center bg-green-600 p-3 rounded-lg justify-center"
+                    >
+                      <Ionicons name="eye" size={24} color="white" />
+                      <Text className="text-white ml-2 font-medium">View PDF</Text>
+                    </Pressable>
+                  </View>
+                ) : (
+                  <View className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <View className="flex-row items-center mb-3">
+                      <Ionicons name="alert-circle" size={24} color="#6B7280" />
+                      <Text className="text-gray-600 ml-2 font-semibold">No PDF Available</Text>
+                    </View>
+                    <Text className="text-gray-500 mb-4">Upload a previous year question paper to help other students.</Text>
+                  </View>
+                )}
+
+                <View className="space-y-3">
+                  <Pressable
+                    onPress={pickPdf}
+                    className="flex-row items-center bg-teal-500 m-5 p-3 w-1/2 rounded-lg justify-center self-center"
+                  >
+                    <Ionicons name="document-attach" size={24} color="white" />
+                    <Text className="text-white ml-2 font-medium">Select PDF</Text>
+                  </Pressable>
+
+                  {pdfFile && (
+                    <View className="bg-teal-50 p-4 rounded-xl border border-teal-200">
+                      <Text className="text-teal-700 mb-3">Selected: {pdfFile.name}</Text>
+                      <Pressable
+                        onPress={uploadPdf}
+                        className="flex-row items-center bg-teal-600 p-3 rounded-lg justify-center"
+                      >
+                        <Ionicons name="cloud-upload" size={24} color="white" />
+                        <Text className="text-white ml-2 font-medium">Upload PDF</Text>
+                      </Pressable>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         <View className="absolute bottom-4 left-4 right-4 flex-row items-center border border-gray-300 rounded-full px-4 py-2 bg-white shadow">
           <TextInput
             value={syllabusItem}
@@ -238,19 +300,15 @@ const getPdfFile = async () => {
             placeholderTextColor="gray"
           />
           <Pressable
-            onPress={() => {
-              if (syllabusItem.trim().length > 0) {
-                postSylItem();
-                setSyllabusItem("");
-              }
-            }}
+            onPress={postSylItem}
+            disabled={!syllabusItem.trim()}
             className="bg-teal-600 rounded-full p-1"
           >
             <Ionicons name="add" size={26} color="#fdfcf9" />
           </Pressable>
         </View>
-
       </View>
+      <Toast />
     </View>
   );
 };
