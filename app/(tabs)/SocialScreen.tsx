@@ -125,7 +125,6 @@ const SocialScreen = () => {
   };
 
   const getComments = async (postId: string, forceRefresh = false) => {
-    console.log('getcomments called');
 
     try {
       const timestampKey = COMMENT_TIMESTAMP_KEY(postId);
@@ -147,7 +146,6 @@ const SocialScreen = () => {
 
       const response = await getCommentsForPost(postId);
       if (response?.comments) {
-        console.log(response?.comments);
 
         setComments(response.comments);
         await AsyncStorage.setItem(cacheKey, JSON.stringify(response.comments));

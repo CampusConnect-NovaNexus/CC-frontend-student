@@ -102,7 +102,7 @@ export default function ExamHubScreen() {
     setCourses(res.reverse());
     await storeInCache(COURSES_KEY, res.reverse());
     } catch (error) {
-      console.log("enrolment"+error)
+      console.log("enrolments: "+error)
     }
   };
 

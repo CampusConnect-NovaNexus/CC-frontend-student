@@ -21,9 +21,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { fetchUser } from "@/service/fetchUserById";
 
 const fetchUserProfile=async(user_id:string)=>{
-    const response=fetchUser(user_id);
-    console.log('response in user profile screen',response);
-    
+    const response=fetchUser(user_id);    
 }
 const userProfileScreen = (user_id: string) => {
   useEffect(()=>{

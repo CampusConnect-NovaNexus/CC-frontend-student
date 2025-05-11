@@ -103,7 +103,6 @@ export default function LostFoundScreen() {
 
       
       const apiData = await LFData();
-      console.log("API DAta : ", apiData);
       
       const timestamped = apiData?.map((item:any) => ({
         ...item,

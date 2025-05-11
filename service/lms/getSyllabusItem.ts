@@ -11,7 +11,6 @@ interface SyllabusItem {
 export async function getSyllabusItems(examId: string): Promise<SyllabusItem[] | null> {
   
   const BASEURL=EXPO_BASE_URL_LMS
-  console.log('BASEURL : ',BASEURL);
   try {
     const res = await fetch(`${BASEURL}/api/exam/exams/${examId}/syllabus`);
 

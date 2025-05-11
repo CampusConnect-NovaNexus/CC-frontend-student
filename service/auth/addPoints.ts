@@ -17,7 +17,6 @@ export const addPoints = async (user_id:string,num:Number)=> {
         }
 
         const data = await response.json();
-        console.log('top after addPont:', data);
         // Return points or 0 if not available
     } catch (error) {
         console.error('Error fetching user points:', error);

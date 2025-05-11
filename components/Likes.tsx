@@ -30,12 +30,10 @@ const Likes = ({
       setLikes((likes) => likes - 1);
       setIsUpvoted(false);
       const response = await downvotePost(post_id, user_id);
-      console.log(response);
     } else {
       setIsUpvoted(true);
       setLikes((prev) => prev + 1);
       const response = await upvotePost(post_id, user_id);
-      console.log(response);
     }
   };
 

@@ -12,15 +12,12 @@ interface Course {
   
   export async function getAllCourses(user): Promise<Course[]> {
     try {  
-      console.log('getAllCourses Called');
       
       const BASEURL= EXPO_BASE_URL_LMS
-      console.log('BASEURL : ',BASEURL);
       let response:any;
     
       response = await fetch(`${BASEURL}/api/exam/students/${user?.id}/enrollments`)
       const responseData = await response.json();
-      console.log("enrollmentsdata = "+responseData)
       const resWithName = await Promise.all(
         responseData.map(async (exam: Course)=> {
           const user = await fetchUser(exam.created_by); 

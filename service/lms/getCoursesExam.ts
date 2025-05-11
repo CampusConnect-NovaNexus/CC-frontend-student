@@ -11,7 +11,6 @@ interface Exam {
   
   export async function getCourseExams(courseCode: string): Promise<Exam[]> {
     const BASEURL=EXPO_BASE_URL_LMS
-    console.log('BASEURL : ',BASEURL);
     const response = await fetch(`${BASEURL}/api/exam/courses/${courseCode}/exams`, {
       method: 'GET',
       headers: {
@@ -42,8 +41,6 @@ interface Exam {
         }
       })
     ); 
-
-    console.log('response Data in get Course Exam : ', resWithName);
     
     return resWithName;
   }
