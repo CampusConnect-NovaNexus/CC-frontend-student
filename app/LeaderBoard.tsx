@@ -23,7 +23,9 @@ export default function LeaderBoard() {
   // }, []);
   const leaderBoardData=async()=>{
     const data = await top10();
-    console.log('data in leaderboard : ', data);
+    
+    setLeaderboardData(data);
+    setLoading(false);
   }
   useFocusEffect(
     useCallback(() => {
@@ -32,35 +34,35 @@ export default function LeaderBoard() {
     }, [])
   );
 
-  const fetchLeaderboardData = async () => {
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+  // const fetchLeaderboardData = async () => {
+  //   try {
+  //     // Simulate API call delay
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock data for demonstration
-      const mockData: LeaderboardStudent[] = Array.from({ length: 13 }, (_, i) => ({
-        id: `student-${i + 1}`,
-        name: `Student ${i + 1}`,
-        points: Math.floor(Math.random() * 500) + 500, // Random points between 500-1000
-        avatar: undefined, // In a real app, this would be a URL
-        rank: i + 1
-      }));
+  //     // Mock data for demonstration
+  //     const mockData: LeaderboardStudent[] = Array.from({ length: 13 }, (_, i) => ({
+  //       id: `student-${i + 1}`,
+  //       name: `Student ${i + 1}`,
+  //       points: Math.floor(Math.random() * 500) + 500, // Random points between 500-1000
+  //       avatar: undefined, // In a real app, this would be a URL
+  //       rank: i + 1
+  //     }));
       
-      // Sort by points in descending order
-      mockData.sort((a, b) => b.points - a.points);
+  //     // Sort by points in descending order
+  //     mockData.sort((a, b) => b.points - a.points);
       
-      // Update ranks after sorting
-      mockData.forEach((student, index) => {
-        student.rank = index + 1;
-      });
+  //     // Update ranks after sorting
+  //     mockData.forEach((student, index) => {
+  //       student.rank = index + 1;
+  //     });
       
-      setLeaderboardData(mockData);
-    } catch (error) {
-      console.error('Error fetching leaderboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setLeaderboardData(mockData);
+  //   } catch (error) {
+  //     console.error('Error fetching leaderboard data:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Get top 3 students
   const topThreeStudents = leaderboardData.slice(0, 3);

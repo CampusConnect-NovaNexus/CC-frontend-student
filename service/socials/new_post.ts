@@ -1,5 +1,5 @@
 import { EXPO_BASE_URL_SS } from '@env';
-
+import { addPoints } from '../auth/addPoints';
 interface postItemInput {
   title: string;
   user_id: string;
@@ -45,6 +45,9 @@ export const createPost = async (item:postItemInput) => {
       method: 'POST',
       body: form
     });
+    if(res.ok) {
+        addPoints(item.user_id,10)
+    }
     return await res.json();
   } catch (error) {
     console.error('Failed to create post:', error);

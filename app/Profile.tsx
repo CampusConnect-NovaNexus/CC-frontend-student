@@ -51,7 +51,7 @@ const ProfileScreen = () => {
   const userPoints=async()=>{
     const data=await getUserPoints(user?.id)
     console.log("User Points in profile",data)
-    setPoints(data.points)
+    setPoints(data)
   }
   // useEffect(() => {
   //   // If the user is authenticated, set the email from user object

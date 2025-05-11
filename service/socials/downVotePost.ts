@@ -1,5 +1,5 @@
 import { EXPO_BASE_URL_SS } from '@env';
-
+import { addPoints } from '../auth/addPoints';
 export const downvotePost = async (post_id: string, user_id: string) => {
   try {
     const res = await fetch(`${EXPO_BASE_URL_SS}/api/forum/downvote/${post_id}`, {
@@ -7,6 +7,9 @@ export const downvotePost = async (post_id: string, user_id: string) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id })
     });
+    if(res.ok) {
+        addPoints(user_id,-2)
+    }
     return await res.json();
   } catch (error) {
     console.error('Failed to downvote:', error);

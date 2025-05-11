@@ -166,7 +166,7 @@ const PostsOfUser = () => {
   const deleteMyPost = async (post_id: string) => {
     try {
       setLoading(true);
-      await deletePost(post_id);
+      await deletePost(post_id, user_id);
       
       // Update local state immediately
       setData(prevData => prevData.filter(item => item.post_id !== post_id));
