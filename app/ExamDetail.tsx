@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import * as DocumentPicker from 'expo-document-picker';
 import sendPdf, { PdfFile } from '@/service/lms/sendPdfFile';
 import { getPdf } from '@/service/lms/getPdf';
+import { updateProgress } from '@/service/lms/updateProgress';
 import Toast from 'react-native-toast-message';
 
 interface AddSyllabusRequest {
@@ -24,6 +25,11 @@ interface SyllabusItem {
   parent_item_id: string | null;
   description: string;
   created_by: string;
+}
+
+interface UpdateProgressRequest {
+  user_id: string;
+  completed: boolean;
 }
 
 const ExamDetail = () => {
@@ -53,6 +59,14 @@ const ExamDetail = () => {
     else return 'Already passed';
   };
 
+  // const updateItemProgress = async ()=> {
+  //   const body: UpdateProgressRequest = {
+  //     user_id: user?.id || "",
+  //     completed: true
+  //   }
+  //   const res = await updateProgress(body, user_id);
+    
+  // }
   const postSylItem = async () => {
     const body: AddSyllabusRequest = {
       description: syllabusItem,
@@ -86,7 +100,7 @@ const ExamDetail = () => {
         <View
           className={`w-6 h-6 rounded-full border-2 ${checked ? 'bg-green-500 border-green-500' : 'border-gray-400'} mr-3`}
         />
-        <Text className="text-lg text-gray-800">{item.description}</Text>
+        <Text className={`text-lg text-gray-800 ${checked ? 'line-through' :''}`}>{item.description}</Text>
       </Pressable>
     );
   };
@@ -179,7 +193,7 @@ const ExamDetail = () => {
             </View>
 
             <View className="bg-teal-500 rounded-lg p-5 flex-1 m-1 items-center justify-center">
-              <Text className="text-2xl font-bold text-white">
+              <Text className="text-xl font-bold text-white">
                 {exam_type?.toUpperCase()}
               </Text>
               <Text className="text-white">Event</Text>
