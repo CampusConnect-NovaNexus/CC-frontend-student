@@ -87,13 +87,7 @@ const Forum = ({
             <Pressable
               className="w-12 h-12 rounded-full overflow-hidden"
               onPress={() => {
-                router.push({
-                  pathname: "../userPostProfile",
-                  params: {
-                    course_code: item.course_code,
-                    
-                  },
-                });
+                router.push(`../userPostProfile?user_id=${item.user_id}`);
               }}
             >
               <Image

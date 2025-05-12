@@ -206,7 +206,7 @@ const DetailedCourse = () => {
             renderItem={renderExamTab}
             extraData={allExams}
             contentContainerStyle={{ paddingBottom: 100 }}
-            className="mt-1"
+            className="mt-1 mb-32"
           />
         </View>
       ) : (

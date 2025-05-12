@@ -1,5 +1,5 @@
 import { View, Text, FlatList, TextInput, Pressable, Image, Alert, Button, Linking, Modal, Dimensions, ScrollView } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { icons } from '@/constants/icons';
 import { addSyllabusItem } from '@/service/lms/addSyllabusItem';
@@ -45,6 +45,8 @@ const ExamDetail = () => {
     exam_date: string;
     exam_course_code: string;
   }>();
+  
+  console.log('ExamDetail initialized with params:', { exam_id, exam_type, exam_date, exam_course_code });
 
   const [syllabusItem, setSyllabusItem] = useState("");
   const [syllabus, setSyllabus] = useState<SyllabusItem[] | null>(null);
@@ -52,12 +54,40 @@ const ExamDetail = () => {
   const { user } = useAuth();
   const [resPdf, setResPdf] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+useFocusEffect(
+  useCallback(()=>{
+         initializeData();
+  },[])
+)  
+const initializeData = async () => {
+      console.log('Initializing data for ExamDetail');
+      try {
+        await getSylItem();
+        await getPdfFile();
+        console.log('Initial data loaded successfully');
+      } catch (error) {
+        console.error('Error initializing data:', error);
+      }
+    };
+  // useEffect(() => {
+  //   console.log('ExamDetail component mounted');
+    
+    
+    
+ 
+    
+  //   return () => {
+  //     console.log('ExamDetail component unmounting');
+  //   };
+  // }, []);
 
   const getRemainingDays = (dateString: string) => {
     const today = new Date();
     const examDay = new Date(dateString);
     const diffTime = examDay.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    console.log('Calculating remaining days:', { dateString, today: today.toISOString(), examDay: examDay.toISOString(), diffTime, diffDays });
 
     if (diffDays > 1) return `${diffDays} days left`;
     else if (diffDays === 1) return 'Tomorrow!';
@@ -74,28 +104,59 @@ const ExamDetail = () => {
     
   // }
   const postSylItem = async () => {
+    console.log('Starting to post syllabus item:', { syllabusItem, userId: user?.id, examId: exam_id });
+    
     const body: AddSyllabusRequest = {
       description: syllabusItem,
       parent_item_id: null,
       user_id: user?.id || "",
     };
-    const res = await addSyllabusItem(body, exam_id);
-    if (res && res.item_id) {
-      getSylItem();
+    
+    try {
+      const res = await addSyllabusItem(body, exam_id);
+      console.log('Syllabus item post response:', res);
+      
+      if (res && res.item_id) {
+        console.log('Successfully added syllabus item with ID:', res.item_id);
+        getSylItem();
+      } else {
+        console.log('Failed to add syllabus item, response:', res);
+      }
+    } catch (error) {
+      console.error('Error posting syllabus item:', error);
     }
+    
     setSyllabusItem("");
   };
 
   const getSylItem = async () => {
-    const res = await getSyllabusItems(exam_id);
-    if (res && res.length > 0) {
-      setSyllabus(res.reverse());
-      const prevState = await getItem('checklistState'); 
-      if (!prevState){
-        const checklistState = syllabusToDescriptionMap(res, false); 
-        await setItem('checklistState', checklistState); 
+    console.log('Fetching syllabus items for exam ID:', exam_id);
+    
+    try {
+      const res = await getSyllabusItems(exam_id);
+     ;
+      
+      if (res && res.length > 0) {
+        console.log(`Found ${res.length} syllabus items, reversing order for display`);
+        setSyllabus(res.reverse());
+        
+        const prevState = await getItem('checklistState');
+        console.log('Previous checklist state from storage:', prevState);
+        
+        if (!prevState) {
+          console.log('No previous checklist state found, creating new one');
+          const checklistState = syllabusToDescriptionMap(res, false);
+          // console.log('New checklist state:', checklistState);
+          await setItem('checklistState', checklistState);
+        }
+        
+        const currentState = await getItem('checklistState');
+        // console.log('Current checklist state:', currentState);
+      } else {
+        console.log('No syllabus items found or empty response');
       }
-      console.log(await getItem('checklistState'))
+    } catch (error) {
+      console.error('Error fetching syllabus items:', error);
     }
   };
 
@@ -262,36 +323,47 @@ const ExamDetail = () => {
 };
 
   const pickPdf = async () => {
+    console.log('Starting PDF picker');
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: 'application/pdf',
         copyToCacheDirectory: true,
       });
+      
+      console.log('Document picker result:', result);
 
-      if (result.canceled || !result.assets?.length) return;
+      if (result.canceled || !result.assets?.length) {
+        console.log('PDF picking canceled or no assets returned');
+        return;
+      }
 
-    const file = result.assets[0];
+      const file = result.assets[0];
+      console.log('Selected file:', { name: file.name, uri: file.uri, size: file.size, mimeType: file.mimeType });
 
- 
-    const pdfFile = {
-      uri: file.uri,
-      name: file.name,
-      mimeType: file.mimeType,
-    };
+      const pdfFile = {
+        uri: file.uri,
+        name: file.name,
+        mimeType: file.mimeType,
+      };
 
-    setPdfFile(pdfFile); 
-  } catch (error) {
-    Toast.show({
-      type: 'error',
-      text1: 'Error',
-      text2: 'Failed to pick PDF',
-      position: 'bottom'
-    });
-  }
+      console.log('Setting PDF file in state:', pdfFile);
+      setPdfFile(pdfFile); 
+    } catch (error) {
+      console.error('Error picking PDF:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to pick PDF',
+        position: 'bottom'
+      });
+    }
 };
 
 const uploadPdf = async () => {
+  console.log('Starting PDF upload process');
+  
   if (!pdfFile) {
+    console.log('No PDF file selected, showing toast message');
     Toast.show({
       type: 'info',
       text1: 'No file selected',
@@ -301,19 +373,30 @@ const uploadPdf = async () => {
     return;
   }
 
-  console.log('pdfFile in uploadPdf:', pdfFile);
+  console.log('PDF file to upload:', pdfFile);
+  console.log('Uploading PDF for exam ID:', exam_id);
 
   try {
+    console.log('Sending PDF to server...');
     const response = await sendPdf(pdfFile, exam_id);
-    if(response.message=== "PYQ added successfully"){
+    console.log('Upload response:', response);
+    
+    if(response.message === "PYQ added successfully"){
+      console.log('PDF uploaded successfully, clearing pdfFile state');
       setPdfFile(null);
       Toast.show({
         type: 'success',
         text1: 'Success',
         text2: 'PDF uploaded successfully!',
       });
+      getPdfFile()
+    } else {
+      console.log('Upload completed but with unexpected response:', response);
     }
   } catch (err: any) {
+    console.error('Error uploading PDF:', err);
+    console.error('Error details:', { message: err?.message, stack: err?.stack });
+    
     Toast.show({
       type: 'error',
       text1: 'Upload Error',
@@ -323,10 +406,48 @@ const uploadPdf = async () => {
   }
 };
 const getPdfFile = async () => {
-  const res= await getPdf(exam_id);
-  console.log('getPdfFile response:', res);
-  if(res && res.pyq_pdf){
-    setResPdf(res.pyq_pdf);
+  console.log('Fetching PDF file for exam ID:', exam_id);
+  
+  try {
+    const res = await getPdf(exam_id);
+    console.log('getPdfFile response:', res);
+    
+    if(res && res.pyq_pdf){
+      console.log('PDF found, setting in state:', res.pyq_pdf.substring(0, 50) + '...');
+      setResPdf(res.pyq_pdf);
+    } else {
+      console.log('No PDF found in response or invalid response format');
+    }
+  } catch (error) {
+    console.error('Error fetching PDF file:', error);
+  }
+}
+
+const handleViewPdf = () => {
+  console.log('handleViewPdf called, attempting to open PDF');
+  
+  if (!resPdf) {
+    console.log('No PDF available to view');
+    Toast.show({
+      type: 'info',
+      text1: 'No PDF Available',
+      text2: 'There is no PDF file to view.',
+      position: 'bottom'
+    });
+    return;
+  }
+  
+  try {
+    console.log('Opening PDF with URL:', resPdf.substring(0, 50) + '...');
+    Linking.openURL(resPdf);
+  } catch (error) {
+    console.error('Error opening PDF:', error);
+    Toast.show({
+      type: 'error',
+      text1: 'Error',
+      text2: 'Failed to open PDF',
+      position: 'bottom'
+    });
   }
 }
 
@@ -360,7 +481,12 @@ const getPdfFile = async () => {
           </View>
 
           <Pressable
-            onPress={() => setIsModalVisible(true)}
+            onPress={() => {
+              setIsModalVisible(true)
+              getPdfFile()
+            }
+              
+            }
             className="bg-teal-600 rounded-lg p-5 m-1 items-center justify-center"
           >
             <Text className="text-xl font-bold text-white">

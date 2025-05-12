@@ -1,7 +1,6 @@
 // services/getAllCourses.ts
 import {EXPO_BASE_URL_LMS} from '@env'
 import { fetchUser } from '../fetchUserById';
-import userProfileScreen from '@/app/userPostProfile';
 import { useAuth } from '@/context/AuthContext';
 interface Course {
     course_code: string;
