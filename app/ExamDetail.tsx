@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import * as DocumentPicker from 'expo-document-picker';
 import sendPdf, { PdfFile } from '@/service/lms/sendPdfFile';
 import { getPdf } from '@/service/lms/getPdf';
+import { updateProgress } from '@/service/lms/updateProgress';
 import Toast from 'react-native-toast-message';
 import { getItem, setItem, syllabusToDescriptionMap, updateItem } from '@/service/lms/storage';
 import React from 'react';
@@ -64,6 +65,14 @@ const ExamDetail = () => {
     else return 'Already passed';
   };
 
+  // const updateItemProgress = async ()=> {
+  //   const body: UpdateProgressRequest = {
+  //     user_id: user?.id || "",
+  //     completed: true
+  //   }
+  //   const res = await updateProgress(body, user_id);
+    
+  // }
   const postSylItem = async () => {
     const body: AddSyllabusRequest = {
       description: syllabusItem,
@@ -343,7 +352,7 @@ const getPdfFile = async () => {
             </View>
 
             <View className="bg-teal-500 rounded-lg p-5 flex-1 m-1 items-center justify-center">
-              <Text className="text-2xl font-bold text-white">
+              <Text className="text-xl font-bold text-white">
                 {exam_type?.toUpperCase()}
               </Text>
               <Text className="text-white">Event</Text>

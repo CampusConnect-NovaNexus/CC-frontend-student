@@ -45,7 +45,8 @@
             "./assets/fonts/awesome.regular.ttf"
           ]
         }
-      ]
+      ],
+      "expo-router"
     ],
     "extra": {
       "eas": {
