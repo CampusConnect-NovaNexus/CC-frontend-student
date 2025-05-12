@@ -11,10 +11,10 @@ import {
   RefreshControl,
   Pressable,
   Image,
-  Alert,
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { icons } from "@/constants/icons";
 import { getAllCourses } from "@/service/lms/getAllCourses";
@@ -329,7 +329,12 @@ export default function ExamHubScreen() {
                 setCourse_name("");
                 setAddCourseFormVisible(false);
               } else {
-                Alert.alert("Error", "Please fill all the details");
+                Toast.show({
+                  type: 'error',
+                  text1: 'Error',
+                  text2: 'Please fill all the details',
+                  position: 'bottom'
+                });
               }
             }}
             className="bg-teal-600 p-4 rounded-xl"
@@ -400,7 +405,12 @@ export default function ExamHubScreen() {
                 setCourse_name("");
                 setJoinExistingClassModal(false);
               } else {
-                Alert.alert("Error", "Please enter a course code");
+                Toast.show({
+                  type: 'error',
+                  text1: 'Error',
+                  text2: 'Please enter a course code',
+                  position: 'bottom'
+                });
               }
             }}
             className="bg-teal-600 p-4 rounded-xl"

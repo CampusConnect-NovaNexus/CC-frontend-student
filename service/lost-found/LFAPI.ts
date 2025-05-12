@@ -5,7 +5,7 @@ export const LFData =async()=>{
     try{
         const result= await fetch(`${BASEURL}/api/v1/item`,{method:'GET'});
         const data=await result.json();
-        console.log('data o lost found ', data);
+        
         return data.items;
     }catch(error){
         console.log('Error in LFAPI : ',error);

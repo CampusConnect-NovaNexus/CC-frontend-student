@@ -8,7 +8,7 @@ export const top10 = async ()=> {
         const response = await fetch(`${EXPO_AUTH_API_URL}/api/v1/points/top10`);
         
         if (!response.ok) {
-        throw new Error('Failed to fetch user points');
+        throw new Error('Failed to fetch leaderboard');
         }
 
         const data = await response.json();
@@ -16,7 +16,7 @@ export const top10 = async ()=> {
         return data
         // Return points or 0 if not available
     } catch (error) {
-        console.error('Error fetching user points:', error);
+        console.error('Error fetching leaderboard:', error);
         throw error;
     }
 }

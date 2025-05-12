@@ -9,8 +9,6 @@ import {
   TextInput,
   Pressable,
   FlatList,
-  Image,
-  Alert,
   StyleSheet,
   ActivityIndicator
 } from "react-native";

@@ -245,13 +245,13 @@ const SocialScreen = () => {
               setDetailPostVisible(true);
               await getComments(item.post_id);
             }}
-            className="bg-white my-2 shadow-sm"
+            className="bg-white my-2 shadow-sm  "
           >
             <Forum item={item} setSelectedPost={setSelectedPost} setDetailPostVisible={setDetailPostVisible} getComment={getComments} />
           </Pressable>
         )}
         keyExtractor={(item) => item.post_id}
-        className="flex-1"
+        className="flex-1 mb-16 "
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

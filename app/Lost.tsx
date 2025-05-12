@@ -4,13 +4,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import {
   View,
-  Text,
   TextInput,
   Pressable,
   Linking,
-  FlatList,
-  Image,
-  Alert,
   StyleSheet,
   ActivityIndicator
 } from "react-native";

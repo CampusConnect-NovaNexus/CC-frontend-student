@@ -12,18 +12,19 @@ import {
   ImageBackground,
   ActivityIndicator,
   StyleSheet,
-  Alert,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { useTheme } from "@/context/ThemeContext";
 import { icons } from "@/constants/icons";
 import { useFocusEffect } from "expo-router";
-
+import { addSocials } from "@/service/auth/addSocials";
 import { images } from "@/constants/images";
 import Forum from "@/components/Forum";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
+import { userDetails } from "@/service/auth/userDetails";
 import { getUserPoints } from "@/service/auth/GetUserPoints";
 const ProfileScreen = () => {
   const { logout, user } = useAuth();
@@ -33,13 +34,13 @@ const ProfileScreen = () => {
     "Bhadohi, Uttar Pradesh, India"
   );
   const [email, setEmail] = useState<String>("b23cs019@gmail.com");
-  const [instagramLink, setInstagramLink] = useState<String>("http://");
+  const [instagramLink, setInstagramLink] = useState<String>("");
   const [linkedinLink, setLinkedinLink] = useState<String>("");
-  const [youtubeLink, setYoutubeLink] = useState<String>("http://");
-  const [githubLink, setGithubLink] = useState<String>("http://");
-  const [twitterLink, setTwitterLink] = useState<String>("http://");
-  const [leetCodeLink, setLeetCodeLink] = useState<String>("http://");
-  const [codeForcesLink, setCodeForcesLink] = useState<String>("http://");
+  const [youtubeLink, setYoutubeLink] = useState<String>("");
+  const [githubLink, setGithubLink] = useState<String>("");
+  const [twitterLink, setTwitterLink] = useState<String>("");
+  const [leetCodeLink, setLeetCodeLink] = useState<String>("");
+  const [codeForcesLink, setCodeForcesLink] = useState<String>("");
   const [phoneNumber, setPhoneNumber] = useState<String>("+91 9237947387");
   const [about, setAbout] = useState<String>(
     "Curious and driven Computer Science student at NIT Meghalaya, passionate about coding, problem-solving, and exploring emerging tech. Enthusiastic team player, always eager to learn and contribute to impactful projects."
@@ -84,7 +85,52 @@ const ProfileScreen = () => {
 
   //   loadUserData();
   // }, [user]);
+ const updateSocials = async () => {
+  if (!user?.id) {
+    Toast.show({
+      type: 'error',
+      text1: 'Error',
+      text2: 'User not logged in.',
+      position: 'bottom'
+    });
+    return;
+  }
 
+  const body = {
+    user_id: user.id,
+    links: {
+      aboutMe: about.toString(),
+      contactNo: parseInt(phoneNumber.replace(/[^0-9]/g, ""), 10),
+      instagram: instagramLink.toString(),
+      youtube: youtubeLink.toString(),
+      github: githubLink.toString(),
+      x: twitterLink.toString(),
+      leetcode: leetCodeLink.toString(),
+      codeforces: codeForcesLink.toString(),
+    },
+  };
+
+  try {
+    await addSocials(body);
+    Toast.show({
+      type: 'success',
+      text1: 'Success',
+      text2: 'Social links updated successfully.',
+      position: 'bottom'
+    });
+  } catch (error) {
+    Toast.show({
+      type: 'error',
+      text1: 'Error',
+      text2: 'Failed to update social links.',
+      position: 'bottom'
+    });
+  }
+};
+const loadUserProfile = async () => {
+  const res=await userDetails(user?.id)
+  console.log("user details",res)
+}
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       {
@@ -100,7 +146,12 @@ const ProfileScreen = () => {
             await logout();
             // Router redirect is handled by the AuthGuard in _layout.tsx
           } catch (error) {
-            Alert.alert("Error", "Failed to logout. Please try again.");
+            Toast.show({
+              type: 'error',
+              text1: 'Error',
+              text2: 'Failed to logout. Please try again.',
+              position: 'bottom'
+            });
             setIsLoading(false);
           }
         },
@@ -116,10 +167,20 @@ const ProfileScreen = () => {
       await AsyncStorage.setItem("@user_youtube", youtubeLink.toString());
 
       setAddSocialsVisible(false);
-      Alert.alert("Success", "Your profile information has been updated.");
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Your profile information has been updated.',
+        position: 'bottom'
+      });
     } catch (error) {
       console.error("Error saving profile data:", error);
-      Alert.alert("Error", "Failed to save your profile information.");
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to save your profile information.',
+        position: 'bottom'
+      });
     }
   };
   
@@ -128,23 +189,31 @@ const ProfileScreen = () => {
       await AsyncStorage.setItem("@user_about", editedAbout.toString());
       setAbout(editedAbout);
       setEditAboutVisible(false);
-      Alert.alert("Success", "Your about information has been updated.");
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Your about information has been updated.',
+        position: 'bottom'
+      });
     } catch (error) {
       console.error("Error saving about data:", error);
-      Alert.alert("Error", "Failed to save your about information.");
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to save your about information.',
+        position: 'bottom'
+      });
     }
   };
   useFocusEffect(
     useCallback(() => {
-      const fetchUserPoints = async () => {
         try {
           userPoints()
+          loadUserProfile()
         } catch (error) {
           console.error("Error fetching user points:", error);
         }
-      };
-
-      fetchUserPoints();
+      
     }, [user])
   );  
 
@@ -720,7 +789,7 @@ const ProfileScreen = () => {
                   marginTop: 16,
                   marginBottom: 24,
                 }}
-                onPress={saveSocials}
+                onPress={updateSocials}
               >
                 <Text
                   style={{ color: "white", fontWeight: "700", fontSize: 16 }}

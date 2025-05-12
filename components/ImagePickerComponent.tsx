@@ -1,13 +1,19 @@
 import React from 'react';
-import { View, Button, Alert } from 'react-native';
+import { View, Button } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { saveImage } from '@/utils/fileHelper';
+import Toast from 'react-native-toast-message';
 
 export default function ImagePickerComponent() {
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission required', 'Camera access is needed');
+      Toast.show({
+        type: 'error',
+        text1: 'Permission required',
+        text2: 'Camera access is needed',
+        position: 'bottom'
+      });
       return;
     }
 
@@ -18,14 +24,24 @@ export default function ImagePickerComponent() {
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       await saveImage(uri);
-      Alert.alert("Success", "Image saved");
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Image saved',
+        position: 'bottom'
+      });
     }
   };
 
   const pickFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission required', 'Gallery access is needed');
+      Toast.show({
+        type: 'error',
+        text1: 'Permission required',
+        text2: 'Gallery access is needed',
+        position: 'bottom'
+      });
       return;
     }
 
@@ -38,7 +54,12 @@ export default function ImagePickerComponent() {
       for (let asset of result.assets) {
         await saveImage(asset.uri);
       }
-      Alert.alert("Success", "Images saved");
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Images saved',
+        position: 'bottom'
+      });
     }
   };
 

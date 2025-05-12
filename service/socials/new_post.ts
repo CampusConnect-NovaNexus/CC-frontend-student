@@ -1,15 +1,6 @@
 import { EXPO_BASE_URL_SS } from '@env';
 import { addPoints } from '../auth/addPoints';
-interface postItemInput {
-  title: string;
-  user_id: string;
-  description: string;
-  image?: {
-    uri: string;
-    name: string;
-    type?: string;
-  };
-}
+
 
 
 interface postItemInput {
@@ -22,6 +13,20 @@ interface postItemInput {
     type?: string;
   };
 }
+const getMimeType = (filename: string) => {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  switch (ext) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    default:
+      return 'application/octet-stream';
+  }
+};
 
 export const createPost = async (item:postItemInput) => {
   const form = new FormData();

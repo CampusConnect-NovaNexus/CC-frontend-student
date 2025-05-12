@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TextInput, Pressable, Image, Alert, Button, Linking } from 'react-native';
+import { View, Text, FlatList, TextInput, Pressable, Image, Button, Linking } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { icons } from '@/constants/icons';
@@ -117,13 +117,23 @@ const ExamDetail = () => {
 
     setPdfFile(pdfFile); 
   } catch (error) {
-    Alert.alert('Error', 'Failed to pick PDF');
+    Toast.show({
+      type: 'error',
+      text1: 'Error',
+      text2: 'Failed to pick PDF',
+      position: 'bottom'
+    });
   }
 };
 
 const uploadPdf = async () => {
   if (!pdfFile) {
-    Alert.alert('No file selected', 'Please select a PDF first.');
+    Toast.show({
+      type: 'info',
+      text1: 'No file selected',
+      text2: 'Please select a PDF first.',
+      position: 'bottom'
+    });
     return;
   }
 
@@ -140,7 +150,12 @@ const uploadPdf = async () => {
       });
     }
   } catch (err: any) {
-    Alert.alert('Upload Error', err?.message || 'Something went wrong');
+    Toast.show({
+      type: 'error',
+      text1: 'Upload Error',
+      text2: err?.message || 'Something went wrong',
+      position: 'bottom'
+    });
   }
 };
 const getPdfFile = async () => {
