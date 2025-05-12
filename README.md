@@ -1,8 +1,39 @@
-# Welcome to your Expo app 👋
+# Student Campus Connect App 📱
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A comprehensive mobile application designed to enhance the student experience by providing seamless access to campus resources, course materials, and communication tools.
 
-## Get started
+## Key Features
+
+### Course Management
+- **Course Registration**: Easily browse and register for available courses
+- **Schedule Viewing**: Access your personalized class schedule at a glance
+- **Assignment Tracking**: Keep track of upcoming assignments and deadlines
+
+### Learning Resources
+- **Course Materials**: Access lecture notes, presentations, and reading materials
+- **Digital Library**: Browse and download educational resources
+- **Study Guides**: Access study materials and exam preparation resources
+
+### Communication
+- **Instructor Messaging**: Direct communication with professors and teaching assistants
+- **Peer Collaboration**: Connect with classmates for group projects and study sessions
+- **Announcements**: Receive important updates and notifications
+
+### Student Services
+- **Campus Map**: Navigate campus facilities with ease
+- **Event Calendar**: Stay updated on campus events and activities
+- **Support Services**: Access academic and personal support resources
+
+## Student User Flow
+
+1. **Login/Registration**: Students authenticate using their institutional credentials
+2. **Dashboard**: View personalized information including upcoming classes, assignments, and announcements
+3. **Course Access**: Browse enrolled courses and access related materials and assignments
+4. **Assignment Submission**: Submit completed work directly through the app
+5. **Communication**: Engage with instructors and peers through messaging features
+6. **Resource Access**: Browse and download learning materials and campus resources
+
+## Getting Started
 
 1. Install dependencies
 
@@ -21,30 +52,18 @@ In the output, you'll find options to open the app in a
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- [Expo Go](https://expo.dev/go)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Development Information
 
-## Get a fresh project
+This project uses [Expo](https://expo.dev) with [file-based routing](https://docs.expo.dev/router/introduction). You can start developing by editing the files inside the **app** directory.
 
-When you're ready, run:
+## Ownership and Contact
 
-```bash
-npm run reset-project
-```
+This application is developed and maintained by:
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- **Shashank** - [GitHub: ShashankUmarVaishy](https://github.com/ShashankUmarVaishy)
+- **Jishnu** - [GitHub: DuhanJishnu](https://github.com/DuhanJishnu)
+- **Charity** - [GitHub: charityRymbai](https://github.com/charityRymbai)
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+For questions, feedback, or support, please contact any of the developers through their GitHub profiles.
