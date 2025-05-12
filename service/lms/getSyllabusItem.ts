@@ -6,12 +6,17 @@ interface SyllabusItem {
   parent_item_id: string | null;
   description: string;
   created_by: string;
+  total_students?: number;
+  who_studied?: number;
+  stats?: {
+    total_students: number;
+    who_studied: number;
+  };
 }
 
 export async function getSyllabusItems(examId: string): Promise<SyllabusItem[] | null> {
   
   const BASEURL=EXPO_BASE_URL_LMS
-  console.log('BASEURL : ',BASEURL);
   try {
     const res = await fetch(`${BASEURL}/api/exam/exams/${examId}/syllabus`);
 

@@ -51,7 +51,7 @@ const ProfileScreen = () => {
   const router=useRouter()
   const userPoints=async()=>{
     const data=await getUserPoints(user?.id)
-    console.log("User Points in profile",data)
+    // console.log("User Points in profile",data)
     setPoints(data)
   }
   // useEffect(() => {

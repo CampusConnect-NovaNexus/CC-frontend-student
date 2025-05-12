@@ -10,7 +10,6 @@ interface UpdateProgressResponse {
 
 export async function updateProgress(itemId: string , body: UpdateProgressRequest): Promise<UpdateProgressResponse | null> {
   const BASEURL=EXPO_BASE_URL_LMS
-  console.log('BASEURL : ',BASEURL);
   try {
     const res = await fetch(`${BASEURL}/api/exam/checklist/${itemId}`, {
       method: 'PUT',

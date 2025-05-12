@@ -260,7 +260,6 @@ export default function GrievanceScreen() {
         description: newGrievance.description,
         category: newGrievance.selectedCategory
       };
-      console.log(payload);
       const response = await postGrievance(payload);
       if (response?.c_id) {
         Toast.show({

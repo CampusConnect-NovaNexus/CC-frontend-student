@@ -8,7 +8,6 @@ interface Enrollment {
 
 export async function getStudentEnrollments(studentId: string): Promise<Enrollment[] | null> {
   const BASEURL=EXPO_BASE_URL_LMS
-  console.log('BASEURL : ',BASEURL);
   try {
     const res = await fetch(`${BASEURL}/api/exam/students/${studentId}/enrollments`);
 

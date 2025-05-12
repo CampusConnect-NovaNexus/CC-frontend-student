@@ -29,6 +29,7 @@ interface Course {
   course_code: string;
   course_name: string;
   created_by: string;
+  created_by_name: string;
 }
 interface CreateCourseRequest {
   course_code: string;
@@ -91,14 +92,18 @@ export default function ExamHubScreen() {
     }
   };
   const fetchAllCourses = async () => {
-    const cached = await getFromCache(COURSES_KEY);
+    try {
+      const cached = await getFromCache(COURSES_KEY);
     if (cached) {
       setCourses(cached);
     }
 
-    const res = await getAllCourses();
+    const res = await getAllCourses(user)
     setCourses(res.reverse());
     await storeInCache(COURSES_KEY, res.reverse());
+    } catch (error) {
+      console.log("enrolments: "+error)
+    }
   };
 
   const onRefresh = () => {
@@ -167,8 +172,7 @@ export default function ExamHubScreen() {
   };
   const handleEnrollClassPress = async (course_code: string) => {
     const body: EnrollStudentRequest = {
-      user_id: user?.id,
-      roll_no: "b23cs019",
+      user_id: user?.id
     };
     const res = await enrollStudent(course_code, body);
     fetchAllCourses();
@@ -188,7 +192,7 @@ export default function ExamHubScreen() {
           </View>
           <Text className="text-lg font-semibold">{item.course_name}</Text>
           <Text className="text-gray-500 text-sm mt-1">
-            Created by: {item.created_by || "Instructor"}
+            Created by: {item.created_by_name || "Instructor"}
           </Text>
         </View>
       </Pressable>
