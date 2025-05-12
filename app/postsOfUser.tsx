@@ -8,7 +8,6 @@ import {
   FlatList,
   ActivityIndicator,
   Image,
-  Alert,
   StyleSheet,
 } from "react-native";
 import Toast from "react-native-toast-message";

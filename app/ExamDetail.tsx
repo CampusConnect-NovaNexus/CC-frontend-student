@@ -1,6 +1,6 @@
-import { View, Text, FlatList, TextInput, Pressable, Image, Alert, Button, Linking, Modal } from 'react-native';
+import { View, Text, FlatList, TextInput, Pressable, Image, Alert, Button, Linking, Modal, Dimensions, ScrollView } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { icons } from '@/constants/icons';
 import { addSyllabusItem } from '@/service/lms/addSyllabusItem';
 import { getSyllabusItems } from '@/service/lms/getSyllabusItem';
@@ -12,6 +12,11 @@ import sendPdf, { PdfFile } from '@/service/lms/sendPdfFile';
 import { getPdf } from '@/service/lms/getPdf';
 import { updateProgress } from '@/service/lms/updateProgress';
 import Toast from 'react-native-toast-message';
+import { getItem, setItem, syllabusToDescriptionMap, updateItem } from '@/service/lms/storage';
+import React from 'react';
+import { updateSyllabusItemStat } from '@/service/lms/updateSyllabusItemStat';
+import { getSyllabusItemStats } from '@/service/lms/getSyllabusItemStats';
+import CircularProgress from '@/components/CircularProgress';
 
 interface AddSyllabusRequest {
   description: string;
@@ -25,11 +30,12 @@ interface SyllabusItem {
   parent_item_id: string | null;
   description: string;
   created_by: string;
-}
-
-interface UpdateProgressRequest {
-  user_id: string;
-  completed: boolean;
+  total_students?: number;
+  who_studied?: number;
+  stats?: {
+    total_students: number;
+    who_studied: number;
+  };
 }
 
 const ExamDetail = () => {
@@ -84,26 +90,176 @@ const ExamDetail = () => {
     const res = await getSyllabusItems(exam_id);
     if (res && res.length > 0) {
       setSyllabus(res.reverse());
+      const prevState = await getItem('checklistState'); 
+      if (!prevState){
+        const checklistState = syllabusToDescriptionMap(res, false); 
+        await setItem('checklistState', checklistState); 
+      }
+      console.log(await getItem('checklistState'))
     }
   };
 
   const RenderSyllabusItem = ({ item }: { item: SyllabusItem }) => {
-    const [checked, setChecked] = useState(false);
-    const toggleCheckbox = () => setChecked(!checked);
+  const [checked, setChecked] = useState(false);
+  const [totalStudents, setTotalStudents] = useState(
+    item.stats?.total_students || item.total_students || 10
+  );
+  const [whoStudied, setWhoStudied] = useState(
+    item.stats?.who_studied || item.who_studied || 0
+  );
+  const screenWidth = Dimensions.get('window').width;
 
-    return (
+  useEffect(() => {
+    const fetchItemStats = async () => {
+      try {
+        const statsData = await getSyllabusItemStats(item.item_id);
+        if (statsData && statsData.stats) {
+          setTotalStudents(statsData.stats.total_students || 10);
+          setWhoStudied(statsData.stats.who_studied || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching item stats:', error);
+      }
+    };
+
+    fetchItemStats();
+  }, [item.item_id]);
+
+  useEffect(() => {
+    const fetchChecklistState = async () => {
+      const checklistState = await getItem('checklistState');
+      if (!checklistState) {
+        console.log("Checklist state not in local storage, default values false");
+        return;
+      }
+      const isMarkedAsDone = checklistState[item.description] ?? false;
+      setChecked(isMarkedAsDone);
+    };
+
+    fetchChecklistState();
+  }, []);
+
+  const toggleCheckbox = useCallback(async () => {
+    if (!user?.id) {
+      console.error('User ID is missing, cannot update progress');
+      return;
+    }
+    
+    const newValue = !checked;
+    setChecked(newValue);
+    
+    console.log(`Toggling checkbox for item ${item.item_id}: ${checked} -> ${newValue}`);
+    
+    try {
+      // First, update the local storage to reflect the UI change
+      await updateItem('checklistState', item.description, newValue);
+      
+      // Then update the server
+      console.log(`Sending update to server: item=${item.item_id}, user=${user.id}, done=${newValue}`);
+      const response = await updateSyllabusItemStat(item.item_id, user.id, newValue);
+      
+      console.log('Server response:', JSON.stringify(response));
+      
+      // Update the chart data based on the response
+      if (response && response.stats) {
+        console.log(`Updating stats from response: total=${response.stats.total_students}, studied=${response.stats.who_studied}`);
+        console.log(`Completers: ${JSON.stringify(response.stats.completers)}`);
+        
+        // Always use the server's values to ensure consistency
+        setTotalStudents(response.stats.total_students);
+        setWhoStudied(response.stats.who_studied);
+      } else {
+        console.log('No stats in response, fetching latest stats');
+        // If no stats in response, fetch the latest stats
+        try {
+          const statsData = await getSyllabusItemStats(item.item_id);
+          console.log('Stats data:', JSON.stringify(statsData));
+          
+          if (statsData && statsData.stats) {
+            console.log(`Fetched stats: total=${statsData.stats.total_students}, studied=${statsData.stats.who_studied}`);
+            console.log(`Completers: ${JSON.stringify(statsData.stats.completers)}`);
+            
+            setTotalStudents(statsData.stats.total_students);
+            setWhoStudied(statsData.stats.who_studied);
+          } else {
+            console.log('No stats data returned from getSyllabusItemStats');
+          }
+        } catch (statsError) {
+          console.error('Error fetching updated stats:', statsError);
+        }
+      }
+    } catch (error) {
+      console.error('Updating toggle error:', error);
+      // Revert the checkbox state
+      setChecked(!newValue);
+      // Also revert the local storage
+      await updateItem('checklistState', item.description, !newValue);
+    }
+  }, [item.item_id, item.description, checked, user]);
+
+  // Ensure we always have some data to show a complete circle
+  const studiedCount = whoStudied || 0;
+  // Make sure we have at least some value for both segments to ensure a full circle
+  const notStudiedCount = Math.max(1, totalStudents - studiedCount);
+  
+  // If studiedCount is 0, we need to ensure the chart still shows a full circle
+  const chartData = studiedCount === 0 ? [
+    {
+      name: 'Not Studied',
+      population: 1,
+      color: '#F44336',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12
+    }
+  ] : [
+    {
+      name: 'Studied',
+      population: studiedCount,
+      color: '#4CAF50',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12
+    },
+    {
+      name: 'Not Studied',
+      population: notStudiedCount,
+      color: '#F44336',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 12
+    }
+  ];
+
+  return (
+    <View className="flex-row justify-between items-center my-3 border-b border-gray-100 pb-3">
       <Pressable
-        disabled={checked}
         onPress={toggleCheckbox}
-        className="flex-row items-center my-2"
+        className="flex-row items-center flex-1"
       >
         <View
-          className={`w-6 h-6 rounded-full border-2 ${checked ? 'bg-green-500 border-green-500' : 'border-gray-400'} mr-3`}
+          className={`w-6 h-6 rounded-full border-2 ${
+            checked ? 'bg-green-500 border-green-500' : 'border-gray-400'
+          } mr-3`}
         />
-        <Text className={`text-lg text-gray-800 ${checked ? 'line-through' :''}`}>{item.description}</Text>
+        <Text className="text-lg text-gray-800 flex-1" numberOfLines={2}>{item.description}</Text>
       </Pressable>
-    );
-  };
+      
+      <View style={{ width: 80, height: 100, marginLeft: 5, alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress
+          size={70}
+          strokeWidth={10}
+          progress={totalStudents > 0 ? whoStudied / totalStudents : 0}
+          progressColor="#FF8C00" // Bright Orange
+          bgColor="#F0F0F0" // Light Gray/Off-White
+          textColor="#666"
+          studiedCount={whoStudied}
+          totalCount={totalStudents}
+        />
+        <Text className="text-xs text-center text-gray-500 mt-1">
+          studied
+        </Text>
+      </View>
+    </View>
+  );
+};
 
   const pickPdf = async () => {
     try {
@@ -114,66 +270,65 @@ const ExamDetail = () => {
 
       if (result.canceled || !result.assets?.length) return;
 
-      const file = result.assets[0];
-      setPdfFile({
-        uri: file.uri,
-        name: file.name,
-        mimeType: file.mimeType,
+    const file = result.assets[0];
+
+ 
+    const pdfFile = {
+      uri: file.uri,
+      name: file.name,
+      mimeType: file.mimeType,
+    };
+
+    setPdfFile(pdfFile); 
+  } catch (error) {
+    Toast.show({
+      type: 'error',
+      text1: 'Error',
+      text2: 'Failed to pick PDF',
+      position: 'bottom'
+    });
+  }
+};
+
+const uploadPdf = async () => {
+  if (!pdfFile) {
+    Toast.show({
+      type: 'info',
+      text1: 'No file selected',
+      text2: 'Please select a PDF first.',
+      position: 'bottom'
+    });
+    return;
+  }
+
+  console.log('pdfFile in uploadPdf:', pdfFile);
+
+  try {
+    const response = await sendPdf(pdfFile, exam_id);
+    if(response.message=== "PYQ added successfully"){
+      setPdfFile(null);
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'PDF uploaded successfully!',
       });
-    } catch (error) {
-      Alert.alert('Error', 'Failed to pick PDF');
     }
-  };
-
-  const uploadPdf = async () => {
-    if (!pdfFile) {
-      Alert.alert('No file selected', 'Please select a PDF first.');
-      return;
-    }
-
-    try {
-      const response = await sendPdf(pdfFile, exam_id);
-      if (response.message === "PYQ added successfully") {
-        setPdfFile(null);
-        Toast.show({
-          type: 'success',
-          text1: 'Success',
-          text2: 'PDF uploaded successfully!',
-        });
-      }
-    } catch (err: any) {
-      Alert.alert('Upload Error', err?.message || 'Something went wrong');
-    }
-  };
-
-  const getPdfFile = async () => {
-    try {
-      const res = await getPdf(exam_id);
-      if (res && res.pyq_pdf) {
-        setResPdf(res.pyq_pdf);
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to fetch PDF');
-    }
-  };
-
-  const handleViewPdf = () => {
-    if (!resPdf) {
-      Alert.alert('No PDF', 'No previous year paper available');
-      return;
-    }
-    Linking.openURL(resPdf);
-  };
-
-  useEffect(() => {
-    getSylItem();
-  }, []);
-
-  useEffect(() => {
-    if (isModalVisible) {
-      getPdfFile();
-    }
-  }, [isModalVisible]);
+  } catch (err: any) {
+    Toast.show({
+      type: 'error',
+      text1: 'Upload Error',
+      text2: err?.message || 'Something went wrong',
+      position: 'bottom'
+    });
+  }
+};
+const getPdfFile = async () => {
+  const res= await getPdf(exam_id);
+  console.log('getPdfFile response:', res);
+  if(res && res.pyq_pdf){
+    setResPdf(res.pyq_pdf);
+  }
+}
 
   return (
     <View className="flex-1 bg-gray-100 p-4 mt-10">
@@ -183,7 +338,11 @@ const ExamDetail = () => {
           Exam Details
         </Text>
 
-        <View className="h-fit p-4">
+        <ScrollView 
+          className="flex-1" 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 80 }} // Add padding at bottom for the input box
+        >
           <View className="flex-row justify-between mb-5">
             <View className="bg-teal-400 rounded-lg p-5 flex-1 m-1 items-center justify-center">
               <Text className="text-2xl font-bold text-white">
@@ -226,17 +385,15 @@ const ExamDetail = () => {
           <Text className="text-xl font-semibold text-gray-700 mb-3">Syllabus:</Text>
 
           {syllabus && syllabus.length > 0 ? (
-            <FlatList
-              data={syllabus}
-              keyExtractor={(item) => item.item_id}
-              renderItem={({ item }) => <RenderSyllabusItem item={item} />}
-              showsVerticalScrollIndicator={false}
-              className="mb-4"
-            />
+            <View className="mb-4 w-full">
+              {syllabus.map((item) => (
+                <RenderSyllabusItem key={item.item_id} item={item} />
+              ))}
+            </View>
           ) : (
             <Text className="text-gray-500 italic">You haven't added any TO DO item yet.</Text>
           )}
-        </View>
+        </ScrollView>
 
         <Modal
           animationType="slide"

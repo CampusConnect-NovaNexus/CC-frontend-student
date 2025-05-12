@@ -16,7 +16,8 @@ interface Exam {
   course_code: string,
   exam_type: string,
   exam_date: string,
-  created_by: string
+  created_by: string,
+  created_by_name: string
 }
 
 const DetailedCourse = () => {
@@ -155,7 +156,7 @@ const DetailedCourse = () => {
             {new Date(item.exam_date).toDateString()}
           </Text>
           <Text className={`text-sm ${isPassed ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
-            Created by: {item.created_by || "Instructor"}
+            Created by: { item.created_by_name || "Instructor"}
           </Text>
           <Text className={`text-sm ${isPassed ? 'text-gray-500' : 'text-sky-600'} mt-2 font-semibold`}>
             {time}

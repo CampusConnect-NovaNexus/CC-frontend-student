@@ -22,13 +22,11 @@ const UpvoteButton = ({ user_id, c_id, upVotes }: { user_id: string; c_id: strin
       setLikes(likes => likes - 1)
       setIsUpvoted(false);``
       const response = await downVote(c_id, user_id);
-      console.log('downvoted response', response);
       
     } else {
       setIsUpvoted(true);
       setLikes(prev => prev + 1)
       const response = await upVote(c_id, user_id);
-      console.log('upvoted response', response);
     }
   };
 

@@ -75,7 +75,6 @@ export type PdfFile = {
 };
 
 export default async function sendPdf(file: PdfFile, exam_id: string) {
-  console.log('file in sendPdf:', file);
 
   const formData = new FormData();
 
@@ -92,7 +91,6 @@ export default async function sendPdf(file: PdfFile, exam_id: string) {
   
 
   try {
-   console.log('formData in sendPdf:', formData);
    
     
     const response = await fetch(`${EXPO_BASE_URL_LMS}/api/pyq/add`, {
@@ -100,7 +98,6 @@ export default async function sendPdf(file: PdfFile, exam_id: string) {
       
       body: formData,
     });
-    console.log('response in sendPdf:', response);
     
     const data = await response.json();
    

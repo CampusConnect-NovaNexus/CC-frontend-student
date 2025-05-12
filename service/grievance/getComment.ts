@@ -2,7 +2,6 @@ import {EXPO_BASE_URL_GR} from '@env';
 
 export const getComment = async (c_id: string) => {
     const BASEURL=EXPO_BASE_URL_GR
-    console.log('BASEURL : ',BASEURL);
   try {
     
     const response = await fetch(`${BASEURL}/get_comments/${c_id}`);

@@ -87,7 +87,6 @@ const Forum = ({
             <Pressable
               className="w-12 h-12 rounded-full overflow-hidden"
               onPress={() => {
-                console.log("User profile pressed");
                 router.push({
                   pathname: "../userPostProfile",
                   params: {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Modal,
@@ -12,26 +12,66 @@ import {
   ImageBackground,
   ActivityIndicator,
   StyleSheet,
-  Alert,
 } from "react-native";
-
+import Toast from "react-native-toast-message";
+import { useTheme } from "@/context/ThemeContext";
 import { icons } from "@/constants/icons";
+import { useFocusEffect } from "expo-router";
+import { addSocials } from "@/service/auth/addSocials";
 import { images } from "@/constants/images";
+import Forum from "@/components/Forum";
 import { Ionicons } from "@expo/vector-icons";
-import { fetchUser } from "@/service/fetchUserById";
-
-const fetchUserProfile=async(user_id:string)=>{
-    const response=fetchUser(user_id);
-    console.log('response in user profile screen',response);
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "expo-router";
+import { userDetails } from "@/service/auth/userDetails";
+import { getUserPoints } from "@/service/auth/GetUserPoints";
+const userProfileScreen = (user_id:string) => {
+  // const { logout, user } = useAuth();
+  const [addSocialsVisible, setAddSocialsVisible] = useState(false);
+  const [editAboutVisible, setEditAboutVisible] = useState(false);
+  const [address, setAddress] = useState<String>(
+    "Bhadohi, Uttar Pradesh, India"
+  );
+  const [email, setEmail] = useState<String>("b23cs019@gmail.com");
+  const [instagramLink, setInstagramLink] = useState<String>("");
+  const [linkedinLink, setLinkedinLink] = useState<String>("");
+  const [youtubeLink, setYoutubeLink] = useState<String>("");
+  const [githubLink, setGithubLink] = useState<String>("");
+  const [twitterLink, setTwitterLink] = useState<String>("");
+  const [leetCodeLink, setLeetCodeLink] = useState<String>("");
+  const [codeForcesLink, setCodeForcesLink] = useState<String>("");
+  const [phoneNumber, setPhoneNumber] = useState<String>("");
+  const [about, setAbout] = useState<String>("");
+  const [editedAbout, setEditedAbout] = useState<String>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [points, setPoints] = useState(0);
+  const router=useRouter()
+  const userPoints=async()=>{
+    const data=await getUserPoints(user_id)
     
+    setPoints(data)
+  }
+  
+ 
+const loadUserProfile = async () => {
+  const res=await userDetails(user_id)
+  console.log("user details",res)
 }
-const userProfileScreen = (user_id: string) => {
-  useEffect(()=>{
-    fetchUserProfile(user_id);
-  },[])
-
-    
-
+ 
+  
+  
+  useFocusEffect(
+    useCallback(() => {
+        try {
+          userPoints()
+          loadUserProfile()
+        } catch (error) {
+          console.error("Error fetching user points:", error);
+        }
+      
+    }, [user_id])
+  );  
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fcf9" }}>
@@ -43,6 +83,18 @@ const userProfileScreen = (user_id: string) => {
 
       {/* Header Image and Profile */}
       <View style={{ height: 220, marginTop: 10 }}>
+      <View className="absolute flex-row justify-center gap-2 -right-16 z-20 border-2 bg-white border-amber-600 w-hit h-fit m-10 mx-20 p-2"
+        style={{
+          elevation:5,
+          borderRadius : 30
+        }}>
+        <Image
+          source={icons.coin}
+          className="h-7 w-7 object-cover rounded-full"
+        />
+        {/* Fetch user points here */}
+        <Text className="text-black text-lg font-semibold self-end">{points}</Text>
+      </View>
         <ImageBackground
           source={images.banner}
           style={{ width: "100%", height: 300 }}
@@ -71,18 +123,7 @@ const userProfileScreen = (user_id: string) => {
             source={icons.profile}
             style={{ height: 100, width: 100, borderRadius: 999 }}
           />
-          <TouchableOpacity
-            style={{
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              backgroundColor: "#d97706",
-              padding: 8,
-              borderRadius: 999,
-            }}
-          >
-            <Ionicons name="camera" size={18} color="white" />
-          </TouchableOpacity>
+          
         </View>
       </View>
 
@@ -119,7 +160,7 @@ const userProfileScreen = (user_id: string) => {
         {/* User Info */}
         <View style={{ alignItems: "center", marginTop: 10 }}>
           <Text style={{ fontSize: 28, fontWeight: "700", color: "#1f2937" }}>
-            {user?.name || "User"}
+            {user_id || "User"}
           </Text>
           <Text style={{ fontSize: 16, color: "#6b7280", marginTop: 4 }}>
             {address}
@@ -147,7 +188,7 @@ const userProfileScreen = (user_id: string) => {
               My Socials
             </Text>
             <TouchableOpacity
-              
+              onPress={() => setAddSocialsVisible(true)}
               style={{
                 backgroundColor: "#d97706",
                 paddingVertical: 8,
@@ -155,7 +196,7 @@ const userProfileScreen = (user_id: string) => {
                 borderRadius: 999,
               }}
             >
-              
+              <Text style={{ color: "white", fontWeight: "600" }}>Add</Text>
             </TouchableOpacity>
           </View>
 
@@ -278,8 +319,12 @@ const userProfileScreen = (user_id: string) => {
             </Text>
             <TouchableOpacity 
               style={{ padding: 4 }}
-              
+              onPress={() => {
+                setEditedAbout(about);
+                setEditAboutVisible(true);
+              }}
             >
+              <Ionicons name="pencil" size={20} color="#d97706" />
             </TouchableOpacity>
           </View>
 
@@ -366,7 +411,7 @@ const userProfileScreen = (user_id: string) => {
             onPress={()=>router.push({
               pathname: '/postsOfUser',
               params: {
-                user_id:user?.id
+                user_id:user_id
               },
             })}
             style={{
@@ -398,10 +443,164 @@ const userProfileScreen = (user_id: string) => {
             </View>
           </TouchableOpacity>
         </View>
-        
+        {/* Logout button */}
+       
       </ScrollView>
 
-     
+      {/* Modal */}
+      <Modal
+        visible={addSocialsVisible}
+        animationType="slide"
+        transparent={true}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "flex-end",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "white",
+              borderTopLeftRadius: 30,
+              borderTopRightRadius: 30,
+              paddingBottom: 30,
+              maxHeight: "80%",
+            }}
+          >
+            <View
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                paddingTop: 12,
+                marginBottom: 8,
+              }}
+            >
+              <View
+                style={{
+                  width: "33%",
+                  height: 5,
+                  backgroundColor: "#d1d5db",
+                  borderRadius: 9999,
+                }}
+              />
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                paddingHorizontal: 20,
+                marginBottom: 16,
+              }}
+            >
+              <Text
+                style={{ fontSize: 20, fontWeight: "700", color: "#1f2937" }}
+              >
+                Add Social Links
+              </Text>
+              <TouchableOpacity
+                onPress={() => setAddSocialsVisible(false)}
+                style={{ padding: 8 }}
+              >
+                <Ionicons name="close" size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={{ paddingHorizontal: 20 }}>
+              {/* Input fields */}
+              {[
+                {
+                  label: "Instagram",
+                  value: instagramLink,
+                  setter: setInstagramLink,
+                  icon: "logo-instagram",
+                },
+                {
+                  label: "LinkedIn",
+                  value: linkedinLink,
+                  setter: setLinkedinLink,
+                  icon: "logo-linkedin",
+                },
+                {
+                  label: "YouTube",
+                  value: youtubeLink,
+                  setter: setYoutubeLink,
+                  icon: "logo-youtube",
+                },
+                {
+                  label: "GitHub",
+                  value: githubLink,
+                  setter: setGithubLink,
+                  icon: "logo-github",
+                },
+                {
+                  label: "Twitter",
+                  value: twitterLink,
+                  setter: setTwitterLink,
+                  icon: "logo-twitter",
+                },
+                {
+                  label: "LeetCode",
+                  value: leetCodeLink,
+                  setter: setLeetCodeLink,
+                  icon: "code-slash",
+                },
+                {
+                  label: "Codeforces",
+                  value: codeForcesLink,
+                  setter: setCodeForcesLink,
+                  icon: "code",
+                },
+              ].map((field, idx) => (
+                <View key={idx} style={{ marginBottom: 16 }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "600",
+                      color: "#374151",
+                      marginBottom: 8,
+                    }}
+                  >
+                    {field.label}
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      borderWidth: 1,
+                      borderColor: "#d1d5db",
+                      borderRadius: 12,
+                      paddingHorizontal: 12,
+                    }}
+                  >
+                    <Ionicons
+                      name={field.icon}
+                      size={20}
+                      color="#6b7280"
+                      style={{ marginRight: 8 }}
+                    />
+                    <TextInput
+                      value={field.value.toString()}
+                      onChangeText={field.setter}
+                      placeholder={`Enter ${field.label} link`}
+                      style={{
+                        flex: 1,
+                        paddingVertical: 12,
+                        fontSize: 16,
+                        color: "#4b5563",
+                      }}
+                    />
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
 
       
     </View>

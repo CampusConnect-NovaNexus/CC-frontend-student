@@ -62,6 +62,7 @@ export default function HomeScreen() {
     try {
       setLoading(true);
       const examData = await getStudentExams(user?.id);
+      console.log('examData:', examData);
       
       if (examData) {
         setExams(examData);
