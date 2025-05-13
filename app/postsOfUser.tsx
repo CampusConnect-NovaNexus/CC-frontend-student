@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Image,
   StyleSheet,
+  Alert
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { getGrievanceOfUser } from "@/service/grievance/getGrievanceByUserId";
@@ -209,7 +210,8 @@ const PostsOfUser = () => {
           </View>
         </View>
       );
-    } else if (dataType === "IS") {
+    } 
+    else if (dataType === "IS") {
       return (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
@@ -243,7 +245,8 @@ const PostsOfUser = () => {
           </View>
         </View>
       );
-    } else if (dataType === "LF") {
+    } 
+    else if (dataType === "LF") {
       return (
         <View style={styles.card}>
           <View style={styles.cardHeader}>
@@ -251,7 +254,9 @@ const PostsOfUser = () => {
             {item.status !== 'placeholder' && (
               <Pressable
                 style={styles.deleteButton}
-                onPress={() => confirmDelete(item.id, "lost-found item", () => {})}
+                // onPress={() => confirmDelete(item.id, "lost-found item", () => {})}
+                   onPress={() => confirmDelete(item.id, "lost-found item", () => {})}
+
               >
                 <Ionicons name="trash-outline" size={20} color="#FF3B30" />
               </Pressable>

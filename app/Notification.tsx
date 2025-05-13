@@ -169,14 +169,8 @@ const Notification = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Image 
-            source={icons.goBack}
-            style={styles.backIcon}
-          />
-        </Pressable>
         
-        <View style={{ flex: 1 }} />
+        <View style={{ flex: 1 }} className='m-0 bg-black' />
         
         {unreadCount > 0 && (
           <TouchableOpacity 
@@ -209,18 +203,15 @@ export default Notification;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FAFDFF',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 50,
     paddingHorizontal: 16,
     paddingBottom: 8,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    paddingTop: 16,
   },
   backButton: {
     width: 30,
@@ -234,10 +225,10 @@ const styles = StyleSheet.create({
     height: 24,
   },
   markAllButton: {
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 16,
-    backgroundColor: '#f0f0f0',
+    borderRadius: 14,
+    backgroundColor: '#F0F8FF',
   },
   markAllText: {
     fontSize: 12,

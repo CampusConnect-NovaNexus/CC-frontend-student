@@ -3,15 +3,16 @@ import { EXPO_AUTH_API_URL } from '@env';
 export const userDetails = async (user_id:string)=> {
 
     try {
-        
-        
-        const response = await fetch(`${EXPO_AUTH_API_URL}api/v1/auth/user/${user_id}`);
+        console.log("BASE URL : " + EXPO_AUTH_API_URL);
+        const response = await fetch(`${EXPO_AUTH_API_URL}/api/v1/auth/user/${user_id}`);
+        console.log("Response : ",response);
         
         if (!response.ok) {
         throw new Error('Failed to fetch user details');
         }
 
         const data = await response.json();
+        
         
         return data
         

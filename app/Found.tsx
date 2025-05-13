@@ -10,7 +10,8 @@ import {
   Pressable,
   FlatList,
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
+  Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { FoundItems } from "@/service/lost-found/getFoundItem";

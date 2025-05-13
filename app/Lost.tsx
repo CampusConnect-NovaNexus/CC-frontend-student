@@ -4,11 +4,14 @@ import { useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import {
   View,
+  Text,
   TextInput,
   Pressable,
   Linking,
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
+  Image,
+  FlatList
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { LFData } from "@/service/lost-found/LFAPI";

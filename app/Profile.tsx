@@ -33,7 +33,7 @@ const ProfileScreen = () => {
   const [address, setAddress] = useState<String>(
     "Bhadohi, Uttar Pradesh, India"
   );
-  const [email, setEmail] = useState<String>("b23cs019@gmail.com");
+  const [email, setEmail] = useState<String>("");
   const [instagramLink, setInstagramLink] = useState<String>("");
   const [linkedinLink, setLinkedinLink] = useState<String>("");
   const [youtubeLink, setYoutubeLink] = useState<String>("");
@@ -41,7 +41,7 @@ const ProfileScreen = () => {
   const [twitterLink, setTwitterLink] = useState<String>("");
   const [leetCodeLink, setLeetCodeLink] = useState<String>("");
   const [codeForcesLink, setCodeForcesLink] = useState<String>("");
-  const [phoneNumber, setPhoneNumber] = useState<String>("+91 9237947387");
+  const [phoneNumber, setPhoneNumber] = useState<String>("N/A");
   const [about, setAbout] = useState<String>(
     "Curious and driven Computer Science student at NIT Meghalaya, passionate about coding, problem-solving, and exploring emerging tech. Enthusiastic team player, always eager to learn and contribute to impactful projects."
   );
@@ -98,6 +98,14 @@ const ProfileScreen = () => {
 
   const body = {
     user_id: user.id,
+    //  aboutMe :string,
+    //     contactNo :number,
+    //     instagram :string,
+    //     youtube :string,
+    //     github :string,
+    //     x:string,
+    //     leetcode :string,
+    //     codeforces :string
     links: {
       aboutMe: about.toString(),
       contactNo: parseInt(phoneNumber.replace(/[^0-9]/g, ""), 10),
@@ -109,6 +117,7 @@ const ProfileScreen = () => {
       codeforces: codeForcesLink.toString(),
     },
   };
+console.log('body in profile:', body);
 
   try {
     await addSocials(body);
@@ -128,10 +137,59 @@ const ProfileScreen = () => {
   }
 };
 const loadUserProfile = async () => {
-  const res=await userDetails(user?.id)
-  console.log("user details",res)
+  const res=await userDetails(user?.id);
+  console.log("user details",res);
+  
+//   if (res.aboutMe != null) setAbout(res.aboutMe);
+// if (res.contactNo != null) setPhoneNumber(res.contactNo);
+// if (res.codeforcesLink != null) setCodeForcesLink(res.codeforcesLink);
+// if (res.githubLink != null) setGithubLink(res.githubLink);
+// if (res.instaLink != null) setInstagramLink(res.instaLink);
+// if (res.leetcodeLink != null) setLeetCodeLink(res.leetcodeLink);
+// if (res.XLink != null) setTwitterLink(res.XLink);
+// if(res.youtubeLink != null) setYoutubeLink(res.youtubeLink);
+if (res.aboutMe != null) {
+  setAbout(res.aboutMe);
+  console.log('About:', about);
 }
-  const handleLogout = async () => {
+if (res.contactNo != null) {
+  setPhoneNumber(res.contactNo);
+  console.log('Phone Number:', phoneNumber);
+}
+if (res.codeforcesLink != null) {
+  setCodeForcesLink(res.codeforcesLink);
+  console.log('Codeforces:', codeForcesLink);
+}
+if (res.email != null) {
+  setEmail(res.email);
+  console.log('Email:', email);
+}
+  
+if (res.githubLink != null) {
+  setGithubLink(res.githubLink);
+  console.log('GitHub:', githubLink);
+}
+if (res.instaLink != null) {
+  setInstagramLink(res.instaLink);
+  console.log('Instagram:', instagramLink);
+}
+if (res.leetcodeLink != null) {
+  setLeetCodeLink(res.leetcodeLink);
+  console.log('LeetCode:', leetCodeLink);
+}
+if (res.XLink != null) {
+  setTwitterLink(res.XLink);
+  console.log('Twitter:', twitterLink);
+}
+if (res.youtubeLink != null) {
+  setYoutubeLink(res.youtubeLink);
+  console.log('YouTube:', youtubeLink);
+}
+
+}
+
+
+const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       {
         text: "Cancel",

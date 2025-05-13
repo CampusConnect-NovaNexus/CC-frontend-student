@@ -1,4 +1,4 @@
-# Student Campus Connect App 📱
+# NITM Campus Connect 📱
 
 A comprehensive mobile application designed to enhance the student experience by providing seamless access to campus resources, course materials, and communication tools.
 
@@ -6,7 +6,7 @@ A comprehensive mobile application designed to enhance the student experience by
 
 ### Course Management
 - **Course Registration**: Easily browse and register for available courses
-- **Schedule Viewing**: Access your personalized class schedule at a glance
+- **Exam Preparation**: Access your personalized class schedule at a glance
 - **Assignment Tracking**: Keep track of upcoming assignments and deadlines
 
 ### Learning Resources
