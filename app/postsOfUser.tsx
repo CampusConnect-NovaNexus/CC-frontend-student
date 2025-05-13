@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Image,
   StyleSheet,
-  Alert
+  Alert,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { getGrievanceOfUser } from "@/service/grievance/getGrievanceByUserId";
@@ -192,12 +192,6 @@ const PostsOfUser = () => {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>{item.title}</Text>
-            <Pressable
-              style={styles.deleteButton}
-              onPress={() => confirmDelete(item.c_id, "grievance", deleteMyGrievance)}
-            >
-              <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-            </Pressable>
           </View>
           <Text style={styles.cardDescription}>{item.description}</Text>
           <View style={styles.cardFooter}>
@@ -216,12 +210,6 @@ const PostsOfUser = () => {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>{item.title}</Text>
-            <Pressable
-              style={styles.deleteButton}
-              onPress={() => confirmDelete(item.post_id, "post", deleteMyPost)}
-            >
-              <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-            </Pressable>
           </View>
           <Text style={styles.cardDescription}>{item.description}</Text>
           {item.post_image_url && (
@@ -251,16 +239,6 @@ const PostsOfUser = () => {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Text style={styles.cardTitle}>{item.title || "Lost & Found Item"}</Text>
-            {item.status !== 'placeholder' && (
-              <Pressable
-                style={styles.deleteButton}
-                // onPress={() => confirmDelete(item.id, "lost-found item", () => {})}
-                   onPress={() => confirmDelete(item.id, "lost-found item", () => {})}
-
-              >
-                <Ionicons name="trash-outline" size={20} color="#FF3B30" />
-              </Pressable>
-            )}
           </View>
           <Text style={styles.cardDescription}>{item.description || "No description available"}</Text>
           {item.image_url && (
@@ -295,7 +273,7 @@ const PostsOfUser = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.pageTitle}>Your Posts</Text>
+      <Text style={styles.pageTitle}>User's Posts</Text>
 
       <View style={styles.categoryContainer}>
         {categories.map((cat) => (

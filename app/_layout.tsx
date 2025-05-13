@@ -152,6 +152,13 @@ export default function RootLayout() {
                   }}
                 />
                 <Stack.Screen
+                  name="userPostProfile"
+                  options={{
+                    headerShown: false,
+                    animation: 'slide_from_bottom',
+                  }}
+                />
+                <Stack.Screen
                   name="DetailedCourse"
                   options={{
                     headerShown: false,

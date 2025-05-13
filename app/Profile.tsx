@@ -12,6 +12,7 @@ import {
   ImageBackground,
   ActivityIndicator,
   StyleSheet,
+  Alert,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { useTheme } from "@/context/ThemeContext";
@@ -54,70 +55,30 @@ const ProfileScreen = () => {
     // console.log("User Points in profile",data)
     setPoints(data)
   }
-  // useEffect(() => {
-  //   // If the user is authenticated, set the email from user object
-  //   if (user?.email) {
-  //     setEmail(user.email);
-  //   }
-
-  //   // Load any previously saved profile data from AsyncStorage
-  //   const loadUserData = async () => {
-  //     try {
-  //       const savedAddress = await AsyncStorage.getItem("@user_address");
-  //       if (savedAddress) setAddress(savedAddress);
-
-  //       const savedInstagram = await AsyncStorage.getItem("@user_instagram");
-  //       if (savedInstagram) setInstagramLink(savedInstagram);
-
-  //       const savedLinkedin = await AsyncStorage.getItem("@user_linkedin");
-  //       if (savedLinkedin) setLinkedinLink(savedLinkedin);
-
-  //       const savedYoutube = await AsyncStorage.getItem("@user_youtube");
-  //       if (savedYoutube) setYoutubeLink(savedYoutube);
-        
-  //       const savedAbout = await AsyncStorage.getItem("@user_about");
-  //       if (savedAbout) setAbout(savedAbout);
-  //     } catch (error) {
-  //       console.error("Error loading profile data:", error);
-  //     }
-  //   };
-  //   userPoints()
-
-  //   loadUserData();
-  // }, [user]);
+  
  const updateSocials = async () => {
   if (!user?.id) {
     Toast.show({
       type: 'error',
       text1: 'Error',
       text2: 'User not logged in.',
-      position: 'bottom'
+      position: 'top'
     });
     return;
   }
 
   const body = {
-    user_id: user.id,
-    //  aboutMe :string,
-    //     contactNo :number,
-    //     instagram :string,
-    //     youtube :string,
-    //     github :string,
-    //     x:string,
-    //     leetcode :string,
-    //     codeforces :string
-    links: {
-      aboutMe: about.toString(),
-      contactNo: parseInt(phoneNumber.replace(/[^0-9]/g, ""), 10),
-      instagram: instagramLink.toString(),
-      youtube: youtubeLink.toString(),
-      github: githubLink.toString(),
-      x: twitterLink.toString(),
-      leetcode: leetCodeLink.toString(),
-      codeforces: codeForcesLink.toString(),
-    },
-  };
-console.log('body in profile:', body);
+  userId: user?.id ?? "",
+  links: {
+    aboutMe: about?? "",
+    instagram: instagramLink ?? null,
+    youtube: youtubeLink ?? null,
+    github: githubLink ?? null,
+    x: twitterLink ?? null,
+    leetcode: leetCodeLink?? null,
+    codeforces: codeForcesLink?? null,
+  },
+};
 
   try {
     await addSocials(body);
@@ -127,6 +88,7 @@ console.log('body in profile:', body);
       text2: 'Social links updated successfully.',
       position: 'bottom'
     });
+    
   } catch (error) {
     Toast.show({
       type: 'error',
@@ -137,59 +99,18 @@ console.log('body in profile:', body);
   }
 };
 const loadUserProfile = async () => {
-  const res=await userDetails(user?.id);
-  console.log("user details",res);
-  
-//   if (res.aboutMe != null) setAbout(res.aboutMe);
-// if (res.contactNo != null) setPhoneNumber(res.contactNo);
-// if (res.codeforcesLink != null) setCodeForcesLink(res.codeforcesLink);
-// if (res.githubLink != null) setGithubLink(res.githubLink);
-// if (res.instaLink != null) setInstagramLink(res.instaLink);
-// if (res.leetcodeLink != null) setLeetCodeLink(res.leetcodeLink);
-// if (res.XLink != null) setTwitterLink(res.XLink);
-// if(res.youtubeLink != null) setYoutubeLink(res.youtubeLink);
-if (res.aboutMe != null) {
-  setAbout(res.aboutMe);
-  console.log('About:', about);
-}
-if (res.contactNo != null) {
-  setPhoneNumber(res.contactNo);
-  console.log('Phone Number:', phoneNumber);
-}
-if (res.codeforcesLink != null) {
-  setCodeForcesLink(res.codeforcesLink);
-  console.log('Codeforces:', codeForcesLink);
-}
-if (res.email != null) {
+  const res=await userDetails(user?.id)
+  setAbout(res.aboutMe); 
   setEmail(res.email);
-  console.log('Email:', email);
+  setGithubLink(res.githubLink?? ""); 
+  setInstagramLink(res?.instaLink?? ""); 
+  setCodeForcesLink(res?.codeforcesLink?? ""); 
+  setLeetCodeLink(res.leetcodeLink?? ""); 
+  setTwitterLink(res.XLink?? ""); 
+  setPhoneNumber(res.contactNo?? "Not Provided"); 
+  setYoutubeLink(res.youtubeLink?? ""); 
 }
-  
-if (res.githubLink != null) {
-  setGithubLink(res.githubLink);
-  console.log('GitHub:', githubLink);
-}
-if (res.instaLink != null) {
-  setInstagramLink(res.instaLink);
-  console.log('Instagram:', instagramLink);
-}
-if (res.leetcodeLink != null) {
-  setLeetCodeLink(res.leetcodeLink);
-  console.log('LeetCode:', leetCodeLink);
-}
-if (res.XLink != null) {
-  setTwitterLink(res.XLink);
-  console.log('Twitter:', twitterLink);
-}
-if (res.youtubeLink != null) {
-  setYoutubeLink(res.youtubeLink);
-  console.log('YouTube:', youtubeLink);
-}
-
-}
-
-
-const handleLogout = async () => {
+  const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       {
         text: "Cancel",
@@ -430,83 +351,145 @@ const handleLogout = async () => {
               elevation: 2,
             }}
           >
-            {instagramLink ? (
-              <View style={{ alignItems: "center" }}>
+            <View style={{ alignItems: "center" }}>
                 <Image
                   source={icons.instagram}
-                  style={{ width: 32, height: 32 }}
+                  style={{ 
+                    width: 32, 
+                    height: 32,
+                    opacity: instagramLink ? 1 : 0.3,
+                    ...(instagramLink ? {} : { blurRadius: 3 })
+                  }}
                 />
-                <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                <Text style={{ 
+                  fontSize: 12, 
+                  color: instagramLink ? "#6b7280" : "#a0aec0", 
+                  marginTop: 4,
+                  opacity: instagramLink ? 1 : 0.5
+                }}>
                   Instagram
                 </Text>
               </View>
-            ) : null}
-            {linkedinLink ? (
-              <View style={{ alignItems: "center" }}>
+            
+            <View style={{ alignItems: "center" }}>
                 <Image
                   source={icons.linkedin}
-                  style={{ width: 32, height: 32 }}
+                  style={{ 
+                    width: 32, 
+                    height: 32,
+                    opacity: linkedinLink ? 1 : 0.3,
+                    ...(linkedinLink ? {} : { blurRadius: 3 })
+                  }}
                 />
-                <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                <Text style={{ 
+                  fontSize: 12, 
+                  color: linkedinLink ? "#6b7280" : "#a0aec0", 
+                  marginTop: 4,
+                  opacity: linkedinLink ? 1 : 0.5
+                }}>
                   LinkedIn
                 </Text>
               </View>
-            ) : null}
-            {youtubeLink ? (
-              <View style={{ alignItems: "center" }}>
+            
+            <View style={{ alignItems: "center" }}>
                 <Image
                   source={icons.youTube}
-                  style={{ width: 32, height: 32 }}
+                  style={{ 
+                    width: 32, 
+                    height: 32,
+                    opacity: youtubeLink ? 1 : 0.3,
+                    ...(youtubeLink ? {} : { blurRadius: 3 })
+                  }}
                 />
-                <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                <Text style={{ 
+                  fontSize: 12, 
+                  color: youtubeLink ? "#6b7280" : "#a0aec0", 
+                  marginTop: 4,
+                  opacity: youtubeLink ? 1 : 0.5
+                }}>
                   YouTube
                 </Text>
               </View>
-            ) : null}
-            {githubLink ? (
-              <View style={{ alignItems: "center" }}>
+            
+            <View style={{ alignItems: "center" }}>
                 <Image
                   source={icons.github}
-                  style={{ width: 32, height: 32 }}
+                  style={{ 
+                    width: 32, 
+                    height: 32,
+                    opacity: githubLink ? 1 : 0.3,
+                    ...(githubLink ? {} : { blurRadius: 3 })
+                  }}
                 />
-                <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                <Text style={{ 
+                  fontSize: 12, 
+                  color: githubLink ? "#6b7280" : "#a0aec0", 
+                  marginTop: 4,
+                  opacity: githubLink ? 1 : 0.5
+                }}>
                   GitHub
                 </Text>
               </View>
-            ) : null}
-            {twitterLink ? (
-              <View style={{ alignItems: "center" }}>
+            
+            <View style={{ alignItems: "center" }}>
                 <Image
                   source={icons.twitter}
-                  style={{ width: 32, height: 32 }}
+                  style={{ 
+                    width: 32, 
+                    height: 32,
+                    opacity: twitterLink ? 1 : 0.3,
+                    ...(twitterLink ? {} : { blurRadius: 3 })
+                  }}
                 />
-                <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                <Text style={{ 
+                  fontSize: 12, 
+                  color: twitterLink ? "#6b7280" : "#a0aec0", 
+                  marginTop: 4,
+                  opacity: twitterLink ? 1 : 0.5
+                }}>
                   Twitter
                 </Text>
               </View>
-            ) : null}
-            {leetCodeLink ? (
-              <View style={{ alignItems: "center" }}>
+            
+            <View style={{ alignItems: "center" }}>
                 <Image
                   source={icons.leetcode}
-                  style={{ width: 32, height: 32 }}
+                  style={{ 
+                    width: 32, 
+                    height: 32,
+                    opacity: leetCodeLink ? 1 : 0.3,
+                    ...(leetCodeLink ? {} : { blurRadius: 3 })
+                  }}
                 />
-                <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                <Text style={{ 
+                  fontSize: 12, 
+                  color: leetCodeLink ? "#6b7280" : "#a0aec0", 
+                  marginTop: 4,
+                  opacity: leetCodeLink ? 1 : 0.5
+                }}>
                   LeetCode
                 </Text>
               </View>
-            ) : null}
-            {codeForcesLink ? (
-              <View style={{ alignItems: "center" }}>
+            
+            <View style={{ alignItems: "center" }}>
                 <Image
                   source={icons.codeforces}
-                  style={{ width: 32, height: 32 }}
+                  style={{ 
+                    width: 32, 
+                    height: 32,
+                    opacity: codeForcesLink ? 1 : 0.3,
+                    ...(codeForcesLink ? {} : { blurRadius: 3 })
+                  }}
                 />
-                <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                <Text style={{ 
+                  fontSize: 12, 
+                  color: codeForcesLink ? "#6b7280" : "#a0aec0", 
+                  marginTop: 4,
+                  opacity: codeForcesLink ? 1 : 0.5
+                }}>
                   CodeForces
                 </Text>
               </View>
-            ) : null}
           </View>
         </View>
 
@@ -621,12 +604,7 @@ const handleLogout = async () => {
         </View>
         <View style={{ marginHorizontal: 20, marginTop: 24 }}>
           <TouchableOpacity
-            onPress={()=>router.push({
-              pathname: '/postsOfUser',
-              params: {
-                user_id:user?.id
-              },
-            })}
+            onPress={()=>router.push(`/postsOfUser?user_id=${user?.id}`)}
             style={{
               backgroundColor: "white",
               padding: 16,
